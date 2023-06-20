@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    app:cardBackgroundColor="@color/light2"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="10dp"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/floating_img"
+        android:layout_width="350dp"
+        android:layout_height="197dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/no_img" />
+
+    <ImageButton
+        android:id="@+id/floating_close"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:visibility="gone"
+        android:layout_gravity="end"
+        android:background="@android:color/transparent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/close"/>
+
+    <ImageButton
+        android:id="@+id/floating_minimize"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_margin="10dp"
+        android:visibility="visible"
+        android:layout_gravity="start"
+        android:background="@android:color/transparent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/minimize"/>
+
+    <TextView
+        android:id="@+id/float_img_title"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:text="悬浮取图调试区"
+        android:textColor="@color/red"
+        android:textSize="14sp"
+        android:textStyle="bold"/>
+
+</androidx.cardview.widget.CardView>

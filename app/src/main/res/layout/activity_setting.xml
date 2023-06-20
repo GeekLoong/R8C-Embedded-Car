@@ -1,0 +1,911 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/light_ui"
+    tools:context=".SettingActivity">
+
+    <ImageView
+        android:id="@+id/bar_back"
+        android:layout_width="@dimen/icon_max"
+        android:layout_height="@dimen/icon_max"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="42dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/back"
+        tools:ignore="ContentDescription,BackButton" />
+
+
+    <TextView
+        android:id="@+id/bar_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:letterSpacing="1"
+        android:text="设置"
+        android:textColor="@color/black"
+        android:textSize="@dimen/big_title"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/bar_back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/bar_back" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="15dp"
+        android:background="@color/light_bg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bar_title">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingStart="15dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="15dp"
+            android:paddingBottom="5dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="图像识别阈值"
+                android:textColor="@color/black"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <SeekBar
+                android:id="@+id/imgThSeekBar"
+                style="@style/CustomSeekbarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:max="100"
+                android:progress="35" />
+
+            <TextView
+                android:id="@+id/imgThText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="15dp"
+                android:text="0.00"
+                android:textColor="@color/black"
+                android:textSize="@dimen/small_title"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="文字识别阈值"
+                android:textColor="@color/black"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <SeekBar
+                android:id="@+id/ocrThSeekBar"
+                style="@style/CustomSeekbarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:max="100"
+                android:progress="35" />
+
+            <TextView
+                android:id="@+id/ocrThText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="15dp"
+                android:text="0.00"
+                android:textColor="@color/black"
+                android:textSize="@dimen/small_title"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="车牌识别面积阈值"
+                android:textColor="@color/black"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <SeekBar
+                android:id="@+id/lpAThSeekBar"
+                style="@style/CustomSeekbarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:max="100"
+                android:progress="35" />
+
+            <TextView
+                android:id="@+id/lpAThText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="15dp"
+                android:text="0.00"
+                android:textColor="@color/black"
+                android:textSize="@dimen/small_title"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="TFT A 固定码盘值"
+                android:textColor="@color/black"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <SeekBar
+                android:id="@+id/dashboardASeekBar"
+                style="@style/CustomSeekbarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:max="1000"
+                android:progress="350" />
+
+            <TextView
+                android:id="@+id/dashboardAText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="15dp"
+                android:text="0"
+                android:textColor="@color/black"
+                android:textSize="@dimen/small_title"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="TFT B 固定码盘值"
+                android:textColor="@color/black"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <SeekBar
+                android:id="@+id/dashboardBSeekBar"
+                style="@style/CustomSeekbarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:max="1000"
+                android:progress="420" />
+
+            <TextView
+                android:id="@+id/dashboardBText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="15dp"
+                android:text="0"
+                android:textColor="@color/black"
+                android:textSize="@dimen/small_title"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="多边形类型识别(留空走算法)"
+                android:textColor="@color/red"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/shapeClassEdit"
+                    android:layout_weight="3"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/radius"
+                    android:digits="@string/digits26Cap"
+                    android:hint="请输入类型组合代码"
+                    android:inputType="text"
+                    android:padding="10dp"
+                    android:textColor="@color/light2"
+                    android:textColorHint="@color/light_title"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/saveShapeClass"
+                    android:layout_height="45dp"
+                    android:layout_width="0dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="3dp"
+                    android:layout_weight="2"
+                    android:background="@drawable/button_selector"
+                    android:text="保存"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="多边形颜色识别(留空走算法)"
+                android:textColor="@color/red"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/shapeColorEdit"
+                    android:layout_weight="3"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/radius"
+                    android:digits="@string/digits26Cap"
+                    android:hint="请输入颜色组合代码"
+                    android:inputType="text"
+                    android:padding="10dp"
+                    android:textColor="@color/light2"
+                    android:textColorHint="@color/light_title"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/saveShapeColor"
+                    android:layout_height="45dp"
+                    android:layout_width="0dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="3dp"
+                    android:layout_weight="2"
+                    android:background="@drawable/button_selector"
+                    android:text="保存"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="车牌识别"
+                android:textColor="@color/black"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <GridLayout
+                android:id="@+id/lp_item_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="3">
+
+                <RadioButton
+                    android:id="@+id/item_allLp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:textColor="@drawable/rec_radio"
+                    android:text="指定格式" />
+
+                <RadioButton
+                    android:id="@+id/item_green"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:textColor="@drawable/rec_radio"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="绿色" />
+
+                <RadioButton
+                    android:id="@+id/item_lightBlue"
+                    android:textColor="@drawable/rec_radio"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="浅蓝色" />
+
+                <RadioButton
+                    android:id="@+id/item_yellow"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:textColor="@drawable/rec_radio"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="黄色" />
+
+                <RadioButton
+                    android:id="@+id/item_darkBlue"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:textColor="@drawable/rec_radio"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="深蓝色" />
+
+            </GridLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/LpClassEdit"
+                    android:layout_weight="3"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/radius"
+                    android:digits="@string/digits26Cap"
+                    android:hint="车牌格式，如：XXYYXY"
+                    android:inputType="text"
+                    android:padding="10dp"
+                    android:textColor="@color/light2"
+                    android:textColorHint="@color/light_title"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/saveLpClass"
+                    android:layout_height="45dp"
+                    android:layout_width="0dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="3dp"
+                    android:layout_weight="2"
+                    android:background="@drawable/button_selector"
+                    android:text="保存"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/LpEdit"
+                    android:layout_weight="3"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/radius"
+                    android:digits="@string/digitsCap"
+                    android:hint="车牌内容（科技）"
+                    android:inputType="text"
+                    android:padding="10dp"
+                    android:textColor="@color/light2"
+                    android:textColorHint="@color/light_title"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/saveLp"
+                    android:layout_height="45dp"
+                    android:layout_width="0dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="3dp"
+                    android:layout_weight="2"
+                    android:background="@drawable/button_selector"
+                    android:text="保存"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="车型识别"
+                android:textColor="@color/black"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <GridLayout
+                android:id="@+id/car_item_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="3">
+
+                <RadioButton
+                    android:id="@+id/item_vt_ai"
+                    android:textColor="@drawable/rec_radio"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="AI识别" />
+
+                <RadioButton
+                    android:textColor="@drawable/rec_radio"
+                    android:id="@+id/item_bicycle"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="自行车" />
+
+                <RadioButton
+                    android:textColor="@drawable/rec_radio"
+                    android:id="@+id/item_motorcycle"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="摩托车" />
+
+                <RadioButton
+                    android:textColor="@drawable/rec_radio"
+                    android:id="@+id/item_car"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="轿车" />
+
+                <RadioButton
+                    android:textColor="@drawable/rec_radio"
+                    android:id="@+id/item_truck"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="货车" />
+
+            </GridLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="交通标志识别"
+                android:textColor="@color/black"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <GridLayout
+                android:id="@+id/traffic_item_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="3">
+
+                <RadioButton
+                    android:id="@+id/item_traffic_ai"
+                    android:textColor="@drawable/rec_radio"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="AI识别" />
+
+                <RadioButton
+                    android:textColor="@drawable/rec_radio"
+                    android:id="@+id/item_go"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="直行" />
+
+                <RadioButton
+                    android:textColor="@drawable/rec_radio"
+                    android:id="@+id/item_tl"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="左转" />
+
+                <RadioButton
+                    android:textColor="@drawable/rec_radio"
+                    android:id="@+id/item_tr"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="右转" />
+
+                <RadioButton
+                    android:textColor="@drawable/rec_radio"
+                    android:id="@+id/item_ut"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="掉头" />
+
+                <RadioButton
+                    android:textColor="@drawable/rec_radio"
+                    android:id="@+id/item_ng"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="禁止直行" />
+
+                <RadioButton
+                    android:textColor="@drawable/rec_radio"
+                    android:id="@+id/item_np"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="禁止通行" />
+
+                <RadioButton
+                    android:textColor="@drawable/rec_radio"
+                    android:id="@+id/item_ntl"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="禁止左转" />
+
+                <RadioButton
+                    android:textColor="@drawable/rec_radio"
+                    android:id="@+id/item_ntr"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="禁止右转" />
+
+                <RadioButton
+                    android:textColor="@drawable/rec_radio"
+                    android:id="@+id/item_nut"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="禁止掉头" />
+
+                <RadioButton
+                    android:textColor="@drawable/rec_radio"
+                    android:id="@+id/item_sl"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="限速" />
+
+            </GridLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="行人识别"
+                android:textColor="@color/black"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/personNumberEdit"
+                    android:layout_weight="3"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/radius"
+                    android:digits="@string/digitsHSV"
+                    android:hint="行人数量（科技）"
+                    android:inputType="number"
+                    android:padding="10dp"
+                    android:textColor="@color/light2"
+                    android:textColorHint="@color/light_title"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/savePersonNumber"
+                    android:layout_height="45dp"
+                    android:layout_width="0dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="3dp"
+                    android:layout_weight="2"
+                    android:background="@drawable/button_selector"
+                    android:text="保存"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="文字识别"
+                android:textColor="@color/black"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/OcrEdit"
+                    android:layout_weight="3"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/radius"
+                    android:hint="文字内容（科技）"
+                    android:inputType="text"
+                    android:padding="10dp"
+                    android:textColor="@color/light2"
+                    android:textColorHint="@color/light_title"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/saveOcrText"
+                    android:layout_height="45dp"
+                    android:layout_width="0dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="3dp"
+                    android:layout_weight="2"
+                    android:background="@drawable/button_selector"
+                    android:text="保存"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="多边形 HSV LOW 阈值清单"
+                android:textColor="@color/black"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/shapeLowHSV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/radius"
+                android:digits="@string/digitsHSV"
+                android:hint="请输入阈值，一行代表一个阈值，例：23, 14, 33"
+                android:inputType="textMultiLine"
+                android:padding="10dp"
+                android:textColor="@color/light2"
+                android:textColorHint="@color/light_title"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="多边形 HSV HIGH 阈值清单"
+                android:textColor="@color/black"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/shapeHighHSV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/radius"
+                android:digits="@string/digitsHSV"
+                android:hint="请输入阈值，一行代表一个阈值，例：23, 14, 33"
+                android:inputType="textMultiLine"
+                android:padding="10dp"
+                android:textColor="@color/light2"
+                android:textColorHint="@color/light_title"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <Button
+                    android:id="@+id/handoffTh"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginBottom="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_selector"
+                    android:text="切换阈值（DARK）"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/saveShapeTh"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_selector"
+                    android:text="保存阈值"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="车牌 HSV LOW 阈值清单"
+                android:textColor="@color/black"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/lpLowHSV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/radius"
+                android:digits="@string/digitsHSV"
+                android:hint="请输入阈值，一行代表一个阈值，例：23, 14, 33"
+                android:inputType="textMultiLine"
+                android:padding="10dp"
+                android:textColor="@color/light2"
+                android:textColorHint="@color/light_title"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="车牌 HSV HIGH 阈值清单"
+                android:textColor="@color/black"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/lpHighHSV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/radius"
+                android:digits="@string/digitsHSV"
+                android:hint="请输入阈值，一行代表一个阈值，例：23, 14, 33"
+                android:inputType="textMultiLine"
+                android:padding="10dp"
+                android:textColor="@color/light2"
+                android:textColorHint="@color/light_title"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <Button
+                    android:id="@+id/saveLPTh"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_selector"
+                    android:text="保存阈值"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

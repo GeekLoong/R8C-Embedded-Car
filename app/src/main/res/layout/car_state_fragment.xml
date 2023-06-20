@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Fragment.CarStateFragment">
+
+
+    <TextView
+        android:id="@+id/carName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="主 车"
+        android:textColor="@color/black"
+        android:textSize="@dimen/big_title"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <ImageButton
+        android:id="@+id/stopButton"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/stop_button_selector"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/forwardButton" />
+
+    <ImageButton
+        android:id="@+id/turnLeftButton"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginEnd="30dp"
+        android:background="@drawable/control_button_selector"
+        android:rotation="-180"
+        app:layout_constraintBottom_toBottomOf="@+id/stopButton"
+        app:layout_constraintEnd_toStartOf="@+id/stopButton"
+        app:layout_constraintTop_toTopOf="@+id/stopButton" />
+
+    <ImageButton
+        android:id="@+id/forwardButton"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:background="@drawable/control_button_selector"
+        android:rotation="-90"
+        app:layout_constraintEnd_toEndOf="@+id/stopButton"
+        app:layout_constraintStart_toStartOf="@+id/stopButton"
+        app:layout_constraintTop_toBottomOf="@+id/carName" />
+
+    <ImageButton
+        android:id="@+id/turnRightButton"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="30dp"
+        android:background="@drawable/control_button_selector"
+        app:layout_constraintBottom_toBottomOf="@+id/stopButton"
+        app:layout_constraintStart_toEndOf="@+id/stopButton"
+        app:layout_constraintTop_toTopOf="@+id/stopButton" />
+
+
+    <SeekBar
+        android:id="@+id/speedNumber"
+        style="@style/CustomSeekbarStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:max="90"
+        android:min="20"
+        android:progress="45"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/stopButton"
+        tools:ignore="UnusedAttribute" />
+
+    <SeekBar
+        android:id="@+id/coderNumber"
+        style="@style/CustomSeekbarStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:max="1500"
+        android:min="50"
+        android:progress="350"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/speedNumber" />
+
+    <TextView
+        android:id="@+id/speedText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="40dp"
+        android:text="速度值：0"
+        android:textColor="@color/dark1"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/speedNumber"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/speedNumber" />
+
+    <TextView
+        android:id="@+id/coderText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="40dp"
+        android:text="码盘值：0"
+        android:textColor="@color/dark1"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/coderNumber"
+        app:layout_constraintEnd_toEndOf="@+id/coderNumber"
+        app:layout_constraintTop_toTopOf="@+id/coderNumber" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="转向角度："
+        android:textColor="@color/light2"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/angle_checkGroup"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/coderNumber" />
+
+    <RadioGroup
+        android:id="@+id/angle_checkGroup"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textView5"
+        app:layout_constraintTop_toBottomOf="@+id/coderNumber">
+
+
+        <RadioButton
+            android:id="@+id/checked45"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/white"
+            android:tag="0"
+            android:text="45°" />
+
+        <RadioButton
+            android:id="@+id/checked90"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:buttonTint="@color/white"
+            android:checked="true"
+            android:tag="1"
+            android:text="90°" />
+
+        <RadioButton
+            android:id="@+id/checked180"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:buttonTint="@color/white"
+            android:tag="2"
+            android:text="180°" />
+
+        <RadioButton
+            android:id="@+id/checked360"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/white"
+            android:tag="3"
+            android:text="360°" />
+    </RadioGroup>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

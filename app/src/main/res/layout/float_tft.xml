@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/float_radius"
+    android:padding="10dp">
+
+    <ImageButton
+        android:id="@+id/floating_minimize"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_gravity="start"
+        android:background="@android:color/transparent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/minimize"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription" />
+
+    <ImageButton
+        android:id="@+id/floating_close"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/close"
+        android:scaleType="centerInside"
+        android:src="@drawable/close"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/floating_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="智能 TFT 显示标志物"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/floating_close" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="5dp"
+        android:paddingTop="15dp"
+        android:paddingEnd="5dp"
+        android:paddingBottom="15dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/floating_title">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TFT 模式选择："
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/floating_tft1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/showImgMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/white"
+                android:checked="true"
+                android:text="图片显示模式"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <RadioButton
+                android:id="@+id/showLPMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/white"
+                android:text="车牌显示模式"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+
+        </RadioGroup>
+
+        <RadioGroup
+            android:id="@+id/floating_tft2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/showTimerMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/white"
+                android:text="计时器模式"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <RadioButton
+                android:id="@+id/showHEXMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/white"
+                android:text="16 进制显示模式"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </RadioGroup>
+
+        <RadioGroup
+            android:id="@+id/floating_tft3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/showDistanceMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/white"
+                android:text="距离显示模式"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <RadioButton
+                android:id="@+id/showTrafficMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/white"
+                android:text="交通标志显示模式"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TFT 类型选择："
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/tft_class_a"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/white"
+                android:checked="true"
+                android:text="TFT A"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <RadioButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/white"
+                android:text="TFT B"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </RadioGroup>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:background="@color/white" />
+
+        <TableLayout
+            android:id="@+id/showImgModeLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TableRow>
+
+                <Button
+                    android:id="@+id/tftPrevious"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/button_selector"
+                    android:text="上一张"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/tftPlay"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/button_selector"
+                    android:text="自动播放"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/tftNext"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/button_selector"
+                    android:text="下一张"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+            </TableRow>
+
+            <EditText
+                android:id="@+id/tftImgContent"
+                android:layout_height="40dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/button_radius"
+                android:clickable="true"
+                android:cursorVisible="false"
+                android:digits="@string/digits26Cap"
+                android:focusable="true"
+                android:gravity="center"
+                android:hint="请输入要跳转位置：1 ~ 20"
+                android:inputType="number"
+                android:maxEms="2"
+                android:maxLength="2"
+                android:maxLines="1"
+                android:textColor="@color/light2"
+                android:textColorHint="@color/light_title"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/tftJump"
+                android:layout_height="40dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/button_selector"
+                android:enabled="false"
+                android:text="等待输入结算"
+                android:textColor="@color/light2"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+        </TableLayout>
+
+        <TableLayout
+            android:id="@+id/showLPModeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/tftLPContent"
+                android:layout_height="40dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/button_radius"
+                android:clickable="true"
+                android:cursorVisible="false"
+                android:digits="@string/digits26Cap"
+                android:focusable="true"
+                android:gravity="center"
+                android:hint="请输入6位车牌：A ~ 9"
+                android:inputType="text"
+                android:maxEms="6"
+                android:maxLength="6"
+                android:maxLines="1"
+                android:textColor="@color/light2"
+                android:textColorHint="@color/light_title"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/tftLPButton"
+                android:layout_height="40dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/button_selector"
+                android:enabled="false"
+                android:text="等待输入结算"
+                android:textColor="@color/light2"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+        </TableLayout>
+
+        <TableLayout
+            android:id="@+id/showTimerModeLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <TableRow>
+
+                <Button
+                    android:id="@+id/tftTimerOff"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/button_selector"
+                    android:text="暂停计时"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/tftTimerReset"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/button_selector"
+                    android:text="重置计时"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/tftTimerOn"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/button_selector"
+                    android:text="开始计时"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+            </TableRow>
+
+        </TableLayout>
+
+        <TableLayout
+            android:id="@+id/showHEXModeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/tftHEXContent"
+                android:layout_height="40dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/button_radius"
+                android:clickable="true"
+                android:cursorVisible="false"
+                android:digits="@string/digits26Cap"
+                android:focusable="true"
+                android:gravity="center"
+                android:hint="请输入3位十六进制数"
+                android:inputType="text"
+                android:maxEms="6"
+                android:maxLength="6"
+                android:maxLines="1"
+                android:textColor="@color/light2"
+                android:textColorHint="@color/light_title"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/tftHEXButton"
+                android:layout_height="40dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/button_selector"
+                android:enabled="false"
+                android:text="等待输入结算"
+                android:textColor="@color/light2"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+        </TableLayout>
+
+        <TableLayout
+            android:id="@+id/showDistanceModeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/tftDistanceContent"
+                android:layout_height="40dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/button_radius"
+                android:clickable="true"
+                android:cursorVisible="false"
+                android:digits="@string/digits26Cap"
+                android:focusable="true"
+                android:gravity="center"
+                android:hint="请输入3位距离码"
+                android:inputType="number"
+                android:maxEms="3"
+                android:maxLength="3"
+                android:maxLines="1"
+                android:textColor="@color/light2"
+                android:textColorHint="@color/light_title"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/tftDistanceButton"
+                android:layout_height="40dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/button_selector"
+                android:enabled="false"
+                android:text="等待输入结算"
+                android:textColor="@color/light2"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+        </TableLayout>
+
+        <TableLayout
+            android:id="@+id/showTrafficModeLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <TableRow>
+
+                <Button
+                    android:id="@+id/tftForward"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/button_selector"
+                    android:text="直行"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/tftTurnLeft"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/button_selector"
+                    android:text="左转"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/tftTurnRight"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/button_selector"
+                    android:text="右转"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+            </TableRow>
+
+            <TableRow>
+
+                <Button
+                    android:id="@+id/tftBack"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/button_selector"
+                    android:text="掉头"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/tftNoForward"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/button_selector"
+                    android:text="禁止直行"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/tftNoEnter"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/button_selector"
+                    android:text="禁止通行"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+            </TableRow>
+
+        </TableLayout>
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

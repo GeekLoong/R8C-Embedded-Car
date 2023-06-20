@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">R8C控制平台</string>
+    <string name="jump_text">跳过</string>
+    <string name="r8c_title">百科荣创</string>
+    <string name="r8c_subtitle">再冰冷的机器也有灵魂</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="bar_title">点此展开 R8C 日志系统</string>
+    <string name="title_dialog">百科荣创竞赛平台</string>
+    <string name="title_mainState">竞赛平台状态面板</string>
+    <string name="ip">IP:未连接摄像头</string>
+    <string name="title_mainControl">竞赛平台控制面板</string>
+    <string name="wifi">未连接WiFi</string>
+    <string name="connect">未连接竞赛平台</string>
+    <string name="close">关闭悬浮窗</string>
+    <string name="logContent">没有历史日志</string>
+    <string name="digits26Cap">0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
+    <string name="digitsCap">0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz</string>
+    <string name="digits16">ABCDEF 0123456789</string>
+    <string name="digitsHSV">/0123456789, \n</string>
+</resources>
