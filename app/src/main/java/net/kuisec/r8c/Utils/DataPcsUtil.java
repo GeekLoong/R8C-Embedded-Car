@@ -672,7 +672,7 @@ public class DataPcsUtil {
                 resN = "Tri";
                 break;
             case 4:
-                LogUtil.print("四边形面积", "外接最小四边形，覆盖率：" + rate);
+                LogUtil.printSystemLog("四边形面积", "外接最小四边形，覆盖率：" + rate);
                 if (rate >= 0.80) {
                     shape = "矩形";
                     resN = "Rec";
@@ -696,7 +696,7 @@ public class DataPcsUtil {
         //存储内容
         if (!shape.isEmpty()) {
             String valueName = color + shape;
-            LogUtil.print("多边形颜色分类", valueName);
+            LogUtil.printSystemLog("多边形颜色分类", valueName);
             int shapeSum = Integer.parseInt(SharedPreferencesUtil.queryKey2Value(valueName)) + 1;
             SharedPreferencesUtil.insert(valueName, String.valueOf(shapeSum));
         }

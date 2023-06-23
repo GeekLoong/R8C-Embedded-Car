@@ -6,14 +6,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 规范统一标签工具类
+ * 规范统一日志工具类
  *
  * @author Jinsn
  * @date 2022/10/6 19:16
  */
 public class LogUtil {
     private static final String TAG = "日志系统";
-    private static List<String> logList = new ArrayList<>();
+    private static List<String> androidLogList = new ArrayList<>();
+    private static List<String> carLogList = new ArrayList<>();
     /**
      * 触摸状态
      */
@@ -49,10 +50,20 @@ public class LogUtil {
         //初始化时更新一次数据
         logUpdate = true;
         //初始化数组内容 - 从Shared对象拿出本地数据
-        logList = SharedPreferencesUtil.file2List();
+        androidLogList = SharedPreferencesUtil.file2List("log-android");
+        carLogList = SharedPreferencesUtil.file2List("log-car");
         //监听日志变化
         logChangeListener();
     }
+
+
+    /**
+     * 查询日志模式并切换到那个模式的数据
+     */
+    public static void queryHandLogModel() {
+        logUpdate = true;
+    }
+
 
     /**
      * 打印到 app 日志
@@ -63,26 +74,38 @@ public class LogUtil {
     public static void printLog(String logTitle, String logContent) {
         String log = logTitle + " ---- " + logContent;
         Log.e(TAG, log);
-        addLog2System(log);
+        addLog2System(log, "log-android");
     }
 
     /**
-     * 打印到 app 日志
+     * 添加打印到 car 日志
+     *
+     * @param logContent 日志内容
+     */
+    public static void printCarLog(String logTitle, String logContent) {
+        String log = logTitle + " ---- " + logContent;
+        Log.e(TAG, log);
+        addLog2System(log, "log-car");
+    }
+
+    /**
+     * 添加打印到 app 日志
      *
      * @param logContent 日志内容
      */
     public static void printLog(String logContent) {
         Log.e(TAG, logContent);
-        addLog2System(logContent);
+        addLog2System(logContent, "log-android");
     }
 
+
     /**
-     * 打印到系统日志
+     * 打印到调试系统日志
      *
      * @param logTitle   日志标题
      * @param logContent 日志内容
      */
-    public static void print(String logTitle, String logContent) {
+    public static void printSystemLog(String logTitle, String logContent) {
         String log = logTitle + " ---- " + logContent;
         Log.e(TAG, log);
     }
@@ -94,8 +117,14 @@ public class LogUtil {
      * 应该使用深度拷贝的方式去拿临时数据
      * Java 提供了一个快捷的拷贝方式，如下
      */
-    public static void addLog2System(String log) {
+    public static void addLog2System(String log, String logModel) {
         //非常小概率会索引越界报错，多个线程同时添加数据会引起这样的错误，猜测可能是添加数据时，多个线程都在获取索引值，但有一个线程在别的线程刚获得值时就添加了新的值，就会导致别的线程找不到那个索引，一般不会遇到，遇到就是开软件秒闪退
+        List<String> logList;
+        if (logModel.equals("log-android")) {
+            logList = androidLogList;
+        } else {
+            logList = carLogList;
+        }
         if (log.contains("数据内容")) {
             logList.add("\n" + TimeUtil.getLifeTime() + "：" + log);
         } else {
@@ -104,7 +133,7 @@ public class LogUtil {
         //临时数组，备份当前日志，防止数据修改引起的冲突，目的是控制数组版本，使得数据更新时永远都能得到最新的
         List<String> tempLogList = new ArrayList<>(logList);
         //当数据达到100个时，移除第一个数据，确保数据最新
-        if (getSize() > 99) {
+        if (getSize(logModel) > 99) {
             tempLogList.remove(0);
             logList.remove(0);
         }
@@ -114,7 +143,7 @@ public class LogUtil {
         }
         String logContent = builder.toString();
         //存到本地日志系统
-        SharedPreferencesUtil.insert("log", logContent);
+        SharedPreferencesUtil.insert(logModel, logContent);
         //清除临时数组
         tempLogList.clear();
         //开始更新数据
@@ -128,30 +157,45 @@ public class LogUtil {
         ThreadUtil.createThread(() -> {
             while (true) {
                 if (!logTouch && logUpdate) {
-                    HandlerUtil.sendMsg(HandlerUtil.LOG_FLAG, HandlerUtil.LOG_UPDATE, SharedPreferencesUtil.queryKey2Value("log"));
+                    //根据日志模式更新日志类型
+                    String logName = SharedPreferencesUtil.queryKey2Value("log-name");
+                    if (logName.equals("log-android")) {
+                        HandlerUtil.sendMsg(HandlerUtil.LOG_FLAG, HandlerUtil.LOG_UPDATE, SharedPreferencesUtil.queryKey2Value("log-android"));
+                    } else {
+                        HandlerUtil.sendMsg(HandlerUtil.LOG_FLAG, HandlerUtil.LOG_UPDATE, SharedPreferencesUtil.queryKey2Value("log-car"));
+                    }
                     logUpdate = false;
                 }
             }
         });
     }
 
-    public static int getSize() {
-        return logList.size();
+    public static int getSize(String logModel) {
+        if (logModel.equals("log-android")) {
+            return androidLogList.size();
+        } else {
+            return carLogList.size();
+        }
     }
 
     /**
      * 打印竞赛平台发送的数据
-     *
      * @param mByte 字节数组
+     * @param dataType 数据类型
+     * @param logModel 日志模式
      */
-    public static void printData(byte[] mByte, String dataType) {
+    public static void printData(byte[] mByte, String dataType, String logModel) {
         if (mByte != null && mByte.length > 0) {
             final StringBuilder builder = new StringBuilder(mByte.length);
             for (byte byteChar : mByte) {
                 builder.append(String.format("%02X ", byteChar));
             }
             String logContent = builder.toString();
-            printLog(dataType, logContent);
+            LogUtil.printSystemLog("系统日志", logContent);
+            if (logModel.equals("log-android"))
+                printLog(dataType, logContent);
+            else
+                printCarLog(dataType, logContent);
         }
     }
 

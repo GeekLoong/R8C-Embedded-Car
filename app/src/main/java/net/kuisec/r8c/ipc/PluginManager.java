@@ -21,6 +21,12 @@ public class PluginManager implements ServiceConnection {
         this.context = context;
     }
 
+
+    /**
+     * 服务绑定
+     * @param componentName 组件名称
+     * @param iBinder IBinder
+     */
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
         messenger = new Messenger(iBinder);
@@ -29,6 +35,11 @@ public class PluginManager implements ServiceConnection {
         Toast.makeText(context, connectionName + log, Toast.LENGTH_SHORT).show();
     }
 
+
+    /**
+     * 服务断开绑定
+     * @param componentName 组件名称
+     */
     @Override
     public void onServiceDisconnected(ComponentName componentName) {
         String log = "服务断开绑定";

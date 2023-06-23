@@ -21,6 +21,10 @@ public class InteractionConst {
      */
     public static final byte CAR_STATE_FLAG = (byte) 0xAA;
     /**
+     * 主车保存日志
+     */
+    public static final byte SAVE_CAR_LOG = (byte) 0xBB;
+    /**
      * 传输任务标志（GET）
      */
     public static final byte TASK_FLAG = (byte) 0xCC;

@@ -96,7 +96,7 @@ public class ImgPcsUtil {
                     for (Parcelable result : ocrResults) {
                         OCRResult ocrResult = (OCRResult) result;
                         ocrRL.add(ocrResult);
-                        LogUtil.print("文字识别", ocrResult.getLabel() + "," + ocrResult.getConfidence());
+                        LogUtil.printSystemLog("文字识别", ocrResult.getLabel() + "," + ocrResult.getConfidence());
                     }
                     recOver = true;
                     break;
@@ -112,7 +112,7 @@ public class ImgPcsUtil {
                     for (Parcelable result : tlrResults) {
                         RecResult recResult = (RecResult) result;
                         recRL.add(recResult);
-                        LogUtil.print("图像识别", recResult.getLabel() + "," + recResult.getConfidence());
+                        LogUtil.printSystemLog("图像识别", recResult.getLabel() + "," + recResult.getConfidence());
                     }
                     recOver = true;
                     break;
@@ -372,7 +372,7 @@ public class ImgPcsUtil {
                         //查找凸包
                         MatOfInt cornerPoints = new MatOfInt();
                         Imgproc.convexHull(allShapeContours.get(i), cornerPoints);
-                        LogUtil.print("多边形识别", "凸包统计：" + cornerPoints.rows());
+                        LogUtil.printSystemLog("多边形识别", "凸包统计：" + cornerPoints.rows());
                         //得到最小外接矩形
                         RotatedRect minOutRect = Imgproc.minAreaRect(new MatOfPoint2f(allShapeContours.get(i).toArray()));
                         //用当前轮廓面积除以外接矩形，得到覆盖率，用于判断菱形、矩形，矩形覆盖率为75%以上。
@@ -708,7 +708,7 @@ public class ImgPcsUtil {
                 //显示结果
                 HandlerUtil.sendMsg(HandlerUtil.DEBUG_IMG_FLAG, bitmap);
             } else {
-                LogUtil.print("车牌识别", "识别出错或没有识别结果");
+                LogUtil.printSystemLog("车牌识别", "识别出错或没有识别结果");
             }
         }
         return lprBeans;
@@ -758,21 +758,6 @@ public class ImgPcsUtil {
         int count = 0;
         while (count < 5) {
 //            boolean isFindPage = findBrokenLP(classID);
-            LogUtil.printLog("无效车牌识别数据", "国A-66666");
-            HashMap<String, String> tftCtrl = new HashMap<>();
-            tftCtrl.put("ctrl", "下一张");
-            CommunicationUtil.tftCmd(classID, tftCtrl);
-            ThreadUtil.sleep(5000);
-
-            LogUtil.printLog("无效车牌识别数据", "国A-55365");
-            tftCtrl.put("ctrl", "下一张");
-            CommunicationUtil.tftCmd(classID, tftCtrl);
-            ThreadUtil.sleep(5000);
-
-            SharedPreferencesUtil.insert("车牌A", "A66587");
-            HandlerUtil.sendMsg(HandlerUtil.VOICE,"识别成功");
-            LogUtil.printLog("有效车牌识别数据", "国A-66587");
-            ThreadUtil.sleep(1000);
             break;
 //            count++;
         }

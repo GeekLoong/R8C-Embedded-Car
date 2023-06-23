@@ -8,12 +8,9 @@ import org.opencv.core.Scalar;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -163,8 +160,14 @@ public class SharedPreferencesUtil {
      */
     public static void initKeys() {
         //初始化日志
-        if ("0".equals(queryKey2Value("log"))) {
-            insert("log", TimeUtil.getLifeTime() + "：首次创建日志系统");
+        if ("0".equals(queryKey2Value("log-name"))) {
+            insert("log-name", "log-android");
+        }
+        if ("0".equals(queryKey2Value("log-android"))) {
+            insert("log-android", TimeUtil.getLifeTime() + "：首次创建安卓日志系统");
+        }
+        if ("0".equals(queryKey2Value("log-car"))) {
+            insert("log-car", TimeUtil.getLifeTime() + "：首次创建主车日志系统");
         }
         //初始化图像识别阈值
         if ("0".equals(queryKey2Value("imgTh"))) {
@@ -643,9 +646,9 @@ public class SharedPreferencesUtil {
         writer.putString(key, value);
         boolean success = writer.commit();
         if (success) {
-            LogUtil.print("存储", key + "存储成功");
+            LogUtil.printSystemLog("存储", key + "存储成功");
         } else {
-            LogUtil.print("存储", key + "存储失败");
+            LogUtil.printSystemLog("存储", key + "存储失败");
         }
     }
 
@@ -686,65 +689,13 @@ public class SharedPreferencesUtil {
 
 
     /**
-     * 根据Value查询Key
-     *
-     * @param value 值内容
-     * @return 返回查询到的键
-     */
-    public static String queryValue2Key(String value) {
-        StringBuilder builder = new StringBuilder();
-        try {
-            BufferedReader reader = null;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                reader = new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(PATH))));
-            }
-            String line;
-            while (reader != null && (line = reader.readLine()) != null) {
-                if (line.contains(value)) {
-                    int first = line.indexOf("\"") + 1;
-                    int second = line.indexOf("\"", first);
-                    String key = line.substring(first, second);
-                    builder.append(key).append("\n");
-                }
-            }
-        } catch (Exception e) {
-            builder.append("查找出错");
-            e.printStackTrace();
-        }
-        return builder.toString();
-    }
-
-
-    /**
-     * 根据Key查询Value行数
-     *
-     * @param key 键名
-     * @return 返回行数
-     */
-    public static int queryKey2Line(String key) {
-        int lineNumber = 0;
-        ByteArrayInputStream strStream = new ByteArrayInputStream(queryKey2Value("log").getBytes(StandardCharsets.UTF_8));
-        BufferedReader reader = new BufferedReader(new InputStreamReader(strStream));
-        String line;
-        try {
-            while ((line = reader.readLine()) != null) {
-                lineNumber += 1;
-            }
-        } catch (IOException e) {
-            lineNumber = 0;
-            e.printStackTrace();
-        }
-        return lineNumber;
-    }
-
-    /**
      * 文件内容转数组
      *
      * @return 返回组装好的数组
      */
-    public static List<String> file2List() {
+    public static List<String> file2List(String key) {
         List<String> logList = new ArrayList<>();
-        ByteArrayInputStream strStream = new ByteArrayInputStream(queryKey2Value("log").getBytes(StandardCharsets.UTF_8));
+        ByteArrayInputStream strStream = new ByteArrayInputStream(queryKey2Value(key).getBytes(StandardCharsets.UTF_8));
         BufferedReader reader = new BufferedReader(new InputStreamReader(strStream));
         String line;
         try {
@@ -755,42 +706,5 @@ public class SharedPreferencesUtil {
             e.printStackTrace();
         }
         return logList;
-    }
-
-    /**
-     * 删除指定闭区间的行
-     *
-     * @param line  左闭区间
-     * @param line2 右闭区间
-     */
-    public static void deleteLine(int line, int line2) {
-
-    }
-
-    /**
-     * 清除文件内容
-     */
-    public static void clearFileContent() {
-        writer.clear();
-        writer.commit();
-    }
-
-    /**
-     * 打印文件内容
-     *
-     * @return 返回文件内容
-     */
-    public static String printFileContent() {
-        StringBuilder builder = new StringBuilder();
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(PATH)));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                builder.append(line).append("\n");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return builder.toString();
     }
 }

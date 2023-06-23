@@ -16,9 +16,12 @@ import static net.kuisec.r8c.Const.InteractionConst.ANDROID_FLAG;
 import static net.kuisec.r8c.Const.InteractionConst.DATA_FLAG;
 import static net.kuisec.r8c.Const.InteractionConst.END_FLAG;
 import static net.kuisec.r8c.Const.InteractionConst.REPLY_FLAG;
+import static net.kuisec.r8c.Const.InteractionConst.SAVE_CAR_LOG;
 import static net.kuisec.r8c.Const.InteractionConst.TASK_FLAG;
 import static net.kuisec.r8c.Const.ItemConst.A_FLAG;
 import static net.kuisec.r8c.Const.ItemConst.B_FLAG;
+import static net.kuisec.r8c.Const.ItemConst.LOG_CAR_MODEL_RECEP;
+import static net.kuisec.r8c.Const.ItemConst.LOG_CAR_MODEL_SEND;
 import static net.kuisec.r8c.Const.ItemConst.RFID_STORAGE_FLAG;
 import static net.kuisec.r8c.Const.ItemConst.TEXT_STORAGE_FLAG;
 import static net.kuisec.r8c.Const.ItemConst.TFT_CAR_MODEL_BICYCLE;
@@ -34,6 +37,8 @@ import static net.kuisec.r8c.Const.ItemConst.TRAFFIC_LIGHT_GREEN;
 import static net.kuisec.r8c.Const.ItemConst.TRAFFIC_LIGHT_RED;
 import static net.kuisec.r8c.Const.ItemConst.TRAFFIC_LIGHT_STORAGE_FLAG;
 import static net.kuisec.r8c.Const.ItemConst.TRAFFIC_LIGHT_YELLOW;
+
+import android.util.Log;
 
 import net.kuisec.r8c.Network.CameraCmdUtil;
 
@@ -302,16 +307,42 @@ public class CommunicationUtil {
                         } else {
                             //裁剪数据
                             byte[] tempData = data.clone();
-                            for (int i = 0; i < tempData.length; i++) {
-                                if (tempData[i] == 0x00) {
-                                    tempData = Arrays.copyOfRange(tempData, 0, i + 1);
-                                    break;
+                            //判断日志是否来自 Zigbee，是的话记录到主车日志，否提供给数据解析模块
+                            if (tempData[1] == SAVE_CAR_LOG) {
+                                String logCarModelName = "主车发送";
+                                if (tempData[2] == LOG_CAR_MODEL_SEND) {
+                                    logCarModelName = "主车发送";
+                                } else if (tempData[2] == LOG_CAR_MODEL_RECEP){
+                                    logCarModelName = "主车接收";
                                 }
+                                boolean error = false;
+                                for (int i = tempData.length - 1; i > 0; i--) {
+                                    if (tempData[i] == SAVE_CAR_LOG) {
+                                        if (i < 3) {
+                                            error = true;
+                                            break;
+                                        }
+                                        tempData = Arrays.copyOfRange(tempData, 3, i + 1);
+                                        break;
+                                    }
+                                }
+                                if (!error) {
+                                    LogUtil.printData(tempData, logCarModelName, "log-car");
+                                } else {
+                                    Log.e("主车 Zigbee 数据错误：", Arrays.toString(tempData));
+                                }
+                            } else {
+                                for (int i = 0; i < tempData.length; i++) {
+                                    if (tempData[i] == 0x00) {
+                                        tempData = Arrays.copyOfRange(tempData, 0, i + 1);
+                                        break;
+                                    }
+                                }
+                                //解析数据
+                                HandlerUtil.sendMsg(HandlerUtil.DATA_PARSE_FLAG, tempData);
                             }
                             //打印数据
-                            LogUtil.print("原WiFi数据", Arrays.toString(tempData));
-                            //解析数据
-                            HandlerUtil.sendMsg(HandlerUtil.DATA_PARSE_FLAG, tempData);
+                            LogUtil.printSystemLog("原WiFi数据", Arrays.toString(tempData));
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -599,14 +630,6 @@ public class CommunicationUtil {
      */
     public static void stopCar() {
         sendData("get", STOP, null);
-    }
-
-
-    /**
-     * 清除码盘
-     */
-    public static void clearEncoder() {
-
     }
 
 

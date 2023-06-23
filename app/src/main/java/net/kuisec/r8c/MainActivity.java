@@ -54,6 +54,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
@@ -184,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         binding.logTitle.setOnClickListener(this);
         binding.logContent.setOnClickListener(this);
         binding.logLayout.setOnTouchListener(logOnTouchListener);
+        binding.handLogModel.setOnClickListener(this);
 
         carStateFragment = CarStateFragment.newInstance();
 
@@ -296,6 +298,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }, 1000);
         //语音模块工具类初始化
         TalkUtil.initTalk(this);
+        //初始化日志切换按钮
+        if (SharedPreferencesUtil.queryKey2Value("log-name").equals("log-android")) {
+            binding.handLogModel.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.android, null));
+        } else {
+            binding.handLogModel.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.car, null));
+        }
+//        ThreadUtil.createThread(() -> {
+//            int l1 = 0,l2 = 0;
+//            while (true) {
+//                LogUtil.printCarLog("test", "主车测试" + l2);
+//                ThreadUtil.sleep(1000);
+//                LogUtil.printLog("test", "安卓测试" + l1);
+//                ThreadUtil.sleep(1000);
+//                l1++;
+//                l2++;
+//            }
+//        });
     }
 
     /**
@@ -345,11 +364,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case HandlerUtil.LOG_CLOSE:
                 binding.logTitle.setText("点击展开 R8C 日志系统");
                 binding.logContent.setVisibility(View.GONE);
+                binding.handLogModel.setVisibility(View.GONE);
                 break;
             case HandlerUtil.LOG_OPEN:
                 binding.logTitle.setText("点击收缩 R8C 日志系统");
                 //延时加载内容，防止卡顿
-                HandlerUtil.postDelayed(() -> binding.logContent.setVisibility(View.VISIBLE), 550);
+                HandlerUtil.postDelayed(() -> {
+                    binding.logContent.setVisibility(View.VISIBLE);
+                    binding.handLogModel.setVisibility(View.VISIBLE);
+                }, 550);
                 HandlerUtil.postDelayed(() -> binding.logLayout.fullScroll(NestedScrollView.FOCUS_DOWN), 560);
                 break;
             case HandlerUtil.LOG_UPDATE:
@@ -437,7 +460,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //确保内容安全，将临时数据复制到处理数据上
                 byte[] cmdData = mByte.clone();
                 //打印数据
-                LogUtil.printData(cmdData, "收到主车数据，数据内容");
+                LogUtil.printData(cmdData, "收到主车数据，数据内容", "log-android");
                 //协议解析，找到对应的协议后执行指定动作
                 switch (cmdData[1]) {
                     //主车上传状态
@@ -782,6 +805,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.log_title:
             case R.id.log_content:
                 logAnimate();
+                break;
+            case R.id.handLogModel:
+                String logName = SharedPreferencesUtil.queryKey2Value("log-name");
+                if (logName.equals("log-android")) {
+                    SharedPreferencesUtil.insert("log-name", "log-car");
+                    binding.handLogModel.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.car, null));
+                } else {
+                    SharedPreferencesUtil.insert("log-name", "log-android");
+                    binding.handLogModel.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.android, null));
+                }
+                LogUtil.queryHandLogModel();
                 break;
             default:
                 break;

@@ -214,4 +214,13 @@ public class ItemConst {
     public static final byte CAMERA_SET4 = 0x04;
 
 
+    /**
+     * 主车 Zigbee 发送日志保存
+     */
+    public static final byte LOG_CAR_MODEL_SEND = 0x0A;
+    /**
+     * 主车 Zigbee 接收日志保存
+     */
+    public static final byte LOG_CAR_MODEL_RECEP = 0x0B;
+
 }
