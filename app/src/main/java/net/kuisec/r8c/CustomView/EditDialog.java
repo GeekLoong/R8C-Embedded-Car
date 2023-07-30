@@ -65,13 +65,13 @@ public class EditDialog extends DialogFragment {
         binding.editDialogContent.setText(bean.getText());
         binding.editDialogContent.setHint(new SpannableString(bean.getHint()));
         binding.editDialogContent.setMaxLines(bean.getMaxLines());
-        binding.editDialogContent.setFilters(new InputFilter[] {new InputFilter.LengthFilter(bean.getMaxLength()), new InputFilter.AllCaps()});
         binding.editDialogFinish.setOnClickListener(v -> {
             bean.getEditText().setText(binding.editDialogContent.getText());
             this.dismiss();
         });
         //判断是否需要16进制处理
         if (bean.isTextHexDeal()) {
+            binding.editDialogContent.setFilters(new InputFilter[] {new InputFilter.LengthFilter(bean.getMaxLength()), new InputFilter.AllCaps()});
             binding.editDialogContent.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {

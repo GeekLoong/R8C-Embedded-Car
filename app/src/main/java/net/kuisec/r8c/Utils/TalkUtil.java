@@ -34,7 +34,7 @@ public class TalkUtil {
      */
     public static void speak(String text) {
         if (speech != null) {
-            speech.setSpeechRate(0.75F);
+            speech.setSpeechRate(3F);
             speech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "speak");
         }
     }

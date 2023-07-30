@@ -3,7 +3,7 @@ package net.kuisec.r8c.Const;
 /**
  * 安卓控制指令常量，由0xCC作为前一位指令
  */
-public class CtrlConst {
+public class CtrlCarConst {
 
 
     /**
@@ -14,6 +14,10 @@ public class CtrlConst {
      * B 类 TFT 安卓控制
      */
     public static final byte TFT_B_ANDROID = 0x08;
+    /**
+     * C 类 TFT 安卓控制
+     */
+    public static final byte TFT_C_ANDROID = 0x12;
     /**
      * 上一张
      */
@@ -38,6 +42,11 @@ public class CtrlConst {
      * 上传 TFT B 码盘
      */
     public static final byte TFT_B_DASHBOARD = 0x03;
+
+    /**
+     * 上传 TFT C 码盘
+     */
+    public static final byte TFT_C_DASHBOARD = 0x04;
 
     /**
      * 循迹

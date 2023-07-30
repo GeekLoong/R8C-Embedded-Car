@@ -34,7 +34,6 @@
             android:id="@+id/edit_dialog_content"
             android:layout_width="match_parent"
             android:layout_height="80dp"
-            android:digits="@string/digits26Cap"
             android:layout_marginTop="5dp"
             android:background="@drawable/button_radius"
             android:gravity="top"

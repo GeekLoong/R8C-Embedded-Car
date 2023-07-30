@@ -5,8 +5,9 @@ import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Messenger;
-import android.util.Log;
 import android.widget.Toast;
+
+import net.kuisec.r8c.Utils.LogUtil;
 
 public class PluginManager implements ServiceConnection {
 
@@ -31,7 +32,7 @@ public class PluginManager implements ServiceConnection {
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
         messenger = new Messenger(iBinder);
         String log = "服务绑定成功";
-        Log.d(TAG, connectionName + log);
+        LogUtil.printLog(TAG + "：" + connectionName + log);
         Toast.makeText(context, connectionName + log, Toast.LENGTH_SHORT).show();
     }
 
@@ -43,7 +44,7 @@ public class PluginManager implements ServiceConnection {
     @Override
     public void onServiceDisconnected(ComponentName componentName) {
         String log = "服务断开绑定";
-        Log.d(TAG, connectionName + log);
+        LogUtil.printLog(TAG + "：" + connectionName + log);
         Toast.makeText(context, connectionName + log, Toast.LENGTH_SHORT).show();
     }
 }

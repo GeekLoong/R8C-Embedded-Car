@@ -1,9 +1,9 @@
 package net.kuisec.r8c.Const;
 
 /**
- * 交互协议常量
+ * 重要协议帧常量
  */
-public class InteractionConst {
+public class HeaderConst {
 
 
     /**

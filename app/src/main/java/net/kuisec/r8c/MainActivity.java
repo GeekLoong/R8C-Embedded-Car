@@ -1,33 +1,34 @@
+
 package net.kuisec.r8c;
 
-import static net.kuisec.r8c.Const.InteractionConst.CAR_FLAG;
-import static net.kuisec.r8c.Const.InteractionConst.CAR_STATE_FLAG;
-import static net.kuisec.r8c.Const.InteractionConst.DATA_FLAG;
-import static net.kuisec.r8c.Const.InteractionConst.GET_TASK_DATA_FLAG;
-import static net.kuisec.r8c.Const.InteractionConst.REPLY_FLAG;
-import static net.kuisec.r8c.Const.InteractionConst.TASK_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.CAMERA_SET1;
-import static net.kuisec.r8c.Const.ItemConst.CAMERA_SET2;
-import static net.kuisec.r8c.Const.ItemConst.CAMERA_SET3;
-import static net.kuisec.r8c.Const.ItemConst.CAMERA_SET4;
-import static net.kuisec.r8c.Const.ItemConst.QRCODE_A_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.QRCODE_B_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.RFID_ALARM;
-import static net.kuisec.r8c.Const.ItemConst.RFID_LOCATION;
-import static net.kuisec.r8c.Const.ItemConst.RFID_LP;
-import static net.kuisec.r8c.Const.ItemConst.RFID_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TEXT_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TFT_CAR_MODEL_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TFT_COLOR_ALL_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TFT_COLOR_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TFT_HEX_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TFT_LP_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TFT_MAX_SHAPE_CLASS_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TFT_SHAPE_ALL_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TFT_SHAPE_COLOR_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TFT_SHAPE_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TFT_TRAFFIC_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TRAFFIC_LIGHT_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.HeaderConst.CAR_FLAG;
+import static net.kuisec.r8c.Const.HeaderConst.CAR_STATE_FLAG;
+import static net.kuisec.r8c.Const.HeaderConst.DATA_FLAG;
+import static net.kuisec.r8c.Const.HeaderConst.GET_TASK_DATA_FLAG;
+import static net.kuisec.r8c.Const.HeaderConst.REPLY_FLAG;
+import static net.kuisec.r8c.Const.HeaderConst.TASK_FLAG;
+import static net.kuisec.r8c.Const.SignConst.CAMERA_SET1;
+import static net.kuisec.r8c.Const.SignConst.CAMERA_SET2;
+import static net.kuisec.r8c.Const.SignConst.CAMERA_SET3;
+import static net.kuisec.r8c.Const.SignConst.CAMERA_SET4;
+import static net.kuisec.r8c.Const.SignConst.QRCODE_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.RFID_ALARM;
+import static net.kuisec.r8c.Const.SignConst.RFID_LOCATION;
+import static net.kuisec.r8c.Const.SignConst.RFID_LP;
+import static net.kuisec.r8c.Const.SignConst.RFID_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TEXT_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_COLOR_ALL_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_COLOR_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_HEX_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_LP_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_MAX_SHAPE_CLASS_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_PERSON_COUNT_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_SHAPE_ALL_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_SHAPE_COLOR_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_SHAPE_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_TRAFFIC_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_VEHICLE_TYPE_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TRAFFIC_LIGHT_STORAGE_FLAG;
 import static net.kuisec.r8c.Const.TaskConst.CAMERA_ADJUST_FLAG;
 import static net.kuisec.r8c.Const.TaskConst.QRCODE_REC_FLAG;
 import static net.kuisec.r8c.Const.TaskConst.TEXT_REC_FLAG;
@@ -36,15 +37,21 @@ import static net.kuisec.r8c.Const.TaskConst.TRAFFIC_LIGHT_REC_FLAG;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -53,12 +60,15 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
-import com.kuisec.rec.plugin.results.RecResult;
+import com.hyperai.hyperlpr3.HyperLPR3;
+import com.hyperai.hyperlpr3.bean.HyperLPRParameter;
 
 import net.kuisec.r8c.Adapter.PagerItemAdapter;
 import net.kuisec.r8c.Bean.ServiceBean;
@@ -88,12 +98,19 @@ import net.kuisec.r8c.ipc.PluginManager;
 
 import org.opencv.android.OpenCVLoader;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartReader;
+import okhttp3.Response;
 
 /**
  * @author Jinsn
@@ -165,7 +182,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initView();
         initData();
         setContentView(binding.getRoot());
+        stayAlive();
     }
+
+
+    /**
+     * 前台通知保活，防止程序进入后台，手机内存不足回收程序
+     */
+    private void stayAlive() {
+        String NotificationID = "R8C";
+        Notification notification = new NotificationCompat.Builder(this, NotificationID)
+                .setSmallIcon(R.mipmap.icon)
+                .setContentTitle(NotificationID + "保活插件")
+                .setContentText(NotificationID + "保活插件运行中")
+                .setOngoing(true)
+                .build();
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(NotificationID, "R8C控制平台主程序", NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription("这是" + NotificationID + "插件自带的前台服务通知，务闭授予允许，关闭将影响插件存活。");
+            notificationManager.createNotificationChannel(channel);
+        }
+        notificationManager.notify(1, notification);
+    }
+
 
     /**
      * 初始化布局内容
@@ -233,7 +273,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case HandlerUtil.VOICE:
                     Toast.makeText(MainActivity.this, (String) msg.obj, Toast.LENGTH_SHORT).show();
-                    LogUtil.printLog(String.valueOf(msg.obj));
+                    LogUtil.printLog("语音播报：" + msg.obj);
                     TalkUtil.speak(String.valueOf(msg.obj));
                     break;
                 default:
@@ -271,9 +311,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //加载C++库
         ThreadUtil.createThread(() -> {
             initLoadOpenCv();
+            initLoadLPR();
             initLoadPlugin();
         });
-
         //提交任务到缓冲
         HandlerUtil.post(() -> {
             //记录日志窗口初始大小
@@ -292,10 +332,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             activityWidth = dm.widthPixels - (int) (48 * scaledDensity);
             activityHeight = dm.heightPixels - statusBarHeight - navigationBarHeight - (int) (14 * scaledDensity);
         });
-        HandlerUtil.postDelayed(() -> {
-            //最小化图片调试界面
-            imgFloatWindow.minimize(true);
-        }, 1000);
         //语音模块工具类初始化
         TalkUtil.initTalk(this);
         //初始化日志切换按钮
@@ -304,17 +340,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             binding.handLogModel.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.car, null));
         }
-//        ThreadUtil.createThread(() -> {
-//            int l1 = 0,l2 = 0;
-//            while (true) {
-//                LogUtil.printCarLog("test", "主车测试" + l2);
-//                ThreadUtil.sleep(1000);
-//                LogUtil.printLog("test", "安卓测试" + l1);
-//                ThreadUtil.sleep(1000);
-//                l1++;
-//                l2++;
-//            }
-//        });
     }
 
     /**
@@ -329,20 +354,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
+    /**
+     * 加载车牌识别库
+     */
+    private void initLoadLPR() {
+        // 车牌识别算法配置参数
+        HyperLPRParameter parameter = new HyperLPRParameter()
+                .setDetLevel(HyperLPR3.DETECT_LEVEL_HIGH)
+                .setRecConfidenceThreshold(0.5f);
+        // 初始化(仅执行一次生效)
+        HyperLPR3.getInstance().init(this, parameter);
+    }
+
+
     /**
      * 启动全部人工智能模型插件
      */
     private void initLoadPlugin() {
         serviceMap = new TreeMap<>();
-        serviceMap.put("ocr", new ServiceBean("com.kuisec.rec.plugin.ocr",
+
+        serviceMap.put(ImgPcsUtil.OCR, new ServiceBean("com.kuisec.rec.plugin.ocr",
                 "OCRService",
                 new PluginManager("文字识别", this)));
-        serviceMap.put("tlr", new ServiceBean("com.kuisec.rec.plugin.tlr",
+
+        serviceMap.put(ImgPcsUtil.TLR, new ServiceBean("com.kuisec.rec.plugin.tlr",
                 "TLRService",
                 new PluginManager("交通灯识别", this)));
-        serviceMap.put("vtr", new ServiceBean("com.kuisec.rec.plugin.vtr",
+
+        serviceMap.put(ImgPcsUtil.TSR, new ServiceBean("com.kuisec.rec.plugin.tsr",
+                "TSRService",
+                new PluginManager("多边形与交通标志识别", this)));
+
+        serviceMap.put(ImgPcsUtil.VTR, new ServiceBean("com.kuisec.rec.plugin.vtr",
                 "VTRService",
                 new PluginManager("车型识别", this)));
+
+        serviceMap.put(ImgPcsUtil.MR, new ServiceBean("com.kuisec.rec.plugin.mr",
+                "MRService",
+                new PluginManager("口罩识别", this)));
+
+        serviceMap.put(ImgPcsUtil.HBR, new ServiceBean("com.kuisec.rec.plugin.hbr",
+                "HBRService",
+                new PluginManager("行人识别", this)));
+
         Collection<ServiceBean> values = serviceMap.values();
         //还要保存连接，在destroy中断开绑定。
         for (ServiceBean service : values) {
@@ -428,20 +483,64 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ThreadUtil.createThread(() -> {
             //更新 IP
             CameraCmdUtil.updateIP();
-            //阻塞得到摄像头 IP
             if (method == HandlerUtil.CAMERA_IP_OPEN) {
-                while (!"0.0.0.0".equals(CameraCmdUtil.getIP())) {
-                    bitmap = CameraCmdUtil.getImage().getImg();
-                    HandlerUtil.sendMsg(HandlerUtil.CAMERA_IMG_FLAG);
-                    runOnUiThread(() -> binding.cameraIP.setText("IP:" + CameraCmdUtil.getIP()));
-                }
-                //当摄像头 IP 失效，重置界面显示数据，停止接收图片
-                bitmap = null;
-                HandlerUtil.sendMsg(HandlerUtil.CAMERA_IMG_FLAG);
-                runOnUiThread(() -> binding.cameraIP.setText("IP:未连接摄像头"));
+                //更新 IP 显示
+                runOnUiThread(() -> binding.cameraIP.setText("IP:" + CameraCmdUtil.getIP()));
+                //更新图像显示
+                CameraCmdUtil.updateImage(new Callback() {
+                    @Override
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        cameraReset(e, call);
+                    }
+
+                    @Override
+                    public void onResponse(@NonNull Call call, @NonNull Response response) {
+                        try (response) {
+                            if (!response.isSuccessful()) {
+                                HandlerUtil.sendMsg("摄像头无响应");
+                            } else {
+                                MediaType mediaType = response.body().contentType();
+                                if (mediaType != null && mediaType.type().equalsIgnoreCase("multipart")) {
+                                    // 处理 multipart 类型响应体
+                                    MultipartReader reader = new MultipartReader(response.body());
+                                    MultipartReader.Part part;
+                                    while ((part = reader.nextPart()) != null) {
+                                        byte[] imgData = part.body().readByteArray();
+                                        //更新图像
+                                        bitmap = BitmapFactory.decodeByteArray(imgData, 0, imgData.length);
+                                        HandlerUtil.sendMsg(HandlerUtil.CAMERA_IMG_FLAG);
+                                    }
+                                } else {
+                                    // 处理其他类型响应体
+                                    LogUtil.printLog("摄像头错误：无效的推流类型");
+                                }
+                            }
+                        } catch (IOException e) {
+                            cameraReset(e, call);
+                        }
+                    }
+                });
             }
         });
     }
+
+
+    /**
+     * 摄像头重置信息
+     */
+    private void cameraReset(Exception e, Call call) {
+        //当摄像头 IP 失效，重置界面显示数据，停止接收图片
+        Log.e("摄像头异常", e.toString());
+        e.printStackTrace();
+        bitmap = null;
+        HandlerUtil.sendMsg(HandlerUtil.CAMERA_IMG_FLAG);
+        if (CommunicationUtil.isSocketConnection()) {
+            call.cancel();
+            HandlerUtil.sendMsg(HandlerUtil.CAMERA_IP_FLAG, HandlerUtil.CAMERA_IP_OPEN);
+        }
+        runOnUiThread(() -> binding.cameraIP.setText("IP:未连接摄像头"));
+    }
+
 
     /**
      * Socket 数据解析
@@ -478,66 +577,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         switch (cmdData[2]) {
                             //二维码识别
                             case (byte) QRCODE_REC_FLAG:
-                                HandlerUtil.sendMsg(HandlerUtil.VOICE, "二维码识别");
-                                ThreadUtil.createThread(() -> {
-                                    ThreadUtil.sleep(1500);
-                                    //逻辑处理
-                                    String qrCodeContent = ImgPcsUtil.qrCodeRecognition();
-                                    if (!"没有找到二维码".equals(qrCodeContent)) {
-                                        //二维码算法处理
-                                        String[] results = qrCodeContent.split(System.lineSeparator());
-                                        ImgPcsUtil.qrCodeDecryption(results, cmdData[3]);
-                                    }
-                                    CommunicationUtil.sendData("", REPLY_FLAG, null);
-                                });
+                                ImgPcsUtil.recQRCode(cmdData[3], false);
                                 break;
 
                             //文字识别
                             case (byte) TEXT_REC_FLAG:
-                                HandlerUtil.sendMsg(HandlerUtil.VOICE, "文字识别");
-                                ThreadUtil.createThread(() -> {
-                                    ThreadUtil.sleep(1500);
-                                    ImgPcsUtil.chineseTextRecognition(cmdData[3]);
-                                });
+                                ImgPcsUtil.recOnceChineseText(cmdData[3]);
                                 break;
 
                             //交通灯识别
                             case (byte) TRAFFIC_LIGHT_REC_FLAG:
-                                HandlerUtil.sendMsg(HandlerUtil.VOICE, "交通灯识别");
-                                ThreadUtil.createThread(() -> {
-                                    ThreadUtil.sleep(1000);
-                                    while (true) {
-                                        Bitmap img = ImgPcsUtil.getImg();
-                                        List<RecResult> recResults = ImgPcsUtil.imageRecognition(img, "tlr");
-                                        if (recResults.size() > 0) {
-                                            //多个交通灯识别结果选第一个
-                                            switch (recResults.get(0).getLabel()) {
-                                                case "RedLight":
-                                                case "GreenLight":
-                                                case "YellowLight":
-                                                    ImgPcsUtil.drawLabel(recResults, img);
-                                                    DataPcsUtil.storeAsTrafficLight(recResults.get(0).getLabel(), cmdData[3]);
-                                                    LogUtil.printLog("交通灯识别结果", recResults.get(0).getLabel());
-                                                    HandlerUtil.sendMsg("交通灯识别结果为：" + recResults.get(0).getLabel());
-                                                    break;
-                                                default:
-                                                    break;
-                                            }
-                                            break;
-                                        }
-                                        //找不到的情况下休息100ms
-                                        ThreadUtil.sleep(100);
-                                    }
-                                });
+                                ImgPcsUtil.recTrafficLight(cmdData[3]);
                                 break;
 
                             //TFT 识别
                             case (byte) TFT_REC_FLAG:
-                                HandlerUtil.sendMsg(HandlerUtil.VOICE, "TFT识别");
-                                ThreadUtil.createThread(() -> {
-                                    ThreadUtil.sleep(1500);
-                                    ImgPcsUtil.tftRecognition(cmdData[3]);
-                                });
+                                ImgPcsUtil.recTFT(cmdData[3]);
                                 break;
 
                             //摄像头角度调整
@@ -583,45 +638,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     //主车上传数据
                     case (byte) DATA_FLAG:
-                        switch (cmdData[2]) {
-                            //从车二维码数据处理
-                            case (byte) QRCODE_A_STORAGE_FLAG:
-                            case (byte) QRCODE_B_STORAGE_FLAG:
-                                HandlerUtil.sendMsg(HandlerUtil.VOICE, "从车二维码数据处理");
-                                break;
-
+                        if (cmdData[2] == RFID_STORAGE_FLAG) {
                             //RFID 数据处理
-                            case (byte) RFID_STORAGE_FLAG:
-                                switch (cmdData[3]) {
-                                    //破损车牌数据处理
-                                    case (byte) RFID_LP:
-                                        HandlerUtil.sendMsg(HandlerUtil.VOICE, "破损车牌数据处理");
-                                        if (cmdData[4] != 0x00) {
-                                            StringBuilder builder = new StringBuilder();
-                                            if (cmdData.length > 7) {
-                                                builder.append((char) cmdData[4]).append((char) cmdData[5]).append((char) cmdData[6]);
-                                                SharedPreferencesUtil.insert("破损车牌", builder.toString());
-                                            } else {
-                                                HandlerUtil.sendMsg(HandlerUtil.VOICE, "破损车牌不全，无法处理");
-                                            }
+                            switch (cmdData[3]) {
+                                //破损车牌数据处理
+                                case (byte) RFID_LP:
+                                    HandlerUtil.sendMsg(HandlerUtil.VOICE, "破损车牌数据处理");
+                                    if (cmdData[4] != 0x00) {
+                                        StringBuilder builder = new StringBuilder();
+                                        if (cmdData.length > 7) {
+                                            builder.append((char) cmdData[4]).append((char) cmdData[5]).append((char) cmdData[6]);
+                                            SharedPreferencesUtil.insert("破损车牌", builder.toString());
+                                        } else {
+                                            HandlerUtil.sendMsg(HandlerUtil.VOICE, "破损车牌不全，无法处理");
                                         }
-                                        break;
+                                    }
+                                    break;
 
-                                    //坐标数据处理
-                                    case (byte) RFID_LOCATION:
-                                        HandlerUtil.sendMsg(HandlerUtil.VOICE, "坐标数据处理");
+                                //坐标数据处理
+                                case (byte) RFID_LOCATION:
+                                    HandlerUtil.sendMsg(HandlerUtil.VOICE, "坐标数据处理");
 
-                                        break;
+                                    break;
 
-                                    //报警码数据处理
-                                    case (byte) RFID_ALARM:
-                                        HandlerUtil.sendMsg(HandlerUtil.VOICE, "报警码数据处理");
-                                        byte[] data = Arrays.copyOfRange(cmdData, 4, cmdData.length - 1);
-                                        String result = DataPcsUtil.LZ78(data);
-                                        SharedPreferencesUtil.insert("报警码", result);
-                                        break;
-                                }
-                                break;
+                                //报警码数据处理
+                                case (byte) RFID_ALARM:
+                                    HandlerUtil.sendMsg(HandlerUtil.VOICE, "报警码数据处理");
+                                    byte[] data = Arrays.copyOfRange(cmdData, 4, cmdData.length - 1);
+                                    String result = DataPcsUtil.LZ78(data);
+                                    SharedPreferencesUtil.insert("报警码", result);
+                                    break;
+                            }
                         }
                         break;
 
@@ -630,19 +677,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     case (byte) GET_TASK_DATA_FLAG:
                         switch (cmdData[2]) {
                             //请求二维码识别数据
-                            case (byte) QRCODE_A_STORAGE_FLAG:
+                            case (byte) QRCODE_STORAGE_FLAG:
                                 HandlerUtil.sendMsg(HandlerUtil.VOICE, "二维码A数据请求");
-                                CommunicationUtil.postQRCodeContent(cmdData[2]);
+                                CommunicationUtil.postQRCodeContent(cmdData[3]);
                                 break;
 
-                            case (byte) QRCODE_B_STORAGE_FLAG:
-                                HandlerUtil.sendMsg(HandlerUtil.VOICE, "二维码B数据请求");
-                                CommunicationUtil.postQRCodeContent(cmdData[2]);
-                                break;
-
-                            //请求文字识别数据
+                            //请求中文识别数据
                             case (byte) TEXT_STORAGE_FLAG:
-                                HandlerUtil.sendMsg(HandlerUtil.VOICE, "文字识别数据请求");
+                                HandlerUtil.sendMsg(HandlerUtil.VOICE, "中文识别数据请求");
                                 CommunicationUtil.postChineseTextFromStorage(cmdData[3]);
                                 break;
 
@@ -706,24 +748,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             //请求 TFT 所有形状数据
                             case (byte) TFT_SHAPE_ALL_STORAGE_FLAG:
                                 HandlerUtil.sendMsg(HandlerUtil.VOICE, "TFT所有形状识别数据请求");
+                                CommunicationUtil.postAllShapeCount();
                                 break;
 
                             //请求 TFT 交通标志物数据
                             case (byte) TFT_TRAFFIC_STORAGE_FLAG:
                                 HandlerUtil.sendMsg(HandlerUtil.VOICE, "TFT交通标志识别数据请求");
-                                CommunicationUtil.postTrafficFlagFromStorage();
+                                CommunicationUtil.postTrafficSignFromStorage();
                                 break;
 
                             //请求 TFT 车型数据
-                            case (byte) TFT_CAR_MODEL_STORAGE_FLAG:
+                            case (byte) TFT_VEHICLE_TYPE_STORAGE_FLAG:
                                 HandlerUtil.sendMsg(HandlerUtil.VOICE, "TFT车型识别数据请求");
-                                CommunicationUtil.postCarModelFromStorage();
+                                CommunicationUtil.postVehicleTypeFromStorage();
                                 break;
 
                             //请求 TFT 最多图形信息类别
                             case (byte) TFT_MAX_SHAPE_CLASS_STORAGE_FLAG:
                                 HandlerUtil.sendMsg(HandlerUtil.VOICE, "TFT最多图形类别数据请求");
                                 CommunicationUtil.postMaxShapeClassFromStorage();
+                                break;
+
+                            //请求 TFT 行人数量
+                            case (byte) TFT_PERSON_COUNT_STORAGE_FLAG:
+                                HandlerUtil.sendMsg(HandlerUtil.VOICE, "TFT行人数量数据请求");
+                                CommunicationUtil.postPersonCountFromStorage();
+                                break;
+
+                            //请求 TFT 行人数量
+                            case (byte) 0x20:
+                                CommunicationUtil.postAlarmCodeOrPowerOpenCodeFromStorage(cmdData[3]);
                                 break;
 
                             default:
@@ -816,6 +870,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     binding.handLogModel.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.android, null));
                 }
                 LogUtil.queryHandLogModel();
+                HandlerUtil.postDelayed(() -> binding.logLayout.fullScroll(NestedScrollView.FOCUS_DOWN), 560);
                 break;
             default:
                 break;

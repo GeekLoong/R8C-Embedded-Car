@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
@@ -19,9 +20,13 @@
         tools:ignore="ScopedStorage" />
 
     <queries>
-        <package android:name="com.kuisec.rec.plugin.ocr"/>
-        <package android:name="com.kuisec.rec.plugin.tlr"/>
-        <package android:name="com.kuisec.rec.plugin.vtr"/>
+        <package android:name="com.kuisec.rec.plugin.ocr" />
+        <package android:name="com.kuisec.rec.plugin.tlr" />
+        <package android:name="com.kuisec.rec.plugin.tsr" />
+        <package android:name="com.kuisec.rec.plugin.vtr" />
+        <package android:name="com.kuisec.rec.plugin.mr" />
+        <package android:name="com.kuisec.rec.plugin.hbr" />
+
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
@@ -39,24 +44,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.R8C"
         tools:targetApi="31">
-
         <activity
             android:name=".SettingActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
-            tools:ignore="LockedOrientationActivity"/>
-
+            tools:ignore="LockedOrientationActivity" />
         <activity
             android:name=".SplashActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
         </activity>
         <activity
             android:name=".MainActivity"
@@ -64,13 +66,10 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
             tools:ignore="LockedOrientationActivity">
-
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 

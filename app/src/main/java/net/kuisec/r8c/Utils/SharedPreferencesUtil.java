@@ -1,6 +1,5 @@
 package net.kuisec.r8c.Utils;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -23,10 +22,40 @@ import java.util.Map;
  * @date 2022/10/31 18:14
  */
 public class SharedPreferencesUtil {
-    @SuppressLint("SdCardPath")
-    private static final String PATH = "/data/data/net.kuisec.r8c/shared_prefs/r8c.xml";
     private static SharedPreferences reader;
     private static SharedPreferences.Editor writer;
+
+    public final static String qrCodeTag = "二维码";
+    public final static String chineseTag = "中文";
+    public final static String trafficLightTag = "交通灯";
+    public final static String trafficSignTag = "交通标志";
+    public final static String LPTag = "车牌";
+    public final static String LPColor = "车牌颜色";
+    public final static String LPVehicleType = "车牌车型";
+    public final static String LPRegex = "车牌格式";
+    public final static String imgTh = "图像识别阈值";
+    public final static String ocrTh = "文字识别阈值";
+    public final static String LPATh = "车牌识别面积阈值";
+    public final static String vehicleType = "车型";
+    public final static String hex = "组装16进制";
+    public final static String defaultTrafficSignTag = "默认交通标志";
+    public final static String defaultVehicleType = "默认车型";
+    public final static String tftAD = "tftA码盘距离";
+    public final static String tftBD = "tftB码盘距离";
+    public final static String tftCD = "tftC码盘距离";
+    public final static String shapeClassHex = "多边形类型组合代码";
+    public final static String shapeColorHex = "多边形颜色组合代码";
+    public final static String personCount = "行人数量";
+    public final static String personCountContent = "行人数量内容";
+    public final static String ocrContent = "文字识别内容";
+    public final static String lpContent = "车牌识别内容";
+    public final static String hexContent = "组装16进制结果";
+    public final static String personMask = "行人口罩";
+    public final static String personOCC = "行人遮挡";
+    public final static String mainCmd = "万能指令主指令";
+    public final static String alarmCodeContent = "主车报警码";
+    public final static String powerOpenCodeContent = "主车无线充电";
+
 
     /**
      * 多边形枚举数组
@@ -37,79 +66,81 @@ public class SharedPreferencesUtil {
             "红色菱形",
             "红色五角星形",
             "红色圆形",
+            "红色梯形",
 
             "绿色三角形",
             "绿色矩形",
             "绿色菱形",
             "绿色五角星形",
             "绿色圆形",
+            "绿色梯形",
 
             "蓝色三角形",
             "蓝色矩形",
             "蓝色菱形",
             "蓝色五角星形",
             "蓝色圆形",
+            "蓝色梯形",
 
             "黄色三角形",
             "黄色矩形",
             "黄色菱形",
             "黄色五角星形",
             "黄色圆形",
+            "黄色梯形",
 
             "天蓝色三角形",
             "天蓝色矩形",
             "天蓝色菱形",
             "天蓝色五角星形",
             "天蓝色圆形",
+            "天蓝色梯形",
 
             "品红色三角形",
             "品红色矩形",
             "品红色菱形",
             "品红色五角星形",
             "品红色圆形",
+            "品红色梯形",
 
             "黑色三角形",
             "黑色矩形",
             "黑色菱形",
             "黑色五角星形",
-            "黑色圆形"
+            "黑色圆形",
+            "黑色梯形",
+
+            "白色三角形",
+            "白色矩形",
+            "白色菱形",
+            "白色五角星形",
+            "白色圆形",
+            "白色梯形"
     };
 
     /**
      * 多边形 HSV 颜色阈值键名
      */
-    public static final String[] hsvColorName = {
-            //浅色最低阈值
-            "lightSkyBlueLow",
-            "lightYellowLow",
-            "lightMagentaLow",
-            "lightBlueLow",
-            "lightGreenLow",
-            "lightRedLow",
-
-            //深色最低阈值
+    public static final String[] shapeHsvColorName = {
+            //形状杂色背景最低阈值
             "darkSkyBlueLow",
             "darkYellowLow",
             "darkMagentaLow",
             "darkBlueLow",
             "darkGreenLow",
             "darkRedLow",
+            "darkBlackLow",
+            "darkWhiteLow",
 
-            //浅色最高阈值
-            "lightSkyBlueHigh",
-            "lightYellowHigh",
-            "lightMagentaHigh",
-            "lightBlueHigh",
-            "lightGreenHigh",
-            "lightRedHigh",
-
-            //深色最低阈值
+            //形状杂色背景最高阈值
             "darkSkyBlueHigh",
             "darkYellowHigh",
             "darkMagentaHigh",
             "darkBlueHigh",
             "darkGreenHigh",
-            "darkRedHigh"
+            "darkRedHigh",
+            "darkBlackHigh",
+            "darkWhiteHigh"
     };
 
 
@@ -117,12 +148,12 @@ public class SharedPreferencesUtil {
      * 车牌 HSV 颜色阈值键名
      */
     public static final String[] lpHSVColorName = {
-            //最低阈值
+            //车牌颜色最低阈值
             "greenLow",
             "skyBlueLow",
             "yellowLow",
             "blueLow",
-            //最高阈值
+            //车牌颜色最高阈值
             "greenHigh",
             "skyBlueHigh",
             "yellowHigh",
@@ -134,22 +165,15 @@ public class SharedPreferencesUtil {
      * 初始化共享
      */
     public static void init(Context context) {
-        //创建共享文件
+        //创建非共享配置文件
         reader = context.getSharedPreferences("r8c", Context.MODE_PRIVATE);
         writer = reader.edit();
         //检查初始配置是否存在
         initKeys();
-        //检查 Shape HSV 颜色阈值
-        initShapeHSVColorTh();
-        //检查 LP HSV 颜色阈值
-        initLPHSVColorTh();
         //删除历史识别记录
-        deleteQRCodeHistoryStorage();
-        deleteChineseHistoryStorage();
-        deleteLPHistoryStorage();
-        deleteTrafficLightHistoryStorage();
-        deleteShapeColorHistoryStorage();
-        deleteCarModelHistoryStorage();
+        deleteShapeColorRecHistoryStorage();
+        deleteTrafficSignRecHistoryStorage();
+        deleteVehicleTypeHistoryStorage();
         deleteRFIDHistoryStorage();
         deleteHexTextHistoryStorage();
     }
@@ -170,37 +194,105 @@ public class SharedPreferencesUtil {
             insert("log-car", TimeUtil.getLifeTime() + "：首次创建主车日志系统");
         }
         //初始化图像识别阈值
-        if ("0".equals(queryKey2Value("imgTh"))) {
-            insert("imgTh", "0.50");
+        if ("0".equals(queryKey2Value(imgTh))) {
+            insert(imgTh, "0.50");
         }
         //初始化文字识别阈值
-        if ("0".equals(queryKey2Value("ocrTh"))) {
-            insert("ocrTh", "0.75");
+        if ("0".equals(queryKey2Value(ocrTh))) {
+            insert(ocrTh, "0.75");
         }
         //初始化车牌识别面积阈值
-        if ("0".equals(queryKey2Value("lpATh"))) {
-            insert("lpATh", "0.35");
+        if ("0".equals(queryKey2Value(LPATh))) {
+            insert(LPATh, "0.35");
         }
         //初始化车牌颜色
-        if ("0".equals(queryKey2Value("lpColor"))) {
-            insert("lpColor", "绿色");
+        if ("0".equals(queryKey2Value(LPColor))) {
+            insert(LPColor, "无");
+        }
+        //初始化车牌
+        if ("0".equals(queryKey2Value(LPTag))) {
+            insert(LPTag, "");
+        }
+        //初始化车牌车型
+        if ("0".equals(queryKey2Value(LPVehicleType))) {
+            insert(LPVehicleType, "无");
+        }
+        //初始化行人口罩
+        if ("0".equals(queryKey2Value(personMask))) {
+            insert(personMask, "无");
+        }
+        //初始化行人遮挡
+        if ("0".equals(queryKey2Value(personOCC))) {
+            insert(personOCC, "无");
+        }
+        //初始化行人遮挡
+        if ("0".equals(queryKey2Value(mainCmd))) {
+            insert(mainCmd, "无");
         }
         //初始化车型
-        if ("0".equals(queryKey2Value("carModel"))) {
-            insert("carModel", "轿车");
+        if ("0".equals(queryKey2Value(defaultVehicleType))) {
+            insert(defaultVehicleType, "AI识别");
         }
         //初始化交通标志
-        if ("0".equals(queryKey2Value("trafficFlag"))) {
-            insert("trafficFlag", "左转");
+        if ("0".equals(queryKey2Value(defaultTrafficSignTag))) {
+            insert(defaultTrafficSignTag, "AI识别");
         }
         //初始化 TFT A 码盘信息
-        if ("0".equals(queryKey2Value("tftAD"))) {
-            insert("tftAD", "350");
+        if ("0".equals(queryKey2Value(tftAD))) {
+            insert(tftAD, "350");
         }
         //初始化 TFT B 码盘信息
-        if ("0".equals(queryKey2Value("tftBD"))) {
-            insert("tftBD", "420");
+        if ("0".equals(queryKey2Value(tftBD))) {
+            insert(tftBD, "420");
         }
+        //初始化 TFT C 码盘信息
+        if ("0".equals(queryKey2Value(tftCD))) {
+            insert(tftCD, "210");
+        }
+        //初始化车牌格式
+        if ("0".equals(queryKey2Value(LPRegex))) {
+            insert(LPRegex, "");
+        }
+        //初始化多边形类型组合代码
+        if ("0".equals(queryKey2Value(shapeClassHex))) {
+            insert(shapeClassHex, "");
+        }
+        //初始化多边形颜色组合代码
+        if ("0".equals(queryKey2Value(shapeColorHex))) {
+            insert(shapeColorHex, "");
+        }
+        //初始化行人识别数量
+        if ("0".equals(queryKey2Value(personCount))) {
+            insert(personCount, "");
+        }
+        //初始化行人识别结果数量
+        if ("0".equals(queryKey2Value(personCountContent))) {
+            insert(personCountContent, "");
+        }
+        //初始化文字识别结果
+        if ("0".equals(queryKey2Value(ocrContent))) {
+            insert(ocrContent, "");
+        }
+        //初始化车牌识别结果
+        if ("0".equals(queryKey2Value(lpContent))) {
+            insert(lpContent, "");
+        }
+        //初始化16进制结果
+        if ("0".equals(queryKey2Value(hexContent))) {
+            insert(hexContent, "");
+        }
+        //初始化主车报警码结果
+        if ("0".equals(queryKey2Value(alarmCodeContent))) {
+            insert(alarmCodeContent, "");
+        }
+        //初始化主车无线充电开启码结果
+        if ("0".equals(queryKey2Value(powerOpenCodeContent))) {
+            insert(powerOpenCodeContent, "");
+        }
+        //检查 Shape HSV 颜色阈值
+        initShapeHSVColorTh();
+        //检查 LP HSV 颜色阈值
+        initLPHSVColorTh();
     }
 
 
@@ -211,114 +303,81 @@ public class SharedPreferencesUtil {
         //默认颜色阈值，“!”代表换行
         Map<String, String> hsvColorMap = new HashMap<>();
         //青色
-        hsvColorMap.put("lightSkyBlueLow",
-                "//天蓝色 light_low!" +
-                        "27, 100, 235!" +
-                        "20, 100, 150!");
-        hsvColorMap.put("lightSkyBlueHigh",
-                "//天蓝色 light_high!" +
-                        "48, 200, 255!");
         hsvColorMap.put("darkSkyBlueLow",
-                "//天蓝色 dark_low!" +
+                "//天蓝色 low!" +
                         "21, 135, 150!" +
                         "21, 135, 210!");
         hsvColorMap.put("darkSkyBlueHigh",
-                "//天蓝色 dark_high!" +
+                "//天蓝色 high!" +
                         "40, 255, 255!");
         //黄色
-        hsvColorMap.put("lightYellowLow",
-                "//黄色 light_low!" +
-                        "75, 110, 245!" +
-                        "75, 60, 115!" +
-                        "75, 60, 145!");
-        hsvColorMap.put("lightYellowHigh",
-                "//黄色 light_high!" +
-                        "110, 255, 255!");
         hsvColorMap.put("darkYellowLow",
-                "//黄色 dark_low!" +
+                "//黄色 low!" +
                         "80, 135, 135!");
         hsvColorMap.put("darkYellowHigh",
-                "//黄色 dark_high!" +
+                "//黄色 high!" +
                         "110, 255, 255!");
         //品红色
-        hsvColorMap.put("lightMagentaLow",
-                "//品红色 light_low!" +
-                        "90, 80, 235!" +
-                        "101, 135, 140!" +
-                        "101, 135, 150!");
-        hsvColorMap.put("lightMagentaHigh",
-                "//品红色 light_high!" +
-                        "180, 255, 255!");
         hsvColorMap.put("darkMagentaLow",
-                "//品红色 dark_low!" +
+                "//品红色 low!" +
                         "140, 80, 115!");
         hsvColorMap.put("darkMagentaHigh",
-                "//品红色 dark_high!" +
+                "//品红色 high!" +
                         "180, 255, 255!");
         //蓝色
-        hsvColorMap.put("lightBlueLow",
-                "//蓝色 light_low!" +
-                        "10, 220, 190!" +
-                        "0, 115, 120!");
-        hsvColorMap.put("lightBlueHigh",
-                "//蓝色 light_high!" +
-                        "20, 255, 190!");
         hsvColorMap.put("darkBlueLow",
-                "//蓝色 dark_low!" +
+                "//蓝色 low!" +
                         "0, 160, 200!" +
-                        "0, 160, 190");
+                        "0, 160, 190!");
         hsvColorMap.put("darkBlueHigh",
-                "//蓝色 dark_high!" +
+                "//蓝色 high!" +
                         "18, 255, 255!");
         //绿色
-        hsvColorMap.put("lightGreenLow",
-                "//绿色 light_low!" +
-                        "47, 120, 153!" +
-                        "35, 70, 60!");
-        hsvColorMap.put("lightGreenHigh",
-                "//绿色 light_high!" +
-                        "76, 255, 255!");
         hsvColorMap.put("darkGreenLow",
-                "//绿色 dark_low!" +
+                "//绿色 low!" +
                         "50, 70, 110!");
         hsvColorMap.put("darkGreenHigh",
-                "//绿色 dark_high!" +
+                "//绿色 high!" +
                         "75, 255, 255!");
         //红色
-        hsvColorMap.put("lightRedLow",
-                "//红色 light_low!" +
-                        "105, 135, 150!" +
-                        "105, 95, 60");
-        hsvColorMap.put("lightRedHigh",
-                "//红色 light_high!" +
-                        "153, 255, 150");
         hsvColorMap.put("darkRedLow",
-                "//红色 dark_low!" +
-                        "105, 160, 70");
+                "//红色 low!" +
+                        "105, 160, 70!");
         hsvColorMap.put("darkRedHigh",
-                "//红色 dark_high!" +
-                        "145, 255, 220");
-        //检查 HSV 颜色阈值模式是否不存在
-        if ("0".equals(queryKey2Value("HSVModel"))) {
-            //添加默认值
-            insert("HSVModel", "dark");
-        }
+                "//红色 high!" +
+                        "145, 255, 220!");
+        //黑色
+        hsvColorMap.put("darkBlackLow",
+                "//黑色 low!" +
+                        "105, 160, 70!");
+        hsvColorMap.put("darkBlackHigh",
+                "//黑色 high!" +
+                        "145, 255, 220!");
+        //白色
+        hsvColorMap.put("darkWhiteLow",
+                "//白色 low!" +
+                        "13, 0, 230");
+        hsvColorMap.put("darkWhiteHigh",
+                "//白色 high!" +
+                        "140, 90, 255");
         //检查 HSV 颜色阈值键是否不存在或为空
-        for (String colorName : hsvColorName) {
+        for (String colorName : shapeHsvColorName) {
             if ("0".equals(queryKey2Value(colorName)) || queryKey2Value(colorName).isEmpty()) {
                 //增加默认值
                 insert(colorName, hsvColorMap.get(colorName));
             }
         }
-        //将 ImgPcsUtil 中的 HSV 阈值调至最新
+
         //HSV LOW 阈值
         List<Scalar[]> lowTh = new ArrayList<>();
-        //遍历所有 HSV LOW 颜色阈值属性
-        for (int i = 0; i < 12; i++) {
+        //HSV HIGH 阈值
+        List<Scalar> highTh = new ArrayList<>();
+        //遍历所有 HSV 颜色阈值属性
+        for (int i = 0; i < shapeHsvColorName.length; i++) {
             //单个阈值属性所有阈值转换存放列表
             List<Scalar> ths = new ArrayList<>();
             //得到阈值
-            String hsvContent = queryKey2Value(hsvColorName[i]);
+            String hsvContent = queryKey2Value(shapeHsvColorName[i]);
             //遍历单个颜色阈值属性的所有阈值行
             String[] lines = hsvContent.split("!");
             for (String line : lines) {
@@ -331,47 +390,14 @@ public class SharedPreferencesUtil {
                     ths.add(new Scalar(h, s, v));
                 }
             }
-            lowTh.add(ths.toArray(new Scalar[]{}));
-            //根据长度判断是否赋值给计算内容
-            switch (i) {
-                case 5:
-                    ImgPcsUtil.light_hsv_low = lowTh.toArray(new Scalar[][]{});
-                    lowTh = new ArrayList<>();
-                    break;
-                case 11:
-                    ImgPcsUtil.dark_hsv_low = lowTh.toArray(new Scalar[][]{});
-                    break;
+            if (i < 8) {
+                lowTh.add(ths.toArray(new Scalar[]{}));
+            } else {
+                highTh.add(ths.get(0));
             }
         }
-        //HSV HIGH 阈值
-        List<Scalar> highTh = new ArrayList<>();
-        for (int i = 12; i < hsvColorName.length; i++) {
-            //得到阈值
-            String hsvContent = queryKey2Value(hsvColorName[i]);
-            //遍历单个颜色阈值属性的所有阈值行
-            String[] lines = hsvContent.split("!");
-            for (String line : lines) {
-                //判断是否含注释，包含注释跳出该行
-                if (!line.trim().contains("//") && !line.trim().isEmpty()) {
-                    //解析单个颜色阈值属性的阈值
-                    String[] num = line.split(",");
-                    int h = Integer.parseInt(num[0].trim());
-                    int s = Integer.parseInt(num[1].trim());
-                    int v = Integer.parseInt(num[2].trim());
-                    highTh.add(new Scalar(h, s, v));
-                }
-            }
-            //根据长度判断是否赋值给计算内容
-            switch (i) {
-                case 17:
-                    ImgPcsUtil.light_hsv_high = highTh.toArray(new Scalar[]{});
-                    highTh = new ArrayList<>();
-                    break;
-                case 23:
-                    ImgPcsUtil.dark_hsv_high = highTh.toArray(new Scalar[]{});
-                    break;
-            }
-        }
+        ImgPcsUtil.dark_hsv_low = lowTh.toArray(new Scalar[][]{});
+        ImgPcsUtil.dark_hsv_high = highTh.toArray(new Scalar[]{});
     }
 
 
@@ -384,10 +410,10 @@ public class SharedPreferencesUtil {
         //绿色
         hsvColorMap.put("greenLow",
                 "//绿色 low!" +
-                        "30, 90, 40!");
+                        "30, 50, 65!");
         hsvColorMap.put("greenHigh",
                 "//绿色 high!" +
-                        "70, 255, 255!");
+                        "80, 255, 255!");
         //青色
         hsvColorMap.put("skyBlueLow",
                 "//浅蓝色 low!" +
@@ -457,21 +483,12 @@ public class SharedPreferencesUtil {
         StringBuilder lowHSVBuilder = new StringBuilder();
         StringBuilder highHSVBuilder = new StringBuilder();
         switch (hsvModel) {
-            case "light":
-                for (int i = 0; i < 18; i++) {
-                    if (i <= 5) {
-                        lowHSVBuilder.append(SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.hsvColorName[i]));
-                    } else if (i >= 12) {
-                        highHSVBuilder.append(SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.hsvColorName[i]));
-                    }
-                }
-                break;
             case "dark":
-                for (int i = 0; i < 24; i++) {
-                    if (i > 5 && i < 12) {
-                        lowHSVBuilder.append(SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.hsvColorName[i]));
-                    } else if (i > 17) {
-                        highHSVBuilder.append(SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.hsvColorName[i]));
+                for (int i = 0; i < shapeHsvColorName.length; i++) {
+                    if (i < 8) {
+                        lowHSVBuilder.append(SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.shapeHsvColorName[i]));
+                    } else {
+                        highHSVBuilder.append(SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.shapeHsvColorName[i]));
                     }
                 }
                 break;
@@ -495,7 +512,6 @@ public class SharedPreferencesUtil {
      * @param textContent HSV 格式化文本内容
      */
     public static void saveShapeHSV(String ThName, String textContent) {
-        String model = SharedPreferencesUtil.queryKey2Value("HSVModel");
         String[] lines = textContent.split("!//");
         for (int i = 0; i < lines.length; i++) {
             String colorName = "";
@@ -523,10 +539,18 @@ public class SharedPreferencesUtil {
                     break;
                 case 5:
                     colorName = "Red";
+                    hsvContent = "//" + lines[i] + "!";
+                    break;
+                case 6:
+                    colorName = "Black";
+                    hsvContent = "//" + lines[i] + "!";
+                    break;
+                case 7:
+                    colorName = "White";
                     hsvContent = "//" + lines[i];
                     break;
             }
-            SharedPreferencesUtil.insert(model + colorName + ThName, hsvContent);
+            SharedPreferencesUtil.insert("dark" + colorName + ThName, hsvContent);
         }
     }
 
@@ -568,7 +592,7 @@ public class SharedPreferencesUtil {
     /**
      * 删除历史多边形识别数据
      */
-    public static void deleteShapeColorHistoryStorage() {
+    public static void deleteShapeColorRecHistoryStorage() {
         for (String colorShape : COLOR_SHAPE_FLAG) {
             delete(colorShape);
         }
@@ -576,45 +600,49 @@ public class SharedPreferencesUtil {
 
 
     /**
+     * 删除历史交通标志识别数据
+     */
+    public static void deleteTrafficSignRecHistoryStorage() {
+        delete(trafficSignTag);
+    }
+
+
+    /**
      * 删除历史二维码识别数据
      */
-    public static void deleteQRCodeHistoryStorage() {
-        delete("二维码A");
-        delete("二维码B");
+    public static void deleteQRCodeHistoryStorage(byte classID) {
+        delete(qrCodeTag + classID);
     }
 
 
     /**
      * 删除历史交通灯识别数据
      */
-    public static void deleteTrafficLightHistoryStorage() {
-        delete("交通灯A");
-        delete("交通灯B");
+    public static void deleteTrafficLightHistoryStorage(byte classID) {
+        delete(trafficLightTag + classID);
     }
 
 
     /**
      * 删除历史车牌识别数据
      */
-    public static void deleteLPHistoryStorage() {
-        delete("车牌A");
-        delete("车牌B");
+    public static void deleteLPHistoryStorage(byte classID) {
+        delete("车牌" + classID);
     }
 
 
     /**
      * 删除历史中文识别数据
      */
-    public static void deleteChineseHistoryStorage() {
-        delete("中文A");
-        delete("中文B");
+    public static void deleteChineseHistoryStorage(byte classID) {
+        delete(chineseTag + classID);
     }
 
 
     /**
      * 删除历史车型识别数据
      */
-    public static void deleteCarModelHistoryStorage() {
+    public static void deleteVehicleTypeHistoryStorage() {
         delete("车型");
     }
 
@@ -623,7 +651,7 @@ public class SharedPreferencesUtil {
      * 删除历史组装 16 进制数据
      */
     public static void deleteHexTextHistoryStorage() {
-        delete("组装16进制");
+        delete(hex);
     }
 
 
@@ -635,6 +663,7 @@ public class SharedPreferencesUtil {
         delete("坐标");
         delete("报警码");
     }
+
 
     /**
      * 添加数据

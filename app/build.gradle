@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace 'net.kuisec.r8c'
-    compileSdk 34
+    compileSdk 33
 
     defaultConfig {
         applicationId "net.kuisec.r8c"
         minSdk 24
-        targetSdk 34
+        targetSdk 33
         versionCode 2605
         versionName "2.6.30"
         resValue "string", "version", versionName
@@ -48,17 +48,23 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     //OpenCV
     implementation project(path: ':opencv')
-    //谷歌二维码
-    implementation files('libs/core.jar')
+    //谷歌 Zxing 二维码
+    implementation 'com.google.zxing:core:3.5.1'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     //Lottie
-    implementation 'com.airbnb.android:lottie:6.0.1'
+    implementation 'com.airbnb.android:lottie:6.1.0'
     //ViewPager
     implementation "androidx.viewpager2:viewpager2:1.0.0"
     //Okhttp
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.11'
+
+    //开源车牌识别库
+    implementation 'com.github.HyperInspire:hyperlpr3-android-sdk:1.0.3'
+
+    //开源 Json 解析库
+    implementation 'com.google.code.gson:gson:2.10.1'
 }

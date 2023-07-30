@@ -1,10 +1,11 @@
 package net.kuisec.r8c.Utils;
 
-import static net.kuisec.r8c.Const.InteractionConst.REPLY_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.A_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.B_FLAG;
+import static net.kuisec.r8c.Const.SignConst.A_FLAG;
+import static net.kuisec.r8c.Const.SignConst.B_FLAG;
+import static net.kuisec.r8c.Const.SignConst.C_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_COLOR_SKY_BLUE;
+import static net.kuisec.r8c.Const.SignConst.TFT_SHAPE_DIA;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,16 +20,21 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 
 import com.google.zxing.BinaryBitmap;
-import com.google.zxing.LuminanceSource;
 import com.google.zxing.NotFoundException;
+import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.Result;
+import com.google.zxing.ResultPoint;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.multi.qrcode.QRCodeMultiReader;
+import com.hyperai.hyperlpr3.HyperLPR3;
+import com.hyperai.hyperlpr3.bean.Plate;
 import com.kuisec.rec.plugin.results.OCRResult;
 import com.kuisec.rec.plugin.results.RecResult;
 
-import net.kuisec.r8c.Bean.LPRBean;
-import net.kuisec.r8c.Bean.SRBean;
+import net.kuisec.r8c.Bean.OCRRect;
+import net.kuisec.r8c.Bean.RectResult;
+import net.kuisec.r8c.Bean.ServiceBean;
+import net.kuisec.r8c.Const.SleepTimesConst;
 import net.kuisec.r8c.MainActivity;
 import net.kuisec.r8c.R;
 
@@ -36,21 +42,26 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
-import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 
 /**
@@ -61,19 +72,62 @@ import java.util.Objects;
  */
 public class ImgPcsUtil {
     private static final String IMG_REC = "图像识别";
-    public static Scalar[][] light_hsv_low = {};
-    public static Scalar[] light_hsv_high = {};
     public static Scalar[][] dark_hsv_low = {};
     public static Scalar[] dark_hsv_high = {};
     public static Scalar[][] lp_hsv_low = {};
     public static Scalar[] lp_hsv_high = {};
-    public static Bitmap recImg = null;
     //实时图像
     private static Bitmap debugImg;
 
     private static boolean recOver = false;
     private static List<OCRResult> ocrRL;
-    private static List<RecResult> recRL;
+    private static List<RectResult> rectRL;
+
+    public static final String OCR = "ocr";
+    public static final String TLR = "tlr";
+    public static final String VTR = "vtr";
+    public static final String TSR = "tsr";
+    public static final String MR = "mr";
+    public static final String HBR = "hbr";
+
+    private final static List<String> trafficLightLabels = Arrays.asList("RedLight", "YellowLight", "GreenLight");
+    private final static List<String> trafficSignLabels = Arrays.asList("GoStraight", "LeftTurn", "RightTurn", "U-Turn", "NoThroughRoad", "NoPassage", "NoU-Turn", "NoLeftTurn", "NoRightTurn");
+    private final static List<String> maskLabels = Arrays.asList("face_mask", "mask");
+    private final static List<String> speedLimitLabels = Arrays.asList("NoThroughRoad", "NoU-Turn", "NoLeftTurn", "NoRightTurn");
+    private final static List<String> shapeLabels = Arrays.asList("Triangle", "Circle", "Rectangle", "Diamond", "FivePointedStar", "Trapezoid", "InvalidFigure");
+    private final static Map<String, String> vehicleTypeLabels = new LinkedHashMap<>() {
+        {
+            put("Motorcycle", "摩托车");
+            put("Car", "轿车");
+            put("Truck", "货车");
+        }
+    };
+    private final static Map<String, String> shapeChineseLabels = new LinkedHashMap<>() {
+        {
+            put("Triangle", "三角形");
+            put("Circle", "圆形");
+            put("Rectangle", "矩形");
+            put("Diamond", "菱形");
+            put("FivePointedStar", "五角星形");
+            put("Trapezoid", "梯形");
+            put("InvalidFigure", "无效图形");
+        }
+    };
+    private final static List<String> colorNameList = new ArrayList<>() {{
+        add("天蓝色");
+        add("黄色");
+        add("品红色");
+        add("蓝色");
+        add("绿色");
+        add("红色");
+        add("黑色");
+        add("白色");
+    }};
+
+
+    //TFT 翻页次数
+    public static final int maxRecCount = 5;
+
 
     /**
      * 解析识别数据
@@ -85,36 +139,43 @@ public class ImgPcsUtil {
         public void handleMessage(@NonNull Message msg) {
             msg.getData().setClassLoader(OCRResult.class.getClassLoader());
             switch (msg.getData().getString("msg", "error")) {
-                case "ocr":
-                    ocrRL = new ArrayList<>();
+                case OCR:
                     Parcelable[] ocrResults;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         ocrResults = msg.getData().getParcelableArray("data", OCRResult.class);
                     } else {
                         ocrResults = msg.getData().getParcelableArray("data");
                     }
-                    for (Parcelable result : ocrResults) {
-                        OCRResult ocrResult = (OCRResult) result;
-                        ocrRL.add(ocrResult);
-                        LogUtil.printSystemLog("文字识别", ocrResult.getLabel() + "," + ocrResult.getConfidence());
+                    if (ocrResults != null) {
+                        for (Parcelable result : ocrResults) {
+                            OCRResult ocrResult = (OCRResult) result;
+                            ocrRL.add(ocrResult);
+                            LogUtil.printSystemLog("文字识别", ocrResult.getLabel() + "," + ocrResult.getConfidence());
+                        }
+                        recOver = true;
                     }
-                    recOver = true;
                     break;
-                case "tlr":
-                case "vtr":
-                    recRL = new ArrayList<>();
-                    Parcelable[] tlrResults;
+                case TLR:
+                case VTR:
+                case TSR:
+                case MR:
+                case HBR:
+                    Parcelable[] recResults;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        tlrResults = msg.getData().getParcelableArray("data", RecResult.class);
+                        recResults = msg.getData().getParcelableArray("data", RecResult.class);
                     } else {
-                        tlrResults = msg.getData().getParcelableArray("data");
+                        recResults = msg.getData().getParcelableArray("data");
                     }
-                    for (Parcelable result : tlrResults) {
-                        RecResult recResult = (RecResult) result;
-                        recRL.add(recResult);
-                        LogUtil.printSystemLog("图像识别", recResult.getLabel() + "," + recResult.getConfidence());
+                    if (recResults != null) {
+                        for (Parcelable parcelable : recResults) {
+                            RecResult result = (RecResult) parcelable;
+                            Rect rect = new Rect(new Point(result.getStartTopPoint()[0], result.getStartTopPoint()[1]), new Point(result.getEndBottomPoint()[0], result.getEndBottomPoint()[1]));
+                            RectResult rectResult = new RectResult(result.getLabel(), result.getConfidence(), rect);
+                            LogUtil.printSystemLog("图像识别", result.getLabel() + "," + result.getConfidence());
+                            rectRL.add(rectResult);
+                        }
+                        recOver = true;
                     }
-                    recOver = true;
                     break;
                 case "error":
                     HandlerUtil.sendMsg("数据类型不匹配");
@@ -174,13 +235,15 @@ public class ImgPcsUtil {
 
 
     /**
-     * 提交识别
+     * 提交识别，用全局标志做有点危险，出问题了就是多线程同时调用了。
      *
      * @param img    图片
      * @param method 插件名称，例如 ocr、tlr、vtr 等
      */
-    public static void submitRec(Bitmap img, String method) {
+    public static void submitRec(Bitmap img, String method, String timeoutMsg) {
         recOver = false;
+        if (method.equals(OCR)) ocrRL = new ArrayList<>();
+        else rectRL = new ArrayList<>();
         ByteArrayOutputStream imgBytes = new ByteArrayOutputStream();
         img.compress(Bitmap.CompressFormat.JPEG, 100, imgBytes);
         //组装消息
@@ -192,9 +255,31 @@ public class ImgPcsUtil {
         message.replyTo = ImgPcsUtil.messenger;
         try {
             //发送消息
-            Objects.requireNonNull(MainActivity.serviceMap.get(method)).manager.messenger.send(message);
+            ServiceBean serviceBean = MainActivity.serviceMap.get(method);
+            if (serviceBean != null) {
+                serviceBean.manager.messenger.send(message);
+            }
         } catch (RemoteException e) {
-            HandlerUtil.sendMsg("与插件通信出现异常，请检查！");
+            HandlerUtil.sendMsg("与插件通信出现异常，请检查“" + method.toUpperCase() + "”插件是否运行或传输的图片是否太大！");
+        }
+        waitRec(timeoutMsg);
+    }
+
+
+    /**
+     * 设置超时阻塞
+     *
+     * @param timeoutMsg 超时消息
+     */
+    private static void waitRec(String timeoutMsg) {
+        //阻塞等待识别完成，设置阻塞五秒超时
+        int waitTime = 0;
+        while (!recOver) {
+            ThreadUtil.sleep(10);
+            if (waitTime >= 5000) {
+                HandlerUtil.sendMsg(HandlerUtil.VOICE, timeoutMsg);
+                break;
+            } else waitTime += 10;
         }
     }
 
@@ -229,240 +314,33 @@ public class ImgPcsUtil {
 
 
     /**
-     * TFT 识别
-     *
-     * @param classID 标志物类型
-     */
-    public static void tftRecognition(byte classID) {
-        if (debugImg != null) {
-            if (classID == A_FLAG) {
-                findLP(classID);
-            } else {
-                HashMap<String, String> map = new HashMap<>();
-                map.put("ctrl", "下一张");
-                CommunicationUtil.tftCmd(classID, map);
-                ThreadUtil.sleep(6000);
-                LogUtil.printLog("交通标志识别", "U-turn");
-                //回复主车，识别任务完成
-                CommunicationUtil.sendData("", REPLY_FLAG, null);
-            }
-        }
-    }
-
-
-    /**
-     * 形状识别与统计
-     * 如果出现内容重复绘制，且二值图为空心，则是阈值的问题
-     *
-     * @param whiteBG 白色背景的TFT形状
-     */
-    public static SRBean shapeRecognition(boolean whiteBG) {
-        SRBean srBean = new SRBean();
-        if (debugImg != null) {
-            //保存图像
-            FileUtil.saveImg(getImg(), "多边形识别过程", "");
-            Mat srcMat = bitmapToMat(getImg());
-            Mat drawMat = srcMat.clone();
-            //定义卷积核
-            Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
-            Imgproc.cvtColor(srcMat, srcMat, Imgproc.COLOR_BGR2HSV);
-            Imgproc.GaussianBlur(srcMat, srcMat, new Size(3, 3), 3, 3);
-
-            //定义颜色阈值
-            Scalar[][] hsv_low;
-            Scalar[] hsv_high;
-
-            //白色背景
-            if ("light".equals(SharedPreferencesUtil.queryKey2Value("HSVModel"))) {
-                hsv_low = light_hsv_low;
-                hsv_high = light_hsv_high;
-                //截取识别区域，涂抹干扰区域
-                Mat block = srcMat.clone();
-                Core.inRange(block, new Scalar(0, 0, 140), new Scalar(180, 255, 255), block);
-                Imgproc.morphologyEx(block, block, Imgproc.MORPH_OPEN, kernel);
-                Imgproc.morphologyEx(block, block, Imgproc.MORPH_CLOSE, kernel);
-                //定义一个轮廓列表
-                List<MatOfPoint> blockPoint = new ArrayList<>();
-                //查找识别区域的轮廓
-                Imgproc.findContours(block, blockPoint, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_NONE);
-                //寻找面积最大的轮廓索引
-                int maxContoursIndex = 0;
-                for (MatOfPoint point : blockPoint) {
-                    if (Imgproc.contourArea(point) > Imgproc.contourArea(blockPoint.get(maxContoursIndex))) {
-                        //存储识别区域最大索引
-                        maxContoursIndex = blockPoint.indexOf(point);
-                    }
-                }
-                //绘制识别区域轮廓，绘制后保存到本地
-                Imgproc.drawContours(drawMat, blockPoint, maxContoursIndex, new Scalar(255, 0, 0), 2);
-                FileUtil.saveImg(matToBitmap(drawMat), "多边形识别结果", "白色识别区域绘制");
-                //清空除了最大轮廓的其他轮廓
-                MatOfPoint maxContours = new MatOfPoint(blockPoint.get(maxContoursIndex));
-                blockPoint.clear();
-                blockPoint.add(maxContours);
-                //对比轮廓，涂抹干扰区域
-                Mat stencil = Mat.zeros(srcMat.size(), srcMat.type());
-                Imgproc.fillPoly(stencil, blockPoint, new Scalar(255, 255, 255));
-                Mat sel = new Mat();
-                Core.compare(stencil, new Scalar(255, 255, 255), sel, Core.CMP_NE);
-                srcMat.setTo(new Scalar(255, 255, 255), sel);
-                //保存去除干扰区域后的图像
-                Mat saveWhiteBlock = srcMat.clone();
-                Imgproc.cvtColor(saveWhiteBlock, saveWhiteBlock, Imgproc.COLOR_HSV2BGR);
-                FileUtil.saveImg(matToBitmap(saveWhiteBlock), "多边形识别结果", "分割填充白色识别区域");
-            } else {
-                hsv_low = dark_hsv_low;
-                hsv_high = dark_hsv_high;
-            }
-
-            //多边形识别与检测
-            //删除历史多边形识别数据
-            SharedPreferencesUtil.deleteShapeColorHistoryStorage();
-            //按照颜色查找图像
-            for (int colorIndex = 0; colorIndex < hsv_low.length; colorIndex++) {
-                //存放每个色系二值化图像，最后一个放最优内容
-                Mat[] colorsMat = new Mat[hsv_low[colorIndex].length + 1];
-                //阈值区间二值化图像，根据索引遍历每组颜色的低阈值
-                for (int thresholdIndex = 0; thresholdIndex < hsv_low[colorIndex].length; thresholdIndex++) {
-                    Mat dstMat = new Mat();
-                    Core.inRange(srcMat, hsv_low[colorIndex][thresholdIndex], hsv_high[colorIndex], dstMat);
-                    colorsMat[thresholdIndex] = dstMat.clone();
-                }
-
-                //合并多个二值化图像，最后一个位置为合并位，初始内容为第一个二值化图，所以第一次第一位与最后一位不参与运算
-                colorsMat[colorsMat.length - 1] = colorsMat[0].clone();
-                for (int binaryIndex = 0; binaryIndex < (colorsMat.length - 1); binaryIndex++) {
-                    //排除倒数第二个和最后一个
-                    if (binaryIndex > 0 && binaryIndex < (colorsMat.length - 1)) {
-                        //将索引位 Mat 与最后输出位 Mat 进行 or 运算
-                        Core.bitwise_or(colorsMat[binaryIndex], colorsMat[colorsMat.length - 1], colorsMat[colorsMat.length - 1]);
-                    }
-                }
-                //开闭运算，优化合并图像的噪声
-                Imgproc.morphologyEx(colorsMat[colorsMat.length - 1], colorsMat[colorsMat.length - 1], Imgproc.MORPH_OPEN, kernel);
-                Imgproc.morphologyEx(colorsMat[colorsMat.length - 1], colorsMat[colorsMat.length - 1], Imgproc.MORPH_CLOSE, kernel);
-
-                //查找轮廓
-                List<MatOfPoint> contours = new ArrayList<>();
-                List<MatOfPoint> allShapeContours = new ArrayList<>();
-                Imgproc.findContours(colorsMat[colorsMat.length - 1], contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
-                //多边形逼近
-                for (MatOfPoint p : contours) {
-                    //多边形拟合
-                    MatOfPoint2f point2f = new MatOfPoint2f(p.toArray());
-                    double ep = 0.032 * Imgproc.arcLength(point2f, true);
-                    //轮廓近似
-                    MatOfPoint2f resultPoint = new MatOfPoint2f();
-                    Imgproc.approxPolyDP(point2f, resultPoint, ep, true);
-                    allShapeContours.add(new MatOfPoint(resultPoint.toArray()));
-                }
-
-                //保存原始图像
-                String colorName = "init";
-
-                //筛选轮廓
-                for (int i = 0; i < allShapeContours.size(); i++) {
-                    double area = Imgproc.contourArea(allShapeContours.get(i));
-                    //通过面积筛选
-                    if (area > 150 && area < 15000) {
-                        //绘制多边形逼近后的轮廓
-                        Imgproc.drawContours(drawMat, allShapeContours, allShapeContours.indexOf(allShapeContours.get(i)), new Scalar(0, 255, 0), 2);
-                        //填充识别轮廓（黑色）
-                        Imgproc.drawContours(drawMat, allShapeContours, allShapeContours.indexOf(allShapeContours.get(i)), new Scalar(0, 0, 0), -1);
-                        //查找凸包
-                        MatOfInt cornerPoints = new MatOfInt();
-                        Imgproc.convexHull(allShapeContours.get(i), cornerPoints);
-                        LogUtil.printSystemLog("多边形识别", "凸包统计：" + cornerPoints.rows());
-                        //得到最小外接矩形
-                        RotatedRect minOutRect = Imgproc.minAreaRect(new MatOfPoint2f(allShapeContours.get(i).toArray()));
-                        //用当前轮廓面积除以外接矩形，得到覆盖率，用于判断菱形、矩形，矩形覆盖率为75%以上。
-                        double rate = area / minOutRect.size.area();
-                        //形状颜色区分和统计
-                        switch (colorIndex) {
-                            //天蓝色
-                            case 0:
-                                colorName = "天蓝色";
-                                break;
-                            //黄色
-                            case 1:
-                                colorName = "黄色";
-                                break;
-                            //品红色
-                            case 2:
-                                colorName = "品红色";
-                                break;
-                            //蓝色
-                            case 3:
-                                colorName = "蓝色";
-                                break;
-                            //绿色
-                            case 4:
-                                colorName = "绿色";
-                                break;
-                            //红色
-                            case 5:
-                                colorName = "红色";
-                                break;
-                            //黑色
-                            case 6:
-                                colorName = "黑色";
-                                break;
-                        }
-                        //存储形状数据
-                        String shapeName = DataPcsUtil.storeAsShapeColor(colorName, cornerPoints.rows(), rate);
-                        Point[] points = allShapeContours.get(i).toArray();
-                        Imgproc.putText(drawMat, shapeName, points[0], Imgproc.FONT_HERSHEY_COMPLEX, 0.7, new Scalar(255, 0, 0));
-                    }
-                }
-
-                //保存合并优化后的图像
-                if (!"init".equals(colorName)) {
-                    FileUtil.saveImg(matToBitmap(colorsMat[colorsMat.length - 1]), "多边形识别结果", colorName);
-                }
-
-                //保存最后绘制完毕的图像
-                if (colorIndex == hsv_low.length - 1) {
-                    srBean.setSuccess(true);
-                    srBean.setBitmap(matToBitmap(drawMat));
-                    FileUtil.saveImg(matToBitmap(drawMat), "多边形识别结果", "TFT轮廓识别结果图像");
-                }
-            }
-            //显示图片至 DEBUG IMG 悬浮窗
-            Bitmap tempBitmap = matToBitmap(drawMat);
-            HandlerUtil.sendMsg(HandlerUtil.DEBUG_IMG_FLAG, tempBitmap);
-        }
-        return srBean;
-    }
-
-
-    /**
      * 图像识别
      *
      * @return 返回识别结果和识别时的图像
      */
-    public static List<RecResult> imageRecognition(Bitmap image, String method) {
-        submitRec(image, method);
-        //阻塞等待数据
-        while (!recOver) {
-            ThreadUtil.sleep(10);
-        }
-        //识别结果（无）提示语
-        String recognitionResponse;
-        //保存图像
-        FileUtil.saveImg(image, "图像识别过程", "");
-        //读取阈值
-        double imgTh = Double.parseDouble(SharedPreferencesUtil.queryKey2Value("imgTh"));
+    public static List<RectResult> imageRecognition(Bitmap img, String method) {
         //进行模型识别，老设备没有GPU，会无法识别出标签
-        List<RecResult> results = new ArrayList<>();
-        //遍历得到有效内容
-        for (RecResult result : recRL) {
-            if (result.getConfidence() >= imgTh) {
-                results.add(result);
+        List<RectResult> results = new ArrayList<>();
+        if (img != null) {
+            submitRec(img, method, method.toUpperCase() + "识别超时");
+            //识别结果（无）提示语
+            String recognitionResponse;
+            //保存图像
+            FileUtil.saveImg(img, "图像识别过程", "");
+            //读取阈值
+            double imgTh = Double.parseDouble(SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.imgTh));
+            //遍历得到有效内容
+            for (RectResult result : rectRL) {
+                if (result.getConfidence() >= imgTh) {
+                    results.add(result);
+                }
             }
-        }
-        if (results.size() == 0) {
-            recognitionResponse = "没有学习过的物体或阈值过高";
-            LogUtil.printLog(IMG_REC, recognitionResponse);
+            if (results.isEmpty()) {
+                recognitionResponse = "没有学习过的物体或阈值过高";
+                LogUtil.printLog(IMG_REC, recognitionResponse);
+            }
+        } else {
+            HandlerUtil.sendMsg("未找到图像");
         }
         return results;
     }
@@ -471,29 +349,32 @@ public class ImgPcsUtil {
     /**
      * 绘制标签位置
      *
-     * @param results 要操作的对象，含x,y,w,h,label,prob六个属性。
-     * @param image   绘制的图像
+     * @param results     标签属性
+     * @param image       绘制的图像
+     * @param shortString 是否开启短字符
      */
-    public static void drawLabel(List<RecResult> results, Bitmap image) {
+    public static void drawLabels(List<RectResult> results, Bitmap image, boolean shortString) {
         if (image != null) {
             Mat srcMat = bitmapToMat(image);
             //绘制颜色
             Scalar rectColor = new Scalar(255, 0, 0);
             //文字颜色
             Scalar textColor = new Scalar(255, 255, 255);
-            for (RecResult result : results) {
+            for (RectResult result : results) {
                 //绘制识别矩形框
-                Rect rect = new Rect(new Point(result.getStartTopPoint()[0], result.getStartTopPoint()[1]), new Point(result.getEndBottomPoint()[0], result.getEndBottomPoint()[1]));
-                Imgproc.rectangle(srcMat, rect, rectColor, 2, 4);
-                //绘制标签所有文字
-                @SuppressLint("DefaultLocale")
-                String labelContent = result.getLabel() + "(" + String.format("%.3f", result.getConfidence()) + ")";
-                //绘制标签前面的3个文字
-//                String labelContent = obj.label.substring(0, 3) + "(" + String.format("%.3f", obj.prob) + ")";
+                Imgproc.rectangle(srcMat, result.getRect(), rectColor, 2, 4);
+                String labelContent;
+                if (shortString) {
+                    //绘制标签前面的3个文字
+                    labelContent = result.getLabel().substring(0, 3) + "(" + String.format(Locale.CHINA, "%.3f", result.getConfidence()) + ")";
+                } else {
+                    //绘制标签所有文字
+                    labelContent = result.getLabel() + "(" + String.format(Locale.CHINA, "%.3f", result.getConfidence()) + ")";
+                }
                 //获得文字大小
                 Size textSize = Imgproc.getTextSize(labelContent, Imgproc.FONT_HERSHEY_COMPLEX, 0.7, 2, new int[]{1});
                 //绘制文字背景
-                Point textPoint = new Point(result.getStartTopPoint()[0] + 2, result.getStartTopPoint()[1] - 5);
+                Point textPoint = new Point(result.getRect().x + 2, result.getRect().y - 5);
                 Rect backgroundRect = new Rect((int) textPoint.x - 4, (int) textPoint.y - 18, (int) textSize.width + 6, (int) textSize.height + 7);
                 Imgproc.rectangle(srcMat, backgroundRect, rectColor, -1, 4);
                 //绘制文字
@@ -510,702 +391,988 @@ public class ImgPcsUtil {
 
 
     /**
-     * 文字识别
+     * 将图像画幅扩大处理为等比例图像，用于文字识别前预处理
      *
-     * @param bitmap 指定传入的图像
+     * @param bitmap 图像
+     * @return 返回扩大的画幅
+     */
+    public static Mat equalScaleImage(Bitmap bitmap) {
+        if (bitmap == null) {
+            return null;
+        }
+        Mat srcMat = bitmapToMat(bitmap);
+        //得到图像最长的边
+        int maxLength;
+        if (srcMat.width() > srcMat.height()) {
+            maxLength = srcMat.cols();
+        } else {
+            maxLength = srcMat.rows();
+        }
+        //新建一个Mat存储原图像并居中
+        Mat dstMat = new Mat(maxLength, maxLength, CvType.CV_8UC4);
+        int x = (dstMat.cols() - srcMat.cols()) / 2;
+        int y = (dstMat.rows() - srcMat.rows()) / 2;
+        //将原图像复制到新Mat中并居中
+        srcMat.copyTo(dstMat.rowRange(y, y + srcMat.rows()).colRange(x, x + srcMat.cols()));
+        return dstMat;
+    }
+
+
+    /**
+     * 文字识别，识别完成后旋转45°继续识别，直到没有结果为止
+     *
+     * @param srcMat 识别的矩阵，会继续旋转等操作
+     * @param rotate 是否旋转
      * @return 返回识别结果
      */
-    public static List<OCRResult> ocr(Bitmap bitmap) {
-        if (bitmap != null) {
-            submitRec(bitmap, "ocr");
-            while (!recOver) {
-                ThreadUtil.sleep(10);
-            }
-            //保存识别
-            FileUtil.saveImg(bitmap, "文字识别过程", "");
-            //加载图像
-            List<OCRResult> results = new ArrayList<>();
-            for (OCRResult result : ocrRL) {
-                //只回传置信率大于指定百分比的识别结果
-                double ocrTh = Double.parseDouble(SharedPreferencesUtil.queryKey2Value("ocrTh"));
-                if (result.getConfidence() >= ocrTh) {
-                    results.add(result);
-                } else {
-                    LogUtil.printLog("废弃的文字内容", "文字：" + result.getLabel() + "，置信率：" + result.getConfidence());
-                }
-            }
+    public static List<OCRRect> ocr(Mat srcMat, boolean rotate) {
+        if (srcMat != null) {
+            //初始化旋转角度
+            int rotationAngle = 0;
+            //提交识别任务
+            submitRec(matToBitmap(srcMat), OCR, "文字识别超时");
+            //保存识别时图片
+            FileUtil.saveImg(matToBitmap(srcMat), "文字识别过程", "");
+            //遍历识别结果
+            List<OCRRect> results = new ArrayList<>();
+            //解析结果并将结果所在位置涂白，接着进行下一次识别，直到无数据为止
+            Mat dstMat = srcMat.clone();
+            excludeText(results, dstMat, rotate, rotationAngle);
+            //无数据检索后返回所有识别结果
             return results;
+        } else {
+            HandlerUtil.sendMsg("未找到图像");
         }
         return new ArrayList<>();
     }
 
 
     /**
-     * 中文识别
-     */
-    public static void chineseTextRecognition(byte classID) {
-        StringBuilder textRECBuilder = new StringBuilder();
-        if (getImg() != null) {
-            Mat srcMat = bitmapToMat(getImg());
-            //得到图像最长的边
-            int maxLength;
-            if (srcMat.width() > srcMat.height()) {
-                maxLength = srcMat.cols();
-            } else {
-                maxLength = srcMat.rows();
-            }
-            //新建一个Mat存储原图像并居中
-            Mat dstMat = new Mat(maxLength, maxLength, CvType.CV_8UC4);
-            int x = (dstMat.cols() - srcMat.cols()) / 2;
-            int y = (dstMat.rows() - srcMat.rows()) / 2;
-            //将原图像复制到新Mat中并居中
-            srcMat.copyTo(dstMat.rowRange(y, y + srcMat.rows()).colRange(x, x + srcMat.cols()));
-            Point center = new Point(dstMat.cols() / 2, dstMat.rows() / 2);
-            Size outputSize = new Size(dstMat.cols(), dstMat.rows());
-            Mat rotationMat = Imgproc.getRotationMatrix2D(center, -45, 1);
-            //旋转360度，每旋转45度识别一次文字
-            for (int rotationCount = 0; rotationCount < 8; rotationCount++) {
-                List<OCRResult> results = ocr(matToBitmap(dstMat));
-                if (results.size() > 0) {
-                    //顺序读取识别结果并抹除识别结果
-                    for (int i = (results.size() - 1); i > -1; i--) {
-                        textRECBuilder.append(DataPcsUtil.chineseFilter(results.get(i).getLabel()));
-                        int width = results.get(i).getEndBottomPoint()[0] - results.get(i).getStartTopPoint()[0];
-                        int height = results.get(i).getEndBottomPoint()[1] - results.get(i).getStartTopPoint()[1];
-                        Rect rect = new Rect(results.get(i).getStartTopPoint()[0], results.get(i).getStartTopPoint()[1], width, height);
-                        //识别过的涂白
-                        Imgproc.rectangle(dstMat, rect, new Scalar(255, 255, 255), -1);
-                        LogUtil.printLog("文字：" + results.get(i).getLabel() + " 置信度：" + results.get(i).getConfidence());
-                    }
-                }
-                //原图像旋转45度
-                Imgproc.warpAffine(dstMat, dstMat, rotationMat, outputSize);
-            }
-            FileUtil.saveImg(matToBitmap(dstMat), "文字识别结果", "");
-            LogUtil.printLog("中文识别", textRECBuilder.toString());
-            if (classID == A_FLAG) {
-                SharedPreferencesUtil.insert("中文A", textRECBuilder.toString());
-            } else if (classID == B_FLAG) {
-                SharedPreferencesUtil.insert("中文B", textRECBuilder.toString());
-            } else {
-                return;
-            }
-            CommunicationUtil.sendData("", REPLY_FLAG, null);
-            HandlerUtil.sendMsg(HandlerUtil.DEBUG_IMG_FLAG, matToBitmap(dstMat));
-        }
-    }
-
-
-    /**
-     * 车牌识别
+     * 排除文字
+     * 将识别过的文字涂白、旋转，在存在返回值时一直识别，直到无返回值为止
      *
-     * @param classID 标志物类型
+     * @param results       全部符合规范的返回值存放列表
+     * @param srcMat        即将旋转的图像
+     * @param rotate        是否旋转
+     * @param rotationAngle 旋转角度信息
      */
-    public static List<LPRBean> lpRecognition(byte classID) {
-        List<LPRBean> lprBeans = new ArrayList<>();
-        Bitmap img = getImg();
-        if (img != null) {
-            //保存图像
-            FileUtil.saveImg(img, "车牌识别过程", "");
-            SharedPreferencesUtil.deleteLPHistoryStorage();
-            List<OCRResult> results = ocr(img);
-            if (results.size() > 0) {
-                String lpSaveKeyName = "车牌A";
-                if (classID == B_FLAG) {
-                    lpSaveKeyName = "车牌B";
-                }
-                Mat srcMat = bitmapToMat(img);
-                Imgproc.cvtColor(srcMat, srcMat, Imgproc.COLOR_BGR2HSV);
-                for (OCRResult result : results) {
-                    String label = result.getLabel();
-                    String lprContent = DataPcsUtil.capNumberLetterFilter(label);
-                    //裁剪倒数六位车牌
-                    if (lprContent.length() > 5) {
-                        lprContent = lprContent.substring(lprContent.length() - 6);
-                    }
-                    //过滤无效车牌
-                    if (lprContent.length() > 4) {
-                        LogUtil.printLog("有效车牌识别数据", "国" + lprContent + "，置信率为" + result.getConfidence());
-                        int width = result.getEndBottomPoint()[0] - result.getStartTopPoint()[0];
-                        int height = result.getEndBottomPoint()[1] - result.getStartTopPoint()[1];
-                        Rect rect = new Rect(result.getStartTopPoint()[0], result.getStartTopPoint()[1], width, height);
-                        //绘制颜色
-                        Scalar rectColor = new Scalar(0, 191, 255);
-                        Imgproc.rectangle(srcMat, rect, rectColor, 2, 4);
-
-                        //裁剪图片，得到车牌内容
-                        Mat subMat = srcMat.submat(rect);
-
-                        //车牌颜色阈值选择
-                        Scalar[] lpLowTh = {};
-                        Scalar lpHighTh = null;
-                        String lpColorName = SharedPreferencesUtil.queryKey2Value("lpColor");
-                        //根据颜色来提取正确车牌
-                        switch (lpColorName) {
-                            case "绿色":
-                                lpLowTh = lp_hsv_low[0];
-                                lpHighTh = lp_hsv_high[0];
-                                break;
-                            case "浅蓝色":
-                                lpLowTh = lp_hsv_low[1];
-                                lpHighTh = lp_hsv_high[1];
-                                break;
-                            case "黄色":
-                                lpLowTh = lp_hsv_low[2];
-                                lpHighTh = lp_hsv_high[2];
-                                break;
-                            case "深蓝色":
-                                lpLowTh = lp_hsv_low[3];
-                                lpHighTh = lp_hsv_high[3];
-                                break;
-                        }
-                        //存储车牌轮廓
-                        Mat LPMat = null;
-                        //遍历每一个阈值并合并所有可能像素
-                        for (Scalar scalar : lpLowTh) {
-                            Mat dstMat = new Mat();
-                            Core.inRange(subMat, scalar, lpHighTh, dstMat);
-                            if (LPMat == null) {
-                                LPMat = dstMat.clone();
-                            } else {
-                                //将索引位 Mat 与最后输出位 Mat 进行 or 运算
-                                Core.bitwise_or(dstMat, LPMat, LPMat);
-                            }
-                        }
-                        List<MatOfPoint> lpContours = new ArrayList<>();
-                        assert LPMat != null;
-                        Imgproc.findContours(LPMat, lpContours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-                        double maxArea = 0;
-                        //遍历并得到最大面积
-                        for (MatOfPoint point : lpContours) {
-                            if (maxArea < Imgproc.contourArea(point))
-                                maxArea = Imgproc.contourArea(point);
-                        }
-                        //判断车牌面积占比文字识别区域是否达到指定百分比
-                        double lpATh = Double.parseDouble(SharedPreferencesUtil.queryKey2Value("lpATh"));
-                        if (lpContours.size() > 0 && (maxArea / (width * height)) > lpATh) {
-                            FileUtil.saveImg(matToBitmap(LPMat), "车牌识别结果", lpColorName + "车牌");
-                            //保存有效信息
-                            SharedPreferencesUtil.insert(lpSaveKeyName, lprContent);
-                            HandlerUtil.sendMsg(HandlerUtil.VOICE, "哦哟，一眼丁真。");
-                            LogUtil.printLog("车牌识别", lprContent);
-                            LPRBean lprBean = new LPRBean();
-                            //回传数据
-                            lprBean.setMinX(result.getStartTopPoint()[0]);
-                            lprBean.setMinY(result.getStartTopPoint()[1]);
-                            lprBean.setWidth(width);
-                            lprBean.setHeight(height);
-                            lprBean.setFindSuccess(true);
-                            lprBeans.add(lprBean);
-                        } else {
-                            LogUtil.printLog("废弃的车牌", "识别结果" + lprContent + " 有效面积占比：" + (maxArea / (width * height)));
-                        }
-                    }
-                }
-                Imgproc.cvtColor(srcMat, srcMat, Imgproc.COLOR_HSV2BGR);
-                //转换成可显示图像
-                Bitmap bitmap = matToBitmap(srcMat);
-                //显示结果
-                HandlerUtil.sendMsg(HandlerUtil.DEBUG_IMG_FLAG, bitmap);
-            } else {
-                LogUtil.printSystemLog("车牌识别", "识别出错或没有识别结果");
-            }
-        }
-        return lprBeans;
-    }
-
-
-    /**
-     * 破损车牌查找
-     */
-    public static boolean findBrokenLP(byte classID) {
-        boolean success = false;
-        String brokenLP = SharedPreferencesUtil.queryKey2Value("破损车牌");
-        if (!"0".equals(brokenLP)) {
-            HandlerUtil.sendMsg(HandlerUtil.VOICE, "车牌查找");
-            List<OCRResult> results = ocr(getImg());
-            if (results.size() > 0) {
-                String lpSaveKeyName = "车牌A";
-                if (classID == B_FLAG) {
-                    lpSaveKeyName = "车牌B";
-                }
-                String LPContent = "";
-                for (OCRResult result : results) {
-                    String label = DataPcsUtil.capNumberLetterFilter(result.getLabel());
-                    LogUtil.printLog("破损车牌查找", label);
-                    if (label.contains(String.valueOf(brokenLP.charAt(0))) && label.contains(String.valueOf(brokenLP.charAt(1))) && label.contains(String.valueOf(brokenLP.charAt(2)))) {
-                        if (label.length() > 6) {
-                            label = label.substring(label.length() - 6);
-                        }
-                        LPContent = label;
-                        success = true;
-                        break;
-                    }
-                }
-                SharedPreferencesUtil.insert(lpSaveKeyName, LPContent);
-            }
-        }
-        return success;
-    }
-
-
-    /**
-     * 查找车牌
-     *
-     * @param classID 标志物类型
-     */
-    public static void findLP(byte classID) {
-        int count = 0;
-        while (count < 5) {
-//            boolean isFindPage = findBrokenLP(classID);
-            break;
-//            count++;
-        }
-        CommunicationUtil.sendData("", REPLY_FLAG, null);
-    }
-
-
-    /**
-     * 查找车牌，翻页处理
-     *
-     * @param classID 标志物类型ID
-     */
-    public static void findLPAndCarModel(byte classID) {
-        int count = 0;
-        while (true) {
-            if (count < 5) {
-                boolean matchFlag = false;
-                List<LPRBean> lprBeans = lpRecognition(classID);
-                //遍历有效车牌
-                for (LPRBean lprBean : lprBeans) {
-                    if (lprBean.isFindSuccess()) {
-                        Bitmap img = ImgPcsUtil.getImg();
-                        List<RecResult> recResults = imageRecognition(img, "vtr");
-                        //查找车型并判断车牌是否在里面
-                        for (RecResult result : recResults) {
-                            switch (result.getLabel()) {
-                                case "Bicycle":
-                                case "Motorcycle":
-                                case "Car":
-                                case "Truck":
-                                    List<RecResult> drawList = new ArrayList<>();
-                                    drawList.add(result);
-                                    drawLabel(drawList, img);
-                                    //车牌中心点
-                                    int lprCenterX = lprBean.getMinX() + lprBean.getWidth() / 2;
-                                    int lprCenterY = lprBean.getMinY() + lprBean.getHeight() / 2;
-                                    //车牌左上角点
-                                    int lprPoint1X = lprBean.getMinX();
-                                    int lprPoint1Y = lprBean.getMinY();
-                                    //车牌右上角点
-                                    int lprPoint2X = lprBean.getMinX() + lprBean.getWidth();
-                                    int lprPoint2Y = lprBean.getMinY();
-                                    //车牌左下角点
-                                    int lprPoint3X = lprBean.getMinX();
-                                    int lprPoint3Y = lprBean.getMinY() + lprBean.getHeight();
-                                    //车牌右下角点
-                                    int lprPoint4X = lprBean.getMinX() + lprBean.getWidth();
-                                    int lprPoint4Y = lprBean.getMinY() + lprBean.getHeight();
-                                    //车型左上角点
-                                    int carModelMinX = result.getStartTopPoint()[0];
-                                    int carModelMinY = result.getStartTopPoint()[1];
-                                    //车型右下角点
-                                    int carModelMaxX = result.getEndBottomPoint()[0];
-                                    int carModelMaxY = result.getEndBottomPoint()[1];
-                                    //当车牌中心点包含在车型中，判断左右任意一边的两个角点
-                                    if ((lprCenterX > carModelMinX && lprCenterX < carModelMaxX) && (lprCenterY > carModelMinY && lprCenterY < carModelMaxY)) {
-                                        //判断边角点
-                                        if ((lprPoint1X > carModelMinX && lprPoint3X > carModelMinX && lprPoint1Y > carModelMinY && lprPoint3Y > carModelMinY) || (lprPoint2X < carModelMaxX && lprPoint4X < carModelMaxX && lprPoint2Y < carModelMaxY && lprPoint4Y < carModelMaxY)) {
-                                            SharedPreferencesUtil.insert("车型", result.getLabel());
-                                            matchFlag = true;
-                                            HandlerUtil.sendMsg(HandlerUtil.VOICE, "哎哟不错哟~");
-                                        }
-                                    }
-                                    break;
-                            }
-                        }
-                    }
-                }
-                //当车型上了指定颜色牌时发送消息给竞赛平台并停止检测
-                if (matchFlag) {
-                    CommunicationUtil.sendData("", REPLY_FLAG, null);
-                    break;
+    private static void excludeText(List<OCRRect> results, Mat srcMat, boolean rotate, int rotationAngle) {
+        if (!ocrRL.isEmpty()) {
+            for (OCRResult result : ocrRL) {
+                //只回传置信率大于指定百分比的识别结果
+                double ocrTh = Double.parseDouble(SharedPreferencesUtil.queryKey2Value("ocrTh"));
+                if (result.getConfidence() >= ocrTh) {
+                    //将符合阈值的文字涂白
+                    int width = result.getEndBottomPoint()[0] - result.getStartTopPoint()[0];
+                    int height = result.getEndBottomPoint()[1] - result.getStartTopPoint()[1];
+                    Rect rect = new Rect(result.getStartTopPoint()[0], result.getStartTopPoint()[1], width, height);
+                    Imgproc.rectangle(srcMat, rect, new Scalar(255, 255, 255), -1);
+                    //存储识别信息
+                    OCRRect ocrRectResult = new OCRRect(result.getLabel(), rotationAngle, result.getConfidence(), rect);
+                    results.add(ocrRectResult);
+                    //将涂白的图像显示到Debug窗口
+                    HandlerUtil.sendMsg(HandlerUtil.DEBUG_IMG_FLAG, matToBitmap(srcMat));
+                    LogUtil.printLog("原始有效文字：" + result.getLabel() + "，置信率：" + result.getConfidence());
                 } else {
-                    //识别不符合则翻页
-                    HashMap<String, String> tftCtrl = new HashMap<>();
-                    tftCtrl.put("ctrl", "下一张");
-                    CommunicationUtil.tftCmd(classID, tftCtrl);
-                    count += 1;
-                    ThreadUtil.sleep(4000);
+                    LogUtil.printLog("无效文字：" + result.getLabel() + "，置信率：" + result.getConfidence());
                 }
-            } else {
-                CommunicationUtil.sendData("", REPLY_FLAG, null);
-                break;
+            }
+            //保存涂白后的图片
+            FileUtil.saveImg(matToBitmap(srcMat), "文字涂白识别过程", "");
+            //将涂白的图像顺时针旋转45度
+            if (rotate) {
+                rotationAngle -= 45;
+                Point center = new Point((double) srcMat.cols() / 2, (double) srcMat.rows() / 2);
+                Size outputSize = new Size(srcMat.cols(), srcMat.rows());
+                //设置旋转任务
+                Mat rotationMat = Imgproc.getRotationMatrix2D(center, rotationAngle, 1);
+                Imgproc.warpAffine(srcMat, srcMat, rotationMat, outputSize);
+                //再度识别
+                submitRec(matToBitmap(srcMat), OCR, "文字识别超时");
+                //递归检索结果
+                excludeText(results, srcMat, true, rotationAngle);
             }
         }
     }
 
 
     /**
-     * 查找形状后覆盖，再找交通标志，找不到翻页处理
+     * 单次中文识别
      */
-    public static void findTrafficSign(byte classID) {
-        //含封面，先翻页
-        HashMap<String, String> map = new HashMap<>();
-        map.put("ctrl", "下一张");
-        CommunicationUtil.tftCmd(classID, map);
-        ThreadUtil.sleep(4000);
-        //循环查找交通标志，最多查找翻五次页
-        int count = 0;
-        boolean successFlag = false;
-        while (count < 5 && !successFlag) {
-            //图像识别，过滤只要交通标志
+    public static void recOnceChineseText(byte classID) {
+        HandlerUtil.sendMsg(HandlerUtil.VOICE, "中文识别");
+        ThreadUtil.createThread(() -> {
+            ThreadUtil.sleep(SleepTimesConst.WAIT_CAMERA);
             Bitmap img = getImg();
-            List<RecResult> recResults = imageRecognition(img, "tsr");
-            for (RecResult result : recResults) {
-                switch (result.getLabel()) {
-                    case "GoStraight":
-                    case "U-turn":
-                    case "TurnLeft":
-                    case "TurnRight":
-//                        case "NoPassage":
-                    case "NoGoStraight":
-                        List<RecResult> drawList = new ArrayList<>();
-                        drawList.add(result);
-                        drawLabel(drawList, img);
-                        HandlerUtil.sendMsg(HandlerUtil.VOICE, "哦吼，一眼丁真。");
-                        SharedPreferencesUtil.insert("交通标志", result.getLabel());
-                        successFlag = true;
-                        break;
+            StringBuilder textRECBuilder = new StringBuilder();
+            Mat srcMat = equalScaleImage(img);
+            List<OCRRect> results = ocr(srcMat, false);
+            if (results.size() > 0) {
+                //顺序读取识别结果并抹除识别结果
+                for (int i = (results.size() - 1); i > -1; i--) {
+                    textRECBuilder.append(DataPcsUtil.chineseFilter(results.get(i).getLabel()));
                 }
             }
-            if (successFlag) {
-                String maxShapeClass = SharedPreferencesUtil.queryKey2Value("maxShapeClass");
-                //判断紧急图形判别内容不为默认值和空的时候跳过，否则正常识别
-                if (!"0".equals(maxShapeClass) && !maxShapeClass.isEmpty()) {
+            if (textRECBuilder.length() > 0) {
+                HandlerUtil.sendMsg(HandlerUtil.VOICE, "找到咯");
+            }
+            LogUtil.printLog("有效中文识别：" + textRECBuilder);
+            SharedPreferencesUtil.insert(SharedPreferencesUtil.chineseTag + classID, textRECBuilder.toString());
+            CommunicationUtil.replyCar();
+        });
+    }
+
+
+    /**
+     * TFT 中文识别
+     */
+    public static void recTftChineseTextRecognition(byte classID) {
+        HandlerUtil.sendMsg(HandlerUtil.VOICE, "TFT 中文识别");
+        ThreadUtil.createThread(() -> {
+            ThreadUtil.sleep(SleepTimesConst.WAIT_CAMERA);
+            boolean recSuccess = false;
+            for (int p = 0; p < maxRecCount; p++) {
+                //默认翻一页，识别不到掉头再翻一页
+                if (!recSuccess) {
+                    tftDown(classID);
+                }
+                if (recSuccess) {
                     break;
                 } else {
-                    shapeRecognition(false);
-                }
-            } else {
-                HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put("ctrl", "下一张");
-                CommunicationUtil.tftCmd(classID, hashMap);
-                ThreadUtil.sleep(4000);
-            }
-            count++;
-        }
-    }
-
-
-    /**
-     * 查找形状后覆盖，再找交通标志，找不到翻页处理
-     */
-    public static void findTrafficSign2(byte classID) {
-        int count = 0;
-        boolean successFlag = false;
-        while (count < 5 && !successFlag) {
-            //清除历史识别数据
-            SharedPreferencesUtil.deleteShapeColorHistoryStorage();
-            //开始多边形识别
-            SRBean srBean = shapeRecognition(false);
-            if (srBean.isSuccess()) {
-                List<RecResult> recResults = imageRecognition(srBean.getBitmap(), "tsr");
-                for (RecResult result : recResults) {
-                    switch (result.getLabel()) {
-                        case "GoStraight":
-                            HandlerUtil.sendMsg(HandlerUtil.VOICE, "哦吼，一眼丁真。");
-                            SharedPreferencesUtil.insert("交通标志", "01");
-                            CommunicationUtil.sendData("", REPLY_FLAG, null);
-                            successFlag = true;
-                            break;
-                        case "U-turn":
-                            HandlerUtil.sendMsg(HandlerUtil.VOICE, "哦吼，一眼丁真。");
-                            SharedPreferencesUtil.insert("交通标志", "04");
-                            CommunicationUtil.sendData("", REPLY_FLAG, null);
-                            successFlag = true;
-                            break;
-                        case "TurnLeft":
-                            HandlerUtil.sendMsg(HandlerUtil.VOICE, "哦吼，一眼丁真。");
-                            SharedPreferencesUtil.insert("交通标志", "02");
-                            CommunicationUtil.sendData("", REPLY_FLAG, null);
-                            successFlag = true;
-                            break;
-                        case "TurnRight":
-                            HandlerUtil.sendMsg(HandlerUtil.VOICE, "哦吼，一眼丁真。");
-                            SharedPreferencesUtil.insert("交通标志", "03");
-                            CommunicationUtil.sendData("", REPLY_FLAG, null);
-                            successFlag = true;
-                            break;
-                        case "NoPassing":
-                            HandlerUtil.sendMsg(HandlerUtil.VOICE, "哦吼，一眼丁真。");
-                            SharedPreferencesUtil.insert("交通标志", "06");
-                            CommunicationUtil.sendData("", REPLY_FLAG, null);
-                            successFlag = true;
-                            break;
-                        case "NoGoStraight":
-                            HandlerUtil.sendMsg(HandlerUtil.VOICE, "哦吼，一眼丁真。");
-                            SharedPreferencesUtil.insert("交通标志", "05");
-                            CommunicationUtil.sendData("", REPLY_FLAG, null);
-                            successFlag = true;
-                            break;
+                    Bitmap img = getImg();
+                    StringBuilder textRECBuilder = new StringBuilder();
+                    Mat srcMat = equalScaleImage(img);
+                    List<OCRRect> results = ocr(srcMat, false);
+                    if (!results.isEmpty()) {
+                        //顺序读取识别结果并抹除识别结果
+                        for (int i = (results.size() - 1); i > -1; i--) {
+                            textRECBuilder.append(DataPcsUtil.chineseFilter(results.get(i).getLabel()));
+                        }
+                    }
+                    if (textRECBuilder.length() > 0) {
+                        HandlerUtil.sendMsg(HandlerUtil.VOICE, "找到咯");
+                        LogUtil.printLog("有效中文识别：" + textRECBuilder);
+                        SharedPreferencesUtil.insert(SharedPreferencesUtil.chineseTag + classID, textRECBuilder.toString());
+                        recSuccess = true;
+                        CommunicationUtil.voiceBroadcast(textRECBuilder.toString());
                     }
                 }
-                if (!successFlag) {
-                    HashMap<String, String> hashMap = new HashMap<>();
-                    hashMap.put("ctrl", "下一张");
-                    CommunicationUtil.tftCmd(classID, hashMap);
-                    ThreadUtil.sleep(4000);
-                }
-            } else {
-                HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put("ctrl", "下一张");
-                CommunicationUtil.tftCmd(classID, hashMap);
-                ThreadUtil.sleep(4000);
             }
-            count++;
-        }
+            CommunicationUtil.replyCar();
+        });
     }
 
 
+    static int qrCodeCount = 0;
+
     /**
-     * Bitmap 转 灰度图
-     *
-     * @param bitmap 源图像
-     * @return 返回灰度图
+     * 二维码解密
      */
-    public static Bitmap bitmapToGray(Bitmap bitmap) {
-        Mat newMat = bitmapToMat(bitmap);
-        Imgproc.cvtColor(newMat, newMat, Imgproc.COLOR_BGR2GRAY);
-        Bitmap newBitmap = matToBitmap(newMat);
-        HandlerUtil.sendMsg(HandlerUtil.DEBUG_IMG_FLAG, newBitmap);
-        return newBitmap;
+    public static void qrCodeDecryption(byte classID) {
+        String greenQRCode = SharedPreferencesUtil.queryKey2Value("绿色二维码");
+        SharedPreferencesUtil.insert(SharedPreferencesUtil.qrCodeTag + classID, greenQRCode);
+        qrCodeCount++;
     }
 
 
     /**
      * 二维码识别
      *
-     * @return 返回Result数组，每一个二维码代表由一个result数据表示
+     * @param classID 二维码类型
      */
-    public static String qrCodeRecognition() {
-        //图像灰度处理，使得干扰元素更少，解析速度更快
-        if (debugImg != null) {
-            FileUtil.saveImg(getImg(), "二维码识别过程", "");
-            Bitmap tempBitmap = ImgPcsUtil.bitmapToGray(getImg());
-            //获得亮度资源
-            QrLuminanceSourceUtil lSource = new QrLuminanceSourceUtil(tempBitmap);
-            try {
-                //转化为二值图
-                BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(lSource));
-                //读取多二维码
-                QRCodeMultiReader reader = new QRCodeMultiReader();
-                //得到结果
-                Result[] results = reader.decodeMultiple(binaryBitmap);
-                int resultNumber = 0;
-                //打印组装
-                StringBuilder printBuilder = new StringBuilder();
-                //内容组装
-                StringBuilder contentBuilder = new StringBuilder();
-                //打印结果
-                for (Result result : results) {
-                    resultNumber++;
-                    String sequence = "第 " + resultNumber + " 个二维码内容：";
-                    if (resultNumber < 2) {
-                        printBuilder.append(sequence).append(result.toString());
-                        contentBuilder.append(result);
+    public static void recQRCode(byte classID, boolean noColor) {
+        HandlerUtil.sendMsg(HandlerUtil.VOICE, "二维码识别");
+        ThreadUtil.createThread(() -> {
+            ThreadUtil.sleep(SleepTimesConst.WAIT_CAMERA);
+            boolean recSuccess = false;
+            for (int p = 0; p < maxRecCount; p++) {
+                if (recSuccess) {
+                    break;
+                } else {
+                    Bitmap img = getImg();
+                    if (img != null) {
+                        if (noColor) {  //黑白二维码
+                            recSuccess = recBWQRCode(classID, img);
+                        } else {    //彩色二维码
+                            recSuccess = recColorQRCode(classID, img);
+                        }
                     } else {
-                        printBuilder.append("\n").append(sequence).append(result.toString());
-                        contentBuilder.append("\n").append(result);
+                        HandlerUtil.sendMsg("未找到图像");
                     }
                 }
-                LogUtil.printLog("二维码识别", printBuilder.toString());
-                return contentBuilder.toString();
-            } catch (NotFoundException e) {
-                e.printStackTrace();
-                return "没有找到二维码";
+                if (!recSuccess) {
+                    //找不到的情况下休息500ms
+                    ThreadUtil.sleep(SleepTimesConst.WAIT_CAMERA);
+                }
             }
-        }
-        return "没有找到二维码";
+            if (recSuccess)
+                HandlerUtil.sendMsg(HandlerUtil.VOICE, "找到咯");
+            CommunicationUtil.replyCar();
+        });
     }
 
 
     /**
-     * 二维码解密
+     * 二维码解码
      *
-     * @param results 二维码识别结果
+     * @param img           图像
+     * @param qrCodeResults 接收返回结果和定位的 ConcurrentHashMap，ConcurrentHashMap 可以保证唯一性
      */
-    public static void qrCodeDecryption(String[] results, byte classID) {
-        String qrCodeClassName = "二维码A";
-//        if (classID == B_FLAG) {
-//            qrCodeClassName = "二维码B";
-//        }
-        if (results.length > 1) {
-            //多二维码处理w
-            for (String result : results) {
-                String res = DataPcsUtil.substringFromBraces(result);
-                if (res.contains("B")) {
-                    qrCodeClassName = "二维码B";
-                } else {
-                    qrCodeClassName = "二维码A";
-                }
-                String dRes = DataPcsUtil.capNumberLetterFilter(res);
-                LogUtil.printLog("二维码过滤后数据", dRes);
-                SharedPreferencesUtil.insert(qrCodeClassName, dRes);
+    public static void qrDecode(Bitmap img, ConcurrentHashMap<String, Rect> qrCodeResults) {
+        int[] pixels = new int[img.getWidth() * img.getHeight()];
+        img.getPixels(pixels, 0, img.getWidth(), 0, 0, img.getWidth(), img.getHeight());
+        RGBLuminanceSource source = new RGBLuminanceSource(img.getWidth(), img.getHeight(), pixels);
+        BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(source));
+        QRCodeMultiReader multiReader = new QRCodeMultiReader();
+        Result[] results = new Result[0];
+        try {
+            results = multiReader.decodeMultiple(binaryBitmap);
+        } catch (NotFoundException ignored) {
+        }
+        for (Result result : results) {
+            int minX = 999999;
+            int minY = 999999;
+            int maxX = 0;
+            int maxY = 0;
+            ResultPoint[] resultPoints = result.getResultPoints();
+            for (ResultPoint point : resultPoints) {
+                if (point.getX() < minX)
+                    minX = (int) point.getX();
+                if (point.getY() < minY)
+                    minY = (int) point.getY();
+                if (point.getX() > maxX)
+                    maxX = (int) point.getX();
+                if (point.getY() > maxY)
+                    maxY = (int) point.getY();
             }
+            int width = maxX - minX;
+            int height = maxY - minY;
+            //根据三个点定位最小内接矩形
+            int max = Math.max(width, height);
+            Rect rect = new Rect(minX, minY, max, max);
+            qrCodeResults.put(result.getText(), rect);
+        }
+    }
+
+
+    /**
+     * 识别灰度二维码
+     *
+     * @param classID 静态标志物类型
+     * @param img     带二维码的图像
+     * @return 返回识别成功结果
+     */
+    public static boolean recBWQRCode(byte classID, Bitmap img) {
+        boolean recSuccess = false;
+        ConcurrentHashMap<String, Rect> results = new ConcurrentHashMap<>();
+        //二维码解码
+        qrDecode(img, results);
+        if (!results.isEmpty()) {
+            recSuccess = true;
+            //二维码位置标记
+            Mat drawMat = bitmapToMat(img);
+            for (Rect rect : results.values()) {
+                Imgproc.rectangle(drawMat, rect, new Scalar(3, 101, 100), 3, Imgproc.LINE_AA);
+            }
+            HandlerUtil.sendMsg(HandlerUtil.DEBUG_IMG_FLAG, matToBitmap(drawMat));
+            //存储二维码
+            StringBuilder builder = new StringBuilder();
+            results.keySet().forEach(result -> {
+                LogUtil.printLog("无色二维码识别：" + result);
+                builder.append(result).append("\n");
+            });
+            SharedPreferencesUtil.insert(SharedPreferencesUtil.qrCodeTag + classID, builder.toString());
+            qrCodeDecryption(classID);
         } else {
-            //单二维码处理
-            SharedPreferencesUtil.insert(qrCodeClassName, results[0]);
+            LogUtil.printLog("未找到有效二维码");
+            HandlerUtil.sendMsg("未找到有效二维码");
+        }
+        return recSuccess;
+    }
+
+
+    /**
+     * 识别彩色二维码
+     * 实测对比度 +-0.10 各5次可以提高识别率
+     * 降低亮度，提高对比度
+     *
+     * @param img 带二维码的图像
+     */
+    public static boolean recColorQRCode(byte classID, Bitmap img) {
+        boolean recSuccess = false;
+        //彩色二维码颜色阈值
+        Mat colorMat = bitmapToMat(img);
+        List<Scalar[]> qrCodeColorTh = new ArrayList<>() {{
+            //红色
+            add(new Scalar[]{
+                    new Scalar(105, 40, 30),
+                    new Scalar(150, 255, 255)
+            });
+            //绿色
+            add(new Scalar[]{
+                    new Scalar(15, 40, 55),
+                    new Scalar(80, 255, 255)
+            });
+            //蓝色
+            add(new Scalar[]{
+                    new Scalar(150, 0, 0),
+                    new Scalar(180, 255, 255)
+            });
+            //黄色
+            add(new Scalar[]{
+                    new Scalar(87, 60, 110),
+                    new Scalar(100, 255, 255)
+            });
+        }};
+        Mat drawMat = bitmapToMat(img);
+        //多线程读写 Map
+        ConcurrentHashMap<String, Rect> qrCodeResults = new ConcurrentHashMap<>();
+        Consumer<Double> consumer = scale -> {
+            double cs = 1.00;
+            int bs = 0;
+            //每一次都进行识别，然后放入 ConcurrentHashMap 中。
+            for (int i = 0; i < 5; i++) {
+                //图像对比度 自增/自减 五次
+                cs += scale;
+                //图像亮度自减五次
+                bs -= 5;
+                LogUtil.printSystemLog("二维码识别图像信息：", "cs：" + cs + "，bs：" + bs);
+                Mat srcMat = bitmapToMat(img);
+                //线性变换，简易修改对比度
+                srcMat.convertTo(srcMat, srcMat.type(), cs, bs);
+                Bitmap lastImg = matToBitmap(srcMat);
+                //二维码解码，最终结果放入 ConcurrentMap ，保证唯一性
+                qrDecode(lastImg, qrCodeResults);
+            }
+        };
+        //对比度自增处理
+        CompletableFuture<Void> contrastIncreaseFuture = CompletableFuture.runAsync(() -> {
+            consumer.accept(0.10);
+        });
+        //对比度自减处理
+        CompletableFuture<Void> contrastDecreaseFuture = CompletableFuture.runAsync(() -> {
+            consumer.accept(-0.10);
+        });
+        //等待异步处理完成
+        CompletableFuture.allOf(contrastIncreaseFuture, contrastDecreaseFuture).join();
+        //解析数据
+        if (!qrCodeResults.keySet().isEmpty()) {
+            //绘制和查找颜色
+            qrCodeResults.keySet().forEach(label -> {
+                Rect rect = qrCodeResults.get(label);
+                assert rect != null;
+                Imgproc.rectangle(drawMat, rect, new Scalar(3, 101, 100), 3, Imgproc.LINE_AA);
+                Mat subMat = colorMat.submat(rect);
+                Imgproc.cvtColor(subMat, subMat, Imgproc.COLOR_BGR2HSV);
+                //迭代回归最优解
+                String colorName = "";
+                AtomicInteger area = new AtomicInteger(0);
+                AtomicInteger index = new AtomicInteger(0);
+                qrCodeColorTh.forEach(scalars -> {
+                    Mat rangeMat = new Mat();
+                    Core.inRange(subMat, scalars[0], scalars[1], rangeMat);
+                    List<MatOfPoint> contours = new ArrayList<>();
+                    Imgproc.findContours(rangeMat, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+                    //迭代得到最大面积
+                    contours.forEach(matOfPoint -> {
+                        if (area.get() < Imgproc.contourArea(matOfPoint)) {
+                            //更新面积
+                            area.set((int) Imgproc.contourArea(matOfPoint));
+                            //更新索引
+                            index.set(qrCodeColorTh.indexOf(scalars));
+                        }
+                    });
+                });
+                //二维码赋予颜色并存储
+                switch (index.get()) {
+                    case 0:
+                        colorName = "红色";
+                        break;
+                    case 1:
+                        colorName = "绿色";
+                        break;
+                    case 2:
+                        colorName = "蓝色";
+                        break;
+                    case 3:
+                        colorName = "黄色";
+                        break;
+                }
+                LogUtil.printLog(colorName + "二维码：" + label);
+                SharedPreferencesUtil.insert(colorName + SharedPreferencesUtil.qrCodeTag, label);
+            });
+            //二维码解密
+            recSuccess = true;
+            qrCodeDecryption(classID);
+            HandlerUtil.sendMsg(HandlerUtil.DEBUG_IMG_FLAG, matToBitmap(drawMat));
+        } else {
+            LogUtil.printLog("未找到有效二维码");
+            HandlerUtil.sendMsg("未找到有效二维码");
+        }
+        return recSuccess;
+    }
+
+
+    /**
+     * 交通灯识别
+     *
+     * @param classID 交通灯类型ID
+     */
+    public static void recTrafficLight(byte classID) {
+        HandlerUtil.sendMsg(HandlerUtil.VOICE, "交通灯识别");
+        ThreadUtil.createThread(() -> {
+            ThreadUtil.sleep(SleepTimesConst.WAIT_CAMERA);
+            boolean recSuccess = false;
+            for (int p = 1; p < maxRecCount; p++) {
+                if (recSuccess) {
+                    break;
+                } else {
+                    Bitmap img = getImg();
+                    List<RectResult> rectResults = imageRecognition(img, TLR);
+                    if (!rectResults.isEmpty()) {
+                        //同一时间识别到多个交通灯只取第一个
+                        if (trafficLightLabels.contains(rectResults.get(0).getLabel())) {
+                            //保存和打印交通灯识别信息
+                            DataPcsUtil.saveTrafficLight(rectResults.get(0).getLabel(), classID);
+                            HandlerUtil.sendMsg(HandlerUtil.VOICE, "找到咯");
+                            drawLabels(rectResults, img, false);
+                            recSuccess = true;
+                        }
+                    }
+                    if (!recSuccess) {
+                        //找不到的情况下休息500ms
+                        ThreadUtil.sleep(SleepTimesConst.WAIT_CAMERA);
+                    }
+                }
+            }
+            CommunicationUtil.replyCar();
+        });
+    }
+
+
+    /**
+     * 解析交通标志查找和识别结果（需要先识别）
+     *
+     * @param rectResults 识别结果
+     * @param img         原图
+     * @return 返回解析成功的结果
+     */
+    public static boolean parseTrafficSigns(List<RectResult> rectResults, Bitmap img, List<RectResult> drawLabels) {
+        HandlerUtil.sendMsg(HandlerUtil.VOICE, "交通标志查找和识别");
+        boolean recSuccess = false;
+        if (!rectResults.isEmpty()) {
+            for (RectResult result : rectResults) {
+                //匹配交通标志
+                if (trafficSignLabels.contains(result.getLabel())) {
+                    //没训练限速标志，所以将删除的和误判的类别归类到限速中（裁剪后文字识别不好用，百度的都识别不出来，只能训练了）
+                    if (speedLimitLabels.contains(result.getLabel())) {
+                        result.setLabel("SpeedLimit");
+                    }
+                    SharedPreferencesUtil.insert(SharedPreferencesUtil.trafficSignTag, result.getLabel());
+                    drawLabels.add(result);
+                    recSuccess = true;
+                }
+            }
+        }
+        if (recSuccess)
+            HandlerUtil.sendMsg(HandlerUtil.VOICE, "找到咯");
+        return recSuccess;
+    }
+
+
+    /**
+     * 解析多边形查找和识别结果（需要先识别）
+     *
+     * @param rectResults 识别结果
+     * @param img         识别的原图
+     * @param traIsRec    梯形是否纳入矩形
+     * @return 返回解析成功的结果
+     */
+    public static boolean parseShapes(List<RectResult> rectResults, Bitmap img, boolean traIsRec, List<RectResult> drawLabels) {
+        HandlerUtil.sendMsg(HandlerUtil.VOICE, "多边形查找和识别");
+        boolean recSuccess = false;
+        //五个以上图形才算正常图形页面，少于5个算无效
+        if (rectResults.size() > 5) {
+            //删除历史识别数据
+            SharedPreferencesUtil.deleteShapeColorRecHistoryStorage();
+            //开始解析
+            for (RectResult result : rectResults) {
+                //匹配形状
+                if (shapeLabels.contains(result.getLabel())) {
+                    //裁剪图形，分类
+                    Mat shapeMat = bitmapToMat(img).submat(result.getRect());
+                    //定义卷积核，处理图形光滑度
+                    Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
+                    Imgproc.cvtColor(shapeMat, shapeMat, Imgproc.COLOR_BGR2HSV);
+                    Imgproc.GaussianBlur(shapeMat, shapeMat, new Size(3, 3), 3, 3);
+                    //按照颜色查找图像
+                    double maxArea = 0;
+                    int colorClassID = 0;
+                    for (int colorIndex = 0; colorIndex < dark_hsv_high.length; colorIndex++) {
+                        //存放每个色系二值化图像，最后一个放最优内容
+                        Mat[] colorsMat = new Mat[dark_hsv_low[colorIndex].length + 1];
+                        //阈值区间二值化图像，根据索引遍历每组颜色的低阈值
+                        for (int thresholdIndex = 0; thresholdIndex < dark_hsv_low[colorIndex].length; thresholdIndex++) {
+                            Mat dstMat = new Mat();
+                            Core.inRange(shapeMat, dark_hsv_low[colorIndex][thresholdIndex], dark_hsv_high[colorIndex], dstMat);
+                            colorsMat[thresholdIndex] = dstMat.clone();
+                        }
+
+                        //合并多个二值化图像，最后一个位置为合并位，初始内容为第一个二值化图，所以第一次第一位与最后一位不参与运算
+                        colorsMat[colorsMat.length - 1] = colorsMat[0].clone();
+                        for (int binaryIndex = 0; binaryIndex < (colorsMat.length - 1); binaryIndex++) {
+                            //排除倒数第二个和最后一个
+                            if (binaryIndex > 0 && binaryIndex < (colorsMat.length - 1)) {
+                                //将索引位 Mat 与最后输出位 Mat 进行 or 运算
+                                Core.bitwise_or(colorsMat[binaryIndex], colorsMat[colorsMat.length - 1], colorsMat[colorsMat.length - 1]);
+                            }
+                        }
+                        //开闭运算，优化合并图像的噪声
+                        Imgproc.morphologyEx(colorsMat[colorsMat.length - 1], colorsMat[colorsMat.length - 1], Imgproc.MORPH_OPEN, kernel);
+                        Imgproc.morphologyEx(colorsMat[colorsMat.length - 1], colorsMat[colorsMat.length - 1], Imgproc.MORPH_CLOSE, kernel);
+
+                        //查找轮廓
+                        List<MatOfPoint> contours = new ArrayList<>();
+                        Imgproc.findContours(colorsMat[colorsMat.length - 1], contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+
+                        //迭代轮阔，根据迭代获得最大面积，根据最大面积索引获得颜色
+                        for (MatOfPoint matOfPoint : contours) {
+                            double area = Imgproc.contourArea(matOfPoint);
+                            if (area > maxArea) {
+                                maxArea = area;
+                                colorClassID = colorIndex;
+                            }
+                        }
+                    }
+                    //判断梯形是不是属于矩形
+                    String shapeLabel;
+                    String shapeClass = result.getLabel();
+                    if (shapeClass.equals("Trapezoid") && traIsRec) {
+                        shapeClass = "Rectangle";
+                    }
+                    //组装颜色和形状类型数据
+                    shapeLabel = colorNameList.get(colorClassID) + shapeChineseLabels.get(shapeClass);
+                    //读取图形数据内容，然后自增，最后覆盖数据
+                    String shapeCount = String.valueOf(Integer.parseInt(SharedPreferencesUtil.queryKey2Value(shapeLabel)) + 1);
+                    SharedPreferencesUtil.insert(shapeLabel, shapeCount);
+                    drawLabels.add(result);
+                    recSuccess = true;
+                }
+            }
+        }
+        if (recSuccess)
+            HandlerUtil.sendMsg(HandlerUtil.VOICE, "找到咯");
+        return recSuccess;
+    }
+
+
+    /**
+     * 交通标志和多边形识别
+     *
+     * @param classID      TFT 类型
+     * @param trafficSigns 是否查找交通标志
+     * @param shapes       是否查找多边形
+     * @param traIsRec     梯形是否归类到矩形
+     */
+    public static void recTrafficSignsAndShapes(byte classID, boolean trafficSigns, boolean shapes, boolean traIsRec) {
+        ThreadUtil.createThread(() -> {
+            ThreadUtil.sleep(SleepTimesConst.WAIT_CAMERA);
+            boolean recSuccess = false;
+            //迭代绘制
+            List<RectResult> drawLabels = new ArrayList<>();
+            Bitmap img = getImg();
+            for (int p = 0; p < maxRecCount; p++) {
+                //默认翻一页，识别不到掉头再翻一页
+                if (!recSuccess) {
+                    tftDown(classID);
+                }
+                if (recSuccess) {
+                    break;
+                } else {
+                    img = getImg();
+                    List<RectResult> rectResults = imageRecognition(img, TSR);
+                    if (trafficSigns && shapes) {   //先查找交通标志再识别图形
+                        boolean trafficSignIsTrue = parseTrafficSigns(rectResults, img, drawLabels);
+                        if (trafficSignIsTrue) {
+                            recSuccess = parseShapes(rectResults, img, traIsRec, drawLabels);
+                        }
+                    } else if (trafficSigns) {   //只查找和识别交通标志
+                        recSuccess = parseTrafficSigns(rectResults, img, drawLabels);
+                    } else {    //只查找和识别多边形
+                        recSuccess = parseShapes(rectResults, img, traIsRec, drawLabels);
+                    }
+                }
+            }
+            drawLabels(drawLabels, img, true);
+            assembleHex(classID);
+            CommunicationUtil.replyCar();
+        });
+    }
+
+
+    /**
+     * 组装16进制数据
+     */
+    public static void assembleHex(byte classID) {
+        String blueTra = SharedPreferencesUtil.queryKey2Value("蓝色梯形");
+        String redCir = SharedPreferencesUtil.queryKey2Value("红色圆形");
+        String yellowTri = SharedPreferencesUtil.queryKey2Value("黄色三角形");
+        String dia = String.valueOf(DataPcsUtil.getShapeFromStorage(TFT_SHAPE_DIA));
+        String skyBlue = String.valueOf(DataPcsUtil.getColorFromStorage(TFT_COLOR_SKY_BLUE)).length() > 1 ? String.valueOf(DataPcsUtil.getColorFromStorage(TFT_COLOR_SKY_BLUE)) : "0" + String.valueOf(DataPcsUtil.getColorFromStorage(TFT_COLOR_SKY_BLUE));
+        String hex = blueTra + redCir + yellowTri + dia + skyBlue;
+        SharedPreferencesUtil.insert(SharedPreferencesUtil.hex, hex);
+    }
+
+
+    /**
+     * 查找车牌和识别车牌内容
+     * 根据车牌格式查找车牌（可选）
+     *
+     * @param img 图像
+     * @return 车牌过滤结果
+     */
+    public static List<RectResult> findLP(Bitmap img) {
+        List<RectResult> lpResults = new ArrayList<>();
+        FileUtil.saveImg(img, "图像识别过程", "");
+        Plate[] results = HyperLPR3.getInstance().plateRecognition(img, HyperLPR3.CAMERA_ROTATION_0, HyperLPR3.STREAM_BGRA);
+        if (results.length < 1) {
+            LogUtil.printLog("车牌识别：无结果");
+            return lpResults;
+        }
+        String lpRegex = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.LPRegex);
+        for (Plate result : results) {
+            String lprContent = DataPcsUtil.capNumberLetterFilter(result.getCode());
+            //过滤得到数字和大写字母，要求必须要满足 5 位
+            if (lprContent.length() > 5) {
+                //裁剪倒数六位车牌
+                lprContent = lprContent.substring(lprContent.length() - 6);
+                //更新车牌内容
+                Rect rect = new Rect(new Point(result.getX1(), result.getY1()), new Point(result.getX2(), result.getY2()));
+                RectResult rectResult = new RectResult(lprContent, result.getConfidence(), rect);
+                LogUtil.printLog("车牌识别：" + rectResult.getLabel() + "," + rectResult.getConfidence());
+                //判断是否设置了格式，设置了格式就走格式
+                if (!lpRegex.isEmpty()) {
+                    boolean yes = DataPcsUtil.matchLP(lprContent);
+                    if (yes)
+                        lpResults.add(rectResult);
+                } else {
+                    lpResults.add(rectResult);
+                }
+            }
+        }
+        return lpResults;
+    }
+
+
+    /**
+     * 根据颜色查找车牌
+     * 基于 findLP() 方法扩展
+     * 根据车牌格式查找车牌（可选）
+     * 根据颜色查找车牌（可选）
+     *
+     * @param img 图像
+     * @return 车牌过滤结果
+     */
+    public static List<RectResult> findLPFromColor(Bitmap img) {
+        String LPColor = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.LPColor);
+        List<RectResult> results = findLP(img);
+        if (LPColor.equals("无")) {
+            return results;
+        } else {
+            List<RectResult> lpResults = new ArrayList<>();
+            results.forEach(result -> {
+                Mat subMat = bitmapToMat(img).submat(result.getRect());
+                //转换颜色，否则无法正确识别
+                Imgproc.cvtColor(subMat, subMat, Imgproc.COLOR_BGR2HSV);
+
+                //车牌颜色阈值选择，默认绿色
+                Scalar[] lpLowTh = lp_hsv_low[0];
+                Scalar lpHighTh = lp_hsv_high[0];
+                //根据预设颜色来判断车牌是否符合要求
+                switch (LPColor) {
+                    case "浅蓝色":
+                        lpLowTh = lp_hsv_low[1];
+                        lpHighTh = lp_hsv_high[1];
+                        break;
+                    case "黄色":
+                        lpLowTh = lp_hsv_low[2];
+                        lpHighTh = lp_hsv_high[2];
+                        break;
+                    case "深蓝色":
+                        lpLowTh = lp_hsv_low[3];
+                        lpHighTh = lp_hsv_high[3];
+                        break;
+                }
+                for (Scalar scalar : lpLowTh) {
+                    LogUtil.printSystemLog("车牌阈值", "" + Arrays.toString(scalar.val));
+                }
+                LogUtil.printSystemLog("车牌阈值", "" + Arrays.toString(lpHighTh.val));
+                //车牌二值图
+                Mat LPMat = null;
+                //遍历每一个阈值并合并所有可能像素
+                for (Scalar scalar : lpLowTh) {
+                    Mat dstMat = new Mat();
+                    Core.inRange(subMat, scalar, lpHighTh, dstMat);
+                    if (LPMat == null) {
+                        LPMat = dstMat.clone();
+                    } else {
+                        //将索引位 Mat 与最后输出位 Mat 进行 or 运算
+                        Core.bitwise_or(dstMat, LPMat, LPMat);
+                    }
+                }
+                //查找轮廓
+                List<MatOfPoint> lpContours = new ArrayList<>();
+                assert LPMat != null;
+                Imgproc.findContours(LPMat, lpContours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+                double maxArea = 0;
+                //迭代得到最大面积
+                for (MatOfPoint point : lpContours) {
+                    if (maxArea < Imgproc.contourArea(point)) {
+                        maxArea = Imgproc.contourArea(point);
+                    }
+                }
+                //判断车牌面积占比是否达到指定颜色面积的阈值
+                int width = result.getRect().width;
+                int height = result.getRect().height;
+                LogUtil.printSystemLog("矩阵面积与车牌面积", maxArea + "," + (width * height));
+                double lpATh = Double.parseDouble(SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.LPATh));
+                if (lpContours.size() > 0 && (maxArea / (width * height)) > lpATh) {
+                    lpResults.add(result);
+                } else {
+                    LogUtil.printLog("指定颜色出现的无效车牌：" + result.getLabel() + "，面积占比：" + (maxArea / (width * height)));
+                }
+            });
+            return lpResults;
         }
     }
 
 
     /**
-     * 斐文那契 LFSR 线性反馈移位寄存器算法
+     * 根据车型查找车牌
+     * 基于 findLPFromColor() 方法扩展
+     * 根据车牌格式查找车牌（可选）
+     * 根据颜色查找车牌（可选）
+     * 根据车型查找车牌（可选）
      *
-     * @param results 原二维码识别结果
-     * @return 返回解密内容
+     * @param img 图像
+     * @return 车牌过滤结果
      */
-    public static String LFSR(String[] results) {
-        //移位寄存器
-        StringBuilder sReg = new StringBuilder();
-        //反馈函数
-        String feedFun = "";
-        //判断寄存器与反馈函数，A 代表移位寄存器，B 代表反馈函数
-        for (String var : results) {
-            if (var.contains("A")) {
-                sReg = new StringBuilder(var);
-            } else if (var.contains("B")) {
-                feedFun = var;
-            }
-        }
-        //过滤特殊字符
-        sReg = new StringBuilder(DataPcsUtil.numberFilter(sReg.toString()));
-        feedFun = DataPcsUtil.numberFilter(feedFun);
-        LogUtil.printLog("test", sReg + "\n" + feedFun);
-        //记录长度，计算缺失然后补0
-        int sRegInitLength = sReg.length();
-        //记录输出位（最低位）
-        List<String> outputList = new ArrayList<>();
-        //默认增加原数据输出位
-        outputList.add(String.valueOf(sReg.charAt(sReg.length() - 1)));
-        //抽头序列查找
-        List<Integer> tapList = new ArrayList<>();
-        for (int i = 0; i < feedFun.length(); i++) {
-            //顺序查找
-            int i1 = feedFun.indexOf("1");
-            //逆序查找
-            int i2 = feedFun.lastIndexOf("1");
-            //替换已经查找的字符串
-            if (i1 != i2) {
-                tapList.add(i1);
-                tapList.add(i2);
-                feedFun = feedFun.substring(0, i1) + "0" + feedFun.substring(i1 + 1);
-                feedFun = feedFun.substring(0, i2) + "0" + feedFun.substring(i2 + 1);
-            } else if (i1 != -1) {
-                tapList.add(i1);
-                break;
-            } else {
-                break;
-            }
-        }
-        LogUtil.printLog("test", tapList.toString());
-        //异或运算，大于两个异或位后再开始
-        if (tapList.size() > 1) {
-            for (int i = 0; i < (Math.pow(2, sRegInitLength) - 1); i++) {
-                int bool = Integer.parseInt(String.valueOf(sReg.charAt(tapList.get(0))));
-                for (int j = 0; j < tapList.size(); j++) {
-                    if (j > 0) {
-                        bool ^= Integer.parseInt(String.valueOf(sReg.charAt(tapList.get(j))));
+    public static List<RectResult> findLPFromVehicleType(Bitmap img) {
+        String LPVehicleType = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.LPVehicleType);
+        List<RectResult> results = findLPFromColor(img);
+        if (LPVehicleType.equals("无")) {
+            return results;
+        } else {
+            List<RectResult> lpResults = new ArrayList<>();
+            List<RectResult> rectResults = imageRecognition(img, VTR);
+            if (!rectResults.isEmpty()) {
+                rectResults.forEach(result -> {
+                    String label = result.getLabel();
+                    //判断识别的车型是否在列表中，判断识别的车型是否属于所选类型
+                    if (vehicleTypeLabels.containsKey(label) && Objects.equals(vehicleTypeLabels.get(label), LPVehicleType)) {
+                        results.forEach(ocrResult -> {
+                            //车牌中心点
+                            int lpWidth = ocrResult.getRect().width;
+                            int lpHeight = ocrResult.getRect().height;
+                            int lprCenterX = ocrResult.getRect().x + lpWidth / 2;
+                            int lprCenterY = ocrResult.getRect().y + lpHeight / 2;
+                            //车牌左上角点
+                            int lprPoint1X = ocrResult.getRect().x;
+                            int lprPoint1Y = ocrResult.getRect().y;
+                            //车牌右上角点
+                            int lprPoint2X = ocrResult.getRect().x + lpWidth;
+                            int lprPoint2Y = ocrResult.getRect().y;
+                            //车牌左下角点
+                            int lprPoint3X = ocrResult.getRect().x;
+                            int lprPoint3Y = ocrResult.getRect().y + lpHeight;
+                            //车牌右下角点
+                            int lprPoint4X = ocrResult.getRect().x + lpWidth;
+                            int lprPoint4Y = ocrResult.getRect().y + lpHeight;
+                            //车型左上角点
+                            int carModelMinX = result.getRect().x;
+                            int carModelMinY = result.getRect().y;
+                            //车型右下角点
+                            int carModelMaxX = result.getRect().x + result.getRect().width;
+                            int carModelMaxY = result.getRect().y + result.getRect().height;
+                            //当车牌中心点包含在车型中，判断左右任意一边的两个角点
+                            if ((lprCenterX > carModelMinX && lprCenterX < carModelMaxX) && (lprCenterY > carModelMinY && lprCenterY < carModelMaxY)) {
+                                //判断边角点
+                                if ((lprPoint1X > carModelMinX && lprPoint3X > carModelMinX && lprPoint1Y > carModelMinY && lprPoint3Y > carModelMinY) || (lprPoint2X < carModelMaxX && lprPoint4X < carModelMaxX && lprPoint2Y < carModelMaxY && lprPoint4Y < carModelMaxY)) {
+                                    lpResults.add(ocrResult);
+                                }
+                            }
+                        });
                     }
-                }
-                //位移运算
-                int sRegBinary = Integer.valueOf(sReg.toString(), 2) >> 1;
-                sReg = new StringBuilder(Integer.toBinaryString(sRegBinary).trim());
-                //补充缺失bit
-                if (sReg.length() != sRegInitLength) {
-                    int dif = sRegInitLength - sReg.length();
-                    for (int k = 0; k < dif; k++) {
-                        sReg.insert(0, "0");
-                    }
-                }
-                sReg = new StringBuilder(sReg.toString().replaceFirst("0", String.valueOf(bool)));
-                outputList.add(String.valueOf(sReg.charAt(sReg.length() - 1)));
-                LogUtil.printLog("test", sReg + "\n");
+                });
             }
+            return lpResults;
         }
-        String bit = DataPcsUtil.numberFilter(outputList.toString());
-        LogUtil.printLog("test", bit);
-        List<String> hexList = new ArrayList<>();
-//        for (int i = 0; i < 48; i += 8) {
-//            String substring = bit.substring(i, i + 8);
-//            hexList.add(Integer.toHexString(Integer.parseInt(substring, 2)));
-//        }
-//        StringBuilder builder = new StringBuilder();
-//        for (String hex : hexList) {
-//            builder.append(hex).append(" ");
-//        }
-//        LogUtil.printLog("test", builder.toString());
-        return "";
     }
 
-}
 
-
-/**
- * 二维码亮度处理工具类
- *
- * @author Jinsn
- */
-class QrLuminanceSourceUtil extends LuminanceSource {
-
-    private final byte[] luminance;
-
-    public QrLuminanceSourceUtil(Bitmap bitmap) {
-        super(bitmap.getWidth(), bitmap.getHeight());
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-        int[] pixels = new int[width * height];
-        //将图像中的像素转换成int类型，存入数组中
-        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
-        luminance = new byte[width * height];
-        //像素颜色优化
-        for (int y = 0; y < height; y++) {
-            int offset = y * width;
-            for (int x = 0; x < width; x++) {
-                int pixel = pixels[offset + x];
-                //红色通道，单个像素向右位移16位成灰度
-                int r = (pixel >> 16) & 0xff;
-                //绿色通道，单个像素向右位移8位成灰度
-                int g = (pixel >> 8) & 0xff;
-                int b = pixel & 0xff;
-                if (r == g && g == b) {
-                    //图像已经是灰度，选择任意通道都行，这里选择R通道
-                    luminance[offset + x] = (byte) r;
+    /**
+     * 车牌查找和识别
+     *
+     * @param classID TFT 类型
+     */
+    public static void recLP(byte classID) {
+        HandlerUtil.sendMsg(HandlerUtil.VOICE, "车牌查找和识别");
+        ThreadUtil.createThread(() -> {
+            ThreadUtil.sleep(SleepTimesConst.WAIT_CAMERA);
+            boolean recSuccess = false;
+            Bitmap img = getImg();
+            List<RectResult> drawLabels = new ArrayList<>();
+            for (int p = 0; p < maxRecCount; p++) {
+                //默认翻一页，识别不到掉头再翻一页
+                if (!recSuccess) {
+                    tftDown(classID);
+                }
+                if (recSuccess) {
+                    break;
                 } else {
-                    //简单计算亮度，偏向绿色。
-                    luminance[offset + x] = (byte) ((r + g + g + b) >> 2);
+                    img = getImg();
+                    if (img != null) {
+                        drawLabels = findLPFromVehicleType(img);
+                        if (!drawLabels.isEmpty()) {
+                            drawLabels.forEach(result -> {
+                                LogUtil.printLog("有效车牌" + result.getLabel());
+                                SharedPreferencesUtil.insert(SharedPreferencesUtil.LPTag + classID, result.getLabel());
+                            });
+                            HandlerUtil.sendMsg(HandlerUtil.VOICE, "找到咯");
+                            recSuccess = true;
+                        }
+                    } else {
+                        HandlerUtil.sendMsg("未找到图像");
+                    }
                 }
             }
+            drawLabels(drawLabels, img, false);
+            CommunicationUtil.replyCar();
+        });
+    }
+
+
+    /**
+     * 破损车牌查找
+     *
+     * @param classID 标志物类型
+     */
+    public static boolean findLPFromBroken(byte classID) {
+        return false;
+    }
+
+
+    /**
+     * 行人识别
+     *
+     * @param classID TFT 类型
+     */
+    public static void recPerson(byte classID) {
+        HandlerUtil.sendMsg(HandlerUtil.VOICE, "行人识别");
+        ThreadUtil.createThread(() -> {
+            ThreadUtil.sleep(SleepTimesConst.WAIT_CAMERA);
+            boolean recSuccess = false;
+            List<RectResult> drawLabels = new ArrayList<>();
+            Bitmap img = getImg();
+            for (int p = 0; p < maxRecCount; p++) {
+                //默认翻一页，识别不到掉头再翻一页
+                if (!recSuccess) {
+                    tftDown(classID);
+                }
+                if (recSuccess) {
+                    break;
+                } else {
+                    img = getImg();
+                    List<RectResult> hbrResults = imageRecognition(img, HBR);
+                    if (!hbrResults.isEmpty()) {
+                        int personCount = 0;
+                        for (RectResult result : hbrResults) {
+                            if (result.getLabel().equals("person")) {
+                                //查询是否开启口罩检测
+                                if (!SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.personMask).equals("无")) {
+                                    Mat subMat = bitmapToMat(img).submat(result.getRect());
+                                    List<RectResult> mrResults = imageRecognition(matToBitmap(subMat), MR);
+                                    boolean hasMask = false;
+                                    for (RectResult mrResult : mrResults) {
+                                        if (maskLabels.contains(mrResult.getLabel())) {
+                                            hasMask = true;
+                                            break;
+                                        }
+                                    }
+                                    if (hasMask) {
+                                        personCount++;
+                                        drawLabels.add(result);
+                                    }
+                                } else {
+                                    personCount++;
+                                    drawLabels.add(result);
+                                }
+                                recSuccess = true;
+                            }
+                        }
+                        if (personCount > 0) {
+                            SharedPreferencesUtil.insert(SharedPreferencesUtil.personCount, String.valueOf(personCount));
+                        }
+                    }
+                }
+            }
+            if (recSuccess)
+                HandlerUtil.sendMsg(HandlerUtil.VOICE, "找到咯");
+            drawLabels(drawLabels, img, false);
+            CommunicationUtil.replyCar();
+        });
+    }
+
+
+    //单 TFT 进行多任务，跑完记得重启清标志位
+    private static int tftACount = 0;
+    private static int tftBCount = 0;
+    private static int tftCCount = 0;
+
+    /**
+     * TFT 识别
+     *
+     * @param classID 标志物类型
+     */
+    public static void recTFT(byte classID) {
+        switch (classID) {
+            case A_FLAG:
+                //车牌识别
+                recLP(classID);
+
+                tftACount++;
+                break;
+            case B_FLAG:
+                //交通标志识别
+                recTrafficSignsAndShapes(classID, false,true, false);
+                tftBCount++;
+                break;
+            case C_FLAG:
+                switch (tftCCount ){
+                    case 0:
+                        recTrafficSignsAndShapes(classID, true, false, false);
+                        break;
+                    case 1:
+                        recPerson(classID);
+                        break;
+                }
+                tftCCount++;
+                break;
         }
     }
 
-    @Override
-    public byte[] getMatrix() {
-        return luminance;
+
+    /**
+     * TFT 下翻一页
+     *
+     * @param classID TFT 类型
+     */
+    public static void tftDown(byte classID) {
+        HashMap<String, String> tftCtrl = new HashMap<>();
+        tftCtrl.put("ctrl", "下一张");
+        CommunicationUtil.tftCmd(classID, tftCtrl);
+        ThreadUtil.sleep(SleepTimesConst.WAIT_TFT);
     }
 
-    @Override
-    public byte[] getRow(int arg0, byte[] arg1) {
-        if (arg0 < 0 || arg0 >= getHeight()) {
-            throw new IllegalArgumentException(
-                    "Requested row is outside the image: " + arg0);
-        }
-        int width = getWidth();
-        if (arg1 == null || arg1.length < width) {
-            arg1 = new byte[width];
-        }
-        System.arraycopy(luminance, arg0 * width, arg1, 0, width);
-        return arg1;
-    }
 }
+

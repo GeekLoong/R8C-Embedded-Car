@@ -1,10 +1,11 @@
 package net.kuisec.r8c.CustomView;
 
-import static net.kuisec.r8c.Const.InteractionConst.CAR_FLAG;
-import static net.kuisec.r8c.Const.InteractionConst.END_FLAG;
-import static net.kuisec.r8c.Const.InteractionConst.REPLY_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.A_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.B_FLAG;
+import static net.kuisec.r8c.Const.HeaderConst.CAR_FLAG;
+import static net.kuisec.r8c.Const.HeaderConst.END_FLAG;
+import static net.kuisec.r8c.Const.HeaderConst.REPLY_FLAG;
+import static net.kuisec.r8c.Const.SignConst.A_FLAG;
+import static net.kuisec.r8c.Const.SignConst.B_FLAG;
+import static net.kuisec.r8c.Const.SignConst.C_FLAG;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -24,6 +25,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -39,12 +41,11 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.kuisec.rec.plugin.results.OCRResult;
-import com.kuisec.rec.plugin.results.RecResult;
-
 import net.kuisec.r8c.Adapter.DialogItemAdapter;
 import net.kuisec.r8c.Bean.DialogItemBean;
 import net.kuisec.r8c.Bean.EditDialogBean;
+import net.kuisec.r8c.Bean.OCRRect;
+import net.kuisec.r8c.Bean.RectResult;
 import net.kuisec.r8c.Ints.TextWatcherCallBack;
 import net.kuisec.r8c.MainActivity;
 import net.kuisec.r8c.R;
@@ -61,8 +62,11 @@ import net.kuisec.r8c.databinding.DialogMainBinding;
 import org.opencv.core.Scalar;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -122,30 +126,27 @@ public class MainDialog extends DialogFragment {
     private void initData() {
         activity = (MainActivity) getActivity();
         List<DialogItemBean> list = new ArrayList<>();
-        list.add(new DialogItemBean(R.drawable.road_gate, "道闸标志物"));
-        list.add(new DialogItemBean(R.drawable.led_display, "LED 显示标志物"));
         list.add(new DialogItemBean(R.drawable.broadcasting, "语音播报标志物"));
-        list.add(new DialogItemBean(R.drawable.charging_pile, "无线充电标志物"));
         list.add(new DialogItemBean(R.drawable.tft_display, "智能 TFT 显示标志物"));
-        list.add(new DialogItemBean(R.drawable.traffic_lights, "智能交通灯标志物"));
-        list.add(new DialogItemBean(R.drawable.garage, "立体车库标志物"));
-        list.add(new DialogItemBean(R.drawable.etc, "ETC 系统标志物"));
-        list.add(new DialogItemBean(R.drawable.alarm_device, "烽火台报警标志物"));
-        list.add(new DialogItemBean(R.drawable.street_lamp, "智能路灯标志物"));
-        list.add(new DialogItemBean(R.drawable.td, "立体显示标志物"));
-        list.add(new DialogItemBean(R.drawable.buzzer, "蜂鸣器控制"));
-        list.add(new DialogItemBean(R.drawable.cornering_lamp, "转向灯控制"));
         list.add(new DialogItemBean(R.drawable.hsv, "HSV 动态调节和展示"));
         list.add(new DialogItemBean(R.drawable.photo_graph, "竞赛平台拍照系统"));
         list.add(new DialogItemBean(R.drawable.terminal, "万能通信指令"));
         list.add(new DialogItemBean(R.drawable.camera, "摄像头视角控制"));
+        list.add(new DialogItemBean(R.drawable.car_start, "启动主车"));
         list.add(new DialogItemBean(R.drawable.sync_img, "加载本地图像到 DEBUG"));
-        list.add(new DialogItemBean(R.drawable.image_rec, "图像识别"));
-        list.add(new DialogItemBean(R.drawable.shape_rec, "多边形识别"));
+        list.add(new DialogItemBean(R.drawable.qr_code, "二维码识别"));
         list.add(new DialogItemBean(R.drawable.ocr, "文字识别"));
         list.add(new DialogItemBean(R.drawable.cocr, "中文识别"));
-        list.add(new DialogItemBean(R.drawable.lpr, "车牌识别"));
-        list.add(new DialogItemBean(R.drawable.car_start, "启动主车"));
+        list.add(new DialogItemBean(R.drawable.lpr, "车牌内容识别"));
+        list.add(new DialogItemBean(R.drawable.traffic_lights, "交通灯识别"));
+        list.add(new DialogItemBean(R.drawable.image_rec, "查找交通标志后识别多边形"));
+        list.add(new DialogItemBean(R.drawable.image_rec, "交通标志查找和识别"));
+        list.add(new DialogItemBean(R.drawable.image_rec, "多边形查找和识别"));
+        list.add(new DialogItemBean(R.drawable.image_rec, "车型车牌识别"));
+        list.add(new DialogItemBean(R.drawable.image_rec, "口罩识别"));
+        list.add(new DialogItemBean(R.drawable.image_rec, "行人识别"));
+        list.add(new DialogItemBean(R.drawable.cocr, "TFT 中文查找和识别"));
+        list.add(new DialogItemBean(R.drawable.lpr, "TFT 车牌查找和识别"));
 
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
         binding.recyclerviewDialog.setLayoutManager(manager);
@@ -156,41 +157,27 @@ public class MainDialog extends DialogFragment {
             @Override
             public void onItemClick(RecyclerView.ViewHolder viewHolder) {
                 switch (viewHolder.getLayoutPosition()) {
-                    //道闸标志物
+                    //语音播报
                     case 0:
-                        FloatWindowUtil floatWindowUtil = new FloatWindowUtil(requireActivity());
-                        View floatWindow = floatWindowUtil.create(R.layout.roodway_gate);
-                        break;
-                    //LED 显示标志物
-                    case 1:
-                        ThreadUtil.createThread(() -> {
-                            HandlerUtil.sendMsg(HandlerUtil.VOICE, "二维码识别");
-                            ThreadUtil.createThread(() -> {
-                                ThreadUtil.sleep(1500);
-                                //逻辑处理
-                                String qrCodeContent = ImgPcsUtil.qrCodeRecognition();
-                                if (!"没有找到二维码".equals(qrCodeContent)) {
-                                    //二维码算法处理
-                                    String[] results = qrCodeContent.split(System.lineSeparator());
-                                    ImgPcsUtil.qrCodeDecryption(results, A_FLAG);
-                                }
-                                String qrA = SharedPreferencesUtil.queryKey2Value("二维码A");
-                                String qrB = SharedPreferencesUtil.queryKey2Value("二维码B");
-                                LogUtil.printLog("DEBUG 二维码A数据", qrA);
-                                LogUtil.printLog("DEBUG 二维码B数据", qrB);
-                            });
+                        FloatWindowUtil voiceBroadcastFloatWindow = new FloatWindowUtil(requireActivity());
+                        View voiceBroadcastLayout = voiceBroadcastFloatWindow.create(R.layout.float_voice_broadcast);
+                        EditText voiceBroadcastEdit = voiceBroadcastLayout.findViewById(R.id.voiceBroadcastEdit);
+                        Button sendVoiceBroadcastContent = voiceBroadcastLayout.findViewById(R.id.sendVoiceBroadcastContent);
+                        voiceBroadcastEdit.setOnClickListener(view -> {
+                            EditDialog dialog = new EditDialog(new EditDialogBean(voiceBroadcastEdit, false));
+                            dialog.show(activity.getSupportFragmentManager(), "Edit Dialog");
                         });
-                        break;
-                    case 2:
-                        ThreadUtil.createThread(() -> {
-                            ImgPcsUtil.tftRecognition(B_FLAG);
+                        sendVoiceBroadcastContent.setOnClickListener(view -> {
+                            String voiceBroadcastContent = voiceBroadcastEdit.getText().toString();
+                            if (voiceBroadcastContent.isEmpty()) {
+                                HandlerUtil.sendMsg("播报内容不能为空！");
+                            } else {
+                                CommunicationUtil.voiceBroadcast(voiceBroadcastContent);
+                            }
                         });
-                        break;
-                    case 3:
-
                         break;
                     //智能 TFT 显示标志物
-                    case 4:
+                    case 1:
                         FloatWindowUtil tftFloatWindow = new FloatWindowUtil(requireActivity());
                         View tftLayout = tftFloatWindow.create(R.layout.float_tft);
                         //将三个单选小组定为一个大组
@@ -231,6 +218,7 @@ public class MainDialog extends DialogFragment {
                             });
                         }
                         RadioButton checkClassA = tftLayout.findViewById(R.id.tft_class_a);
+                        RadioButton checkClassB = tftLayout.findViewById(R.id.tft_class_b);
                         //指令和内容
                         HashMap<String, String> hashMap = new HashMap<>();
 
@@ -241,28 +229,57 @@ public class MainDialog extends DialogFragment {
                             hashMap.put("content", eTG[0].getText().toString());
                             if (checkClassA.isChecked())
                                 CommunicationUtil.tftCmd(A_FLAG, hashMap);
-                            else CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else if (checkClassB.isChecked())
+                                CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else
+                                CommunicationUtil.tftCmd(C_FLAG, hashMap);
                         });
                         Button tftPrevious = tftLayout.findViewById(R.id.tftPrevious);
                         tftPrevious.setOnClickListener(view -> {
                             hashMap.put("ctrl", "上一张");
                             if (checkClassA.isChecked())
                                 CommunicationUtil.tftCmd(A_FLAG, hashMap);
-                            else CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else if (checkClassB.isChecked())
+                                CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else
+                                CommunicationUtil.tftCmd(C_FLAG, hashMap);
                         });
                         Button tftPlay = tftLayout.findViewById(R.id.tftPlay);
+                        AtomicBoolean autoIsRun = new AtomicBoolean(false);
+                        AtomicInteger tftCount = new AtomicInteger(1);
                         tftPlay.setOnClickListener(view -> {
-                            hashMap.put("ctrl", "自动");
-                            if (checkClassA.isChecked())
-                                CommunicationUtil.tftCmd(A_FLAG, hashMap);
-                            else CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            if (!autoIsRun.get()) {
+                                autoIsRun.set(true);
+                                tftPlay.setText("停止");
+                                ThreadUtil.createThread(() -> {
+                                    while (autoIsRun.get()) {
+                                        hashMap.put("ctrl", "下一张");
+                                        if (checkClassA.isChecked())
+                                            CommunicationUtil.tftCmd(A_FLAG, hashMap);
+                                        else if (checkClassB.isChecked())
+                                            CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                                        else
+                                            CommunicationUtil.tftCmd(C_FLAG, hashMap);
+                                        LogUtil.printLog("TFT 自动播放：正在播放第" + tftCount + "轮");
+                                        tftCount.getAndIncrement();
+                                        ThreadUtil.sleep(2250);
+                                    }
+                                });
+                            } else {
+                                autoIsRun.set(false);
+                                tftCount.set(1);
+                                tftPlay.setText("自动播放");
+                            }
                         });
                         Button tftNext = tftLayout.findViewById(R.id.tftNext);
                         tftNext.setOnClickListener(view -> {
                             hashMap.put("ctrl", "下一张");
                             if (checkClassA.isChecked())
                                 CommunicationUtil.tftCmd(A_FLAG, hashMap);
-                            else CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else if (checkClassB.isChecked())
+                                CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else
+                                CommunicationUtil.tftCmd(C_FLAG, hashMap);
                         });
                         //监听编辑窗口返回的内容
                         eTG[0].addTextChangedListener(new FloatEditTextWatcher(() -> {
@@ -284,7 +301,10 @@ public class MainDialog extends DialogFragment {
                             hashMap.put("content", eTG[1].getText().toString());
                             if (checkClassA.isChecked())
                                 CommunicationUtil.tftCmd(A_FLAG, hashMap);
-                            else CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else if (checkClassB.isChecked())
+                                CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else
+                                CommunicationUtil.tftCmd(C_FLAG, hashMap);
                         });
                         //监听编辑窗口返回的内容
                         eTG[1].addTextChangedListener(new FloatEditTextWatcher(() -> {
@@ -304,21 +324,30 @@ public class MainDialog extends DialogFragment {
                             hashMap.put("ctrl", "暂停计时");
                             if (checkClassA.isChecked())
                                 CommunicationUtil.tftCmd(A_FLAG, hashMap);
-                            else CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else if (checkClassB.isChecked())
+                                CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else
+                                CommunicationUtil.tftCmd(C_FLAG, hashMap);
                         });
                         Button tftTimerReset = tftLayout.findViewById(R.id.tftTimerReset);
                         tftTimerReset.setOnClickListener(view -> {
                             hashMap.put("ctrl", "重置计时");
                             if (checkClassA.isChecked())
                                 CommunicationUtil.tftCmd(A_FLAG, hashMap);
-                            else CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else if (checkClassB.isChecked())
+                                CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else
+                                CommunicationUtil.tftCmd(C_FLAG, hashMap);
                         });
                         Button tftTimerOn = tftLayout.findViewById(R.id.tftTimerOn);
                         tftTimerOn.setOnClickListener(view -> {
                             hashMap.put("ctrl", "开始计时");
                             if (checkClassA.isChecked())
                                 CommunicationUtil.tftCmd(A_FLAG, hashMap);
-                            else CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else if (checkClassB.isChecked())
+                                CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else
+                                CommunicationUtil.tftCmd(C_FLAG, hashMap);
                         });
 
                         //16进制显示模式
@@ -328,7 +357,10 @@ public class MainDialog extends DialogFragment {
                             hashMap.put("content", eTG[2].getText().toString());
                             if (checkClassA.isChecked())
                                 CommunicationUtil.tftCmd(A_FLAG, hashMap);
-                            else CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else if (checkClassB.isChecked())
+                                CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else
+                                CommunicationUtil.tftCmd(C_FLAG, hashMap);
                         });
                         //监听编辑窗口返回的内容
                         eTG[2].addTextChangedListener(new FloatEditTextWatcher(() -> {
@@ -357,7 +389,10 @@ public class MainDialog extends DialogFragment {
                             hashMap.put("content", eTG[3].getText().toString());
                             if (checkClassA.isChecked())
                                 CommunicationUtil.tftCmd(A_FLAG, hashMap);
-                            else CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else if (checkClassB.isChecked())
+                                CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else
+                                CommunicationUtil.tftCmd(C_FLAG, hashMap);
                         });
                         //监听编辑窗口返回的内容
                         eTG[3].addTextChangedListener(new FloatEditTextWatcher(() -> {
@@ -377,86 +412,64 @@ public class MainDialog extends DialogFragment {
                             hashMap.put("ctrl", "直行");
                             if (checkClassA.isChecked())
                                 CommunicationUtil.tftCmd(A_FLAG, hashMap);
-                            else CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else if (checkClassB.isChecked())
+                                CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else
+                                CommunicationUtil.tftCmd(C_FLAG, hashMap);
                         });
                         Button tftTurnLeft = tftLayout.findViewById(R.id.tftTurnLeft);
                         tftTurnLeft.setOnClickListener(view -> {
                             hashMap.put("ctrl", "左转");
                             if (checkClassA.isChecked())
                                 CommunicationUtil.tftCmd(A_FLAG, hashMap);
-                            else CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else if (checkClassB.isChecked())
+                                CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else
+                                CommunicationUtil.tftCmd(C_FLAG, hashMap);
                         });
                         Button tftTurnRight = tftLayout.findViewById(R.id.tftTurnRight);
                         tftTurnRight.setOnClickListener(view -> {
                             hashMap.put("ctrl", "右转");
                             if (checkClassA.isChecked())
                                 CommunicationUtil.tftCmd(A_FLAG, hashMap);
-                            else CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else if (checkClassB.isChecked())
+                                CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else
+                                CommunicationUtil.tftCmd(C_FLAG, hashMap);
                         });
                         Button tftBack = tftLayout.findViewById(R.id.tftBack);
                         tftBack.setOnClickListener(view -> {
                             hashMap.put("ctrl", "掉头");
                             if (checkClassA.isChecked())
                                 CommunicationUtil.tftCmd(A_FLAG, hashMap);
-                            else CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else if (checkClassB.isChecked())
+                                CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else
+                                CommunicationUtil.tftCmd(C_FLAG, hashMap);
                         });
                         Button tftNoForward = tftLayout.findViewById(R.id.tftNoForward);
                         tftNoForward.setOnClickListener(view -> {
                             hashMap.put("ctrl", "禁止直行");
                             if (checkClassA.isChecked())
                                 CommunicationUtil.tftCmd(A_FLAG, hashMap);
-                            else CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else if (checkClassB.isChecked())
+                                CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else
+                                CommunicationUtil.tftCmd(C_FLAG, hashMap);
                         });
                         Button tftNoEnter = tftLayout.findViewById(R.id.tftNoEnter);
                         tftNoEnter.setOnClickListener(view -> {
                             hashMap.put("ctrl", "禁止通行");
                             if (checkClassA.isChecked())
                                 CommunicationUtil.tftCmd(A_FLAG, hashMap);
-                            else CommunicationUtil.tftCmd(B_FLAG, hashMap);
-                        });
-                        break;
-                    //蜂鸣器控制
-                    case 11:
-                        FloatWindowUtil buzzerFloatWindow = new FloatWindowUtil(requireActivity());
-                        View buzzerLayout = buzzerFloatWindow.create(R.layout.float_buzzer);
-                        RadioButton openBuzzer = buzzerLayout.findViewById(R.id.openBuzzer);
-                        //开启蜂鸣器
-                        openBuzzer.setOnClickListener(v -> {
-                            CommunicationUtil.buzzer(1);
-                        });
-                        //关闭蜂鸣器
-                        RadioButton closeBuzzer = buzzerLayout.findViewById(R.id.closeBuzzer);
-                        closeBuzzer.setOnClickListener(v -> {
-                            CommunicationUtil.buzzer(0);
-                        });
-                        break;
-                    //转向灯控制
-                    case 12:
-                        FloatWindowUtil turnSignalFloatWindow = new FloatWindowUtil(requireActivity());
-                        View turnSignalLayout = turnSignalFloatWindow.create(R.layout.float_turn_signal);
-                        RadioButton closeLight = turnSignalLayout.findViewById(R.id.closeLight);
-                        //熄灭所有灯
-                        closeLight.setOnClickListener(v -> {
-                            CommunicationUtil.turnSignal(0);
-                        });
-                        RadioButton openLight = turnSignalLayout.findViewById(R.id.openLight);
-                        //开启双闪
-                        openLight.setOnClickListener(v -> {
-                            CommunicationUtil.turnSignal(1);
-                        });
-                        RadioButton turnLeftLight = turnSignalLayout.findViewById(R.id.turnLeftLight);
-                        //开启左转向灯
-                        turnLeftLight.setOnClickListener(v -> {
-                            CommunicationUtil.turnSignal(2);
-                        });
-                        RadioButton turnRightLight = turnSignalLayout.findViewById(R.id.turnRightLight);
-                        //开启右转向灯
-                        turnRightLight.setOnClickListener(v -> {
-                            CommunicationUtil.turnSignal(3);
+                            else if (checkClassB.isChecked())
+                                CommunicationUtil.tftCmd(B_FLAG, hashMap);
+                            else
+                                CommunicationUtil.tftCmd(C_FLAG, hashMap);
                         });
                         break;
                     //HSV 动态调节和展示
-                    case 13:
+                    case 2:
                         FloatWindowUtil imgFloatWindow = new FloatWindowUtil(requireActivity());
                         View floatImgLayout = imgFloatWindow.create(R.layout.float_img);
                         floatImgLayout.findViewById(R.id.floating_close).setVisibility(View.VISIBLE);
@@ -504,12 +517,13 @@ public class MainDialog extends DialogFragment {
                         }
                         break;
                     //竞赛平台拍照系统
-                    case 14:
+                    case 3:
                         FloatWindowUtil cameraFloatWindow = new FloatWindowUtil(requireActivity());
                         View floatCameraLayout = cameraFloatWindow.create(R.layout.float_camera);
                         RadioGroup cameraGroup = floatCameraLayout.findViewById(R.id.floating_camera);
                         LinearLayout cameraTFTClassLayout = floatCameraLayout.findViewById(R.id.camera_tft_class);
                         RadioButton checkClassA2 = floatCameraLayout.findViewById(R.id.tft_class_a);
+                        RadioButton checkClassB2 = floatCameraLayout.findViewById(R.id.tft_class_b);
                         AtomicReference<String> pgCmd = new AtomicReference<>("拍立得");
                         cameraGroup.setOnCheckedChangeListener((group, checkedId) -> {
                             if (checkedId == R.id.ones_camera) pgCmd.set("一秒一拍");
@@ -537,8 +551,13 @@ public class MainDialog extends DialogFragment {
                             if (!FileUtil.isCameraPlayFlag()) {
                                 HandlerUtil.sendMsg("开始拍照任务, 任务名称：" + pgCmd.get());
                                 FileUtil.setCameraPlayFlag(true);
-                                byte classID = A_FLAG;
-                                if (!checkClassA2.isChecked()) classID = B_FLAG;
+                                byte classID;
+                                if (checkClassA2.isChecked())
+                                    classID = A_FLAG;
+                                else if (checkClassB2.isChecked())
+                                    classID = B_FLAG;
+                                else
+                                    classID = C_FLAG;
                                 FileUtil.camera(classID, pgCmd.get());
                             } else {
                                 HandlerUtil.sendMsg("拍照任务已经开始，请勿重复开始任务");
@@ -546,9 +565,12 @@ public class MainDialog extends DialogFragment {
                         });
                         break;
                     //万能通信指令
-                    case 15:
+                    case 4:
                         FloatWindowUtil floatTerminalWindow = new FloatWindowUtil(requireActivity());
                         View floatTerminalLayout = floatTerminalWindow.create(R.layout.float_terminal);
+                        //设置通信指令主指令选择
+                        GridLayout mainCmdGroup = floatTerminalLayout.findViewById(R.id.main_cmd_item_group);
+                        new FlowRadioGroup(mainCmdGroup, SharedPreferencesUtil.mainCmd);
                         EditText terminalEditText = floatTerminalLayout.findViewById(R.id.hexTerminal);
                         //获得焦点时打开编辑窗口
                         terminalEditText.setOnClickListener(view -> {
@@ -561,7 +583,7 @@ public class MainDialog extends DialogFragment {
                                 dialog.show(activity.getSupportFragmentManager(), "Edit Dialog");
                             }
                         });
-                        AtomicReference<String> unCmd = new AtomicReference<>("post");
+                        AtomicReference<String> unCmd = new AtomicReference<>("get");
                         RadioGroup terminalMethod = floatTerminalLayout.findViewById(R.id.terminal_method);
                         terminalMethod.setOnCheckedChangeListener((group, checkedId) -> {
                             if (checkedId == R.id.get_method) unCmd.set("get");
@@ -571,12 +593,33 @@ public class MainDialog extends DialogFragment {
                         Button sendHexTerminalData = floatTerminalLayout.findViewById(R.id.sendHexTerminalData);
                         sendHexTerminalData.setOnClickListener(view -> {
                             //发送万能指令数据到竞赛平台
-                            String[] text = {};
                             if (!terminalEditText.getText().toString().isEmpty()) {
-                                text = String.valueOf(terminalEditText.getText()).split(" ");
-                                byte[] data = new byte[text.length];
+                                String mainCmd = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.mainCmd);
+                                switch (mainCmd) {
+                                    case "无\nNOT":
+                                        mainCmd = "";
+                                        break;
+                                    case "从车启动\n(0xEE)":
+                                        mainCmd = "EE";
+                                        break;
+                                    case "从车任务完成\n(0xFF)":
+                                        mainCmd = "FF";
+                                        break;
+                                    case "主车路径\n(0xB6)":
+                                        mainCmd = "B6";
+                                        break;
+                                    case "开启标志位\n(0xB9)\n(0x01)RFID\n(0x02)地形":
+                                        mainCmd = "B9";
+                                        break;
+                                }
+                                List<String> text = new ArrayList<>();
+                                if (!mainCmd.isEmpty())
+                                    text.add(mainCmd);
+                                String[] cmdContent = String.valueOf(terminalEditText.getText()).split(" ");
+                                Collections.addAll(text, cmdContent);
+                                byte[] data = new byte[text.size()];
                                 for (int i = 0; i < data.length; i++) {
-                                    data[i] = (byte) Integer.parseInt(text[i], 16);
+                                    data[i] = (byte) Integer.parseInt(text.get(i), 16);
                                 }
                                 if (unCmd.get().isEmpty()) {
                                     CommunicationUtil.sendData(data);
@@ -602,7 +645,7 @@ public class MainDialog extends DialogFragment {
                         });
                         break;
                     //摄像头角度控制
-                    case 16:
+                    case 5:
                         FloatWindowUtil cameraVaFloatWindow = new FloatWindowUtil(requireActivity());
                         View floatCameraVaLayout = cameraVaFloatWindow.create(R.layout.float_camera_va);
                         RadioGroup vaCameraGroup = floatCameraVaLayout.findViewById(R.id.va_camera);
@@ -622,42 +665,84 @@ public class MainDialog extends DialogFragment {
                             ThreadUtil.createThread(() -> CommunicationUtil.moveCamera("reset"));
                         });
                         break;
+                    //启动主车
+                    case 6:
+                        CommunicationUtil.startCar();
+                        break;
                     //加载本地图像到 DEBUG
-                    case 17:
+                    case 7:
                         FileUtil.selectImageFile();
                         break;
-                    //图像识别
-                    case 18:
-                        ThreadUtil.createThread(() -> {
-                            Bitmap img1 = ImgPcsUtil.getImg();
-                            List<RecResult> recResults = ImgPcsUtil.imageRecognition(img1, "vtr");
-                            ImgPcsUtil.drawLabel(recResults, img1);
-                        });
-                        break;
-                    //形状识别
-                    case 19:
-                        ThreadUtil.createThread(() -> ImgPcsUtil.shapeRecognition(false));
+                    //二维码识别
+                    case 8:
+                        ImgPcsUtil.recQRCode(A_FLAG, false);
                         break;
                     //文字识别
-                    case 20:
+                    case 9:
                         ThreadUtil.createThread(() -> {
-                            List<OCRResult> ocrResults = ImgPcsUtil.ocr(ImgPcsUtil.getImg());
-                            for (OCRResult result : ocrResults) {
-                                LogUtil.printLog("文字识别", "文字：" + result.getLabel() + " 置信率：" + result.getConfidence());
-                            }
+                            List<OCRRect> results = ImgPcsUtil.ocr(ImgPcsUtil.equalScaleImage(ImgPcsUtil.getImg()), false);
+                            results.forEach(result -> {
+                                LogUtil.printLog("文字识别：" + result.getLabel() + " 置信率：" + result.getConfidence());
+                            });
                         });
                         break;
                     //中文识别
-                    case 21:
-                        ThreadUtil.createThread(() -> ImgPcsUtil.chineseTextRecognition((byte) 0x00));
+                    case 10:
+                        ImgPcsUtil.recOnceChineseText(A_FLAG);
                         break;
-                    //车牌识别
-                    case 22:
-                        ThreadUtil.createThread(() -> ImgPcsUtil.findLP(A_FLAG));
+                    //车牌内容识别
+                    case 11:
+                        ThreadUtil.createThread(() -> {
+                            ImgPcsUtil.findLP(ImgPcsUtil.getImg());
+                        });
                         break;
-                    //启动主车
-                    case 23:
-                        CommunicationUtil.startCar();
+                    //交通灯识别
+                    case 12:
+                        ThreadUtil.createThread(() -> {
+                            Bitmap recImg = ImgPcsUtil.getImg();
+                            List<RectResult> rectResults = ImgPcsUtil.imageRecognition(recImg, ImgPcsUtil.TLR);
+                            ImgPcsUtil.drawLabels(rectResults, recImg, false);
+                        });
+                        break;
+                    //查找交通标志后识别多边形
+                    case 13:
+                        ImgPcsUtil.recTrafficSignsAndShapes(A_FLAG, true, true, false);
+                        break;
+                    //交通标志查找和识别
+                    case 14:
+                        ImgPcsUtil.recTrafficSignsAndShapes(A_FLAG, true, false, false);
+                        break;
+                    //多边形查找和识别
+                    case 15:
+                        ImgPcsUtil.recTrafficSignsAndShapes(A_FLAG, false, true, false);
+                        break;
+                    //车型车牌识别
+                    case 16:
+                        ThreadUtil.createThread(() -> {
+                            Bitmap recImg = ImgPcsUtil.getImg();
+                            List<RectResult> rectResults = ImgPcsUtil.imageRecognition(recImg, ImgPcsUtil.VTR);
+                            ImgPcsUtil.drawLabels(rectResults, recImg, false);
+                        });
+                        break;
+                    //口罩识别
+                    case 17:
+                        ThreadUtil.createThread(() -> {
+                            Bitmap recImg = ImgPcsUtil.getImg();
+                            List<RectResult> rectResults = ImgPcsUtil.imageRecognition(recImg, ImgPcsUtil.MR);
+                            ImgPcsUtil.drawLabels(rectResults, recImg, false);
+                        });
+                        break;
+                    //行人识别
+                    case 18:
+                        ImgPcsUtil.recPerson(A_FLAG);
+                        break;
+                    //TFT 中文查找和识别
+                    case 19:
+                        ImgPcsUtil.recTftChineseTextRecognition(A_FLAG);
+                        break;
+                    //TFT 车牌查找和识别
+                    case 20:
+                        ImgPcsUtil.recLP(A_FLAG);
                         break;
                     default:
                         break;

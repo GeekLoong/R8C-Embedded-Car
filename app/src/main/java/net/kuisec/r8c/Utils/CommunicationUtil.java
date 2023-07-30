@@ -1,45 +1,52 @@
 package net.kuisec.r8c.Utils;
 
-import static net.kuisec.r8c.Const.CtrlConst.FIND_WAY;
-import static net.kuisec.r8c.Const.CtrlConst.GO;
-import static net.kuisec.r8c.Const.CtrlConst.LEFT_TURN;
-import static net.kuisec.r8c.Const.CtrlConst.RIGHT_TURN;
-import static net.kuisec.r8c.Const.CtrlConst.START_TASK;
-import static net.kuisec.r8c.Const.CtrlConst.STOP;
-import static net.kuisec.r8c.Const.CtrlConst.TFT_A_ANDROID;
-import static net.kuisec.r8c.Const.CtrlConst.TFT_A_DASHBOARD;
-import static net.kuisec.r8c.Const.CtrlConst.TFT_B_ANDROID;
-import static net.kuisec.r8c.Const.CtrlConst.TFT_B_DASHBOARD;
-import static net.kuisec.r8c.Const.CtrlConst.TFT_IMG_DOWN;
-import static net.kuisec.r8c.Const.CtrlConst.TFT_IMG_UP;
-import static net.kuisec.r8c.Const.InteractionConst.ANDROID_FLAG;
-import static net.kuisec.r8c.Const.InteractionConst.DATA_FLAG;
-import static net.kuisec.r8c.Const.InteractionConst.END_FLAG;
-import static net.kuisec.r8c.Const.InteractionConst.REPLY_FLAG;
-import static net.kuisec.r8c.Const.InteractionConst.SAVE_CAR_LOG;
-import static net.kuisec.r8c.Const.InteractionConst.TASK_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.A_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.B_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.LOG_CAR_MODEL_RECEP;
-import static net.kuisec.r8c.Const.ItemConst.LOG_CAR_MODEL_SEND;
-import static net.kuisec.r8c.Const.ItemConst.RFID_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TEXT_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TFT_CAR_MODEL_BICYCLE;
-import static net.kuisec.r8c.Const.ItemConst.TFT_CAR_MODEL_CAR;
-import static net.kuisec.r8c.Const.ItemConst.TFT_CAR_MODEL_MOTORCYCLE;
-import static net.kuisec.r8c.Const.ItemConst.TFT_CAR_MODEL_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TFT_CAR_MODEL_TRUCK;
-import static net.kuisec.r8c.Const.ItemConst.TFT_HEX_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TFT_LP_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TFT_MAX_SHAPE_CLASS_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TFT_TRAFFIC_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TRAFFIC_LIGHT_GREEN;
-import static net.kuisec.r8c.Const.ItemConst.TRAFFIC_LIGHT_RED;
-import static net.kuisec.r8c.Const.ItemConst.TRAFFIC_LIGHT_STORAGE_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TRAFFIC_LIGHT_YELLOW;
+import static net.kuisec.r8c.Const.CtrlCarConst.FIND_WAY;
+import static net.kuisec.r8c.Const.CtrlCarConst.GO;
+import static net.kuisec.r8c.Const.CtrlCarConst.LEFT_TURN;
+import static net.kuisec.r8c.Const.CtrlCarConst.RIGHT_TURN;
+import static net.kuisec.r8c.Const.CtrlCarConst.START_TASK;
+import static net.kuisec.r8c.Const.CtrlCarConst.STOP;
+import static net.kuisec.r8c.Const.CtrlCarConst.TFT_A_ANDROID;
+import static net.kuisec.r8c.Const.CtrlCarConst.TFT_A_DASHBOARD;
+import static net.kuisec.r8c.Const.CtrlCarConst.TFT_B_ANDROID;
+import static net.kuisec.r8c.Const.CtrlCarConst.TFT_B_DASHBOARD;
+import static net.kuisec.r8c.Const.CtrlCarConst.TFT_C_ANDROID;
+import static net.kuisec.r8c.Const.CtrlCarConst.TFT_C_DASHBOARD;
+import static net.kuisec.r8c.Const.CtrlCarConst.TFT_IMG_DOWN;
+import static net.kuisec.r8c.Const.CtrlCarConst.TFT_IMG_UP;
+import static net.kuisec.r8c.Const.HeaderConst.ANDROID_FLAG;
+import static net.kuisec.r8c.Const.HeaderConst.CAR_FLAG;
+import static net.kuisec.r8c.Const.HeaderConst.DATA_FLAG;
+import static net.kuisec.r8c.Const.HeaderConst.END_FLAG;
+import static net.kuisec.r8c.Const.HeaderConst.REPLY_FLAG;
+import static net.kuisec.r8c.Const.HeaderConst.SAVE_CAR_LOG;
+import static net.kuisec.r8c.Const.HeaderConst.TASK_FLAG;
+import static net.kuisec.r8c.Const.SignConst.B_FLAG;
+import static net.kuisec.r8c.Const.SignConst.C_FLAG;
+import static net.kuisec.r8c.Const.SignConst.LOG_CAR_MODEL_RECEP;
+import static net.kuisec.r8c.Const.SignConst.LOG_CAR_MODEL_SEND;
+import static net.kuisec.r8c.Const.SignConst.QRCODE_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.RFID_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TEXT_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_HEX_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_LP_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_MAX_SHAPE_CLASS_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_PERSON_COUNT_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_SHAPE_ALL_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_TRAFFIC_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_VEHICLE_TYPE_BICYCLE;
+import static net.kuisec.r8c.Const.SignConst.TFT_VEHICLE_TYPE_CAR;
+import static net.kuisec.r8c.Const.SignConst.TFT_VEHICLE_TYPE_MOTORCYCLE;
+import static net.kuisec.r8c.Const.SignConst.TFT_VEHICLE_TYPE_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TFT_VEHICLE_TYPE_TRUCK;
+import static net.kuisec.r8c.Const.SignConst.TRAFFIC_LIGHT_GREEN;
+import static net.kuisec.r8c.Const.SignConst.TRAFFIC_LIGHT_RED;
+import static net.kuisec.r8c.Const.SignConst.TRAFFIC_LIGHT_STORAGE_FLAG;
+import static net.kuisec.r8c.Const.SignConst.TRAFFIC_LIGHT_YELLOW;
 
 import android.util.Log;
 
+import net.kuisec.r8c.Const.SleepTimesConst;
 import net.kuisec.r8c.Network.CameraCmdUtil;
 
 import org.jetbrains.annotations.NotNull;
@@ -59,6 +66,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 通信工具类
@@ -307,12 +316,14 @@ public class CommunicationUtil {
                         } else {
                             //裁剪数据
                             byte[] tempData = data.clone();
+                            //打印数据
+                            LogUtil.printData(tempData, "", "");
                             //判断日志是否来自 Zigbee，是的话记录到主车日志，否提供给数据解析模块
-                            if (tempData[1] == SAVE_CAR_LOG) {
+                            if (tempData[0] == CAR_FLAG && tempData[1] == SAVE_CAR_LOG) {
                                 String logCarModelName = "主车发送";
                                 if (tempData[2] == LOG_CAR_MODEL_SEND) {
                                     logCarModelName = "主车发送";
-                                } else if (tempData[2] == LOG_CAR_MODEL_RECEP){
+                                } else if (tempData[2] == LOG_CAR_MODEL_RECEP) {
                                     logCarModelName = "主车接收";
                                 }
                                 boolean error = false;
@@ -341,8 +352,6 @@ public class CommunicationUtil {
                                 //解析数据
                                 HandlerUtil.sendMsg(HandlerUtil.DATA_PARSE_FLAG, tempData);
                             }
-                            //打印数据
-                            LogUtil.printSystemLog("原WiFi数据", Arrays.toString(tempData));
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -350,6 +359,16 @@ public class CommunicationUtil {
                 }
             }
         });
+    }
+
+
+    /**
+     * 判断socket是否处于断连状态
+     *
+     * @return 是否断连
+     */
+    public static boolean isSocketConnection() {
+        return socket != null && !socket.isClosed();
     }
 
 
@@ -391,14 +410,11 @@ public class CommunicationUtil {
      * @param classID 二维码类型
      */
     public static void postQRCodeContent(byte classID) {
-        String qrCodeContent;
-        //初始值
-        if (classID == A_FLAG) {
-            qrCodeContent = SharedPreferencesUtil.queryKey2Value("二维码A");
-        } else {
-            qrCodeContent = SharedPreferencesUtil.queryKey2Value("二维码B");
-        }
-        CommunicationUtil.sendData("post", classID, DataPcsUtil.stringHexToByteHex(qrCodeContent));
+        String qrCodeContent = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.qrCodeTag + classID);
+        qrCodeContent = qrCodeContent.isEmpty() ? "0" : qrCodeContent;
+        byte[] data = DataPcsUtil.stringToBytes(qrCodeContent);
+        LogUtil.printLog("存储的二维码：" + qrCodeContent);
+        CommunicationUtil.sendData("post", QRCODE_STORAGE_FLAG, data);
     }
 
 
@@ -408,13 +424,23 @@ public class CommunicationUtil {
      * @param classID 获得中文识别内容
      */
     public static void postChineseTextFromStorage(byte classID) {
-        if (classID == A_FLAG) {
-            sendData("post", TEXT_STORAGE_FLAG, DataPcsUtil.stringToBytes(SharedPreferencesUtil.queryKey2Value("中文A")));
-            LogUtil.printLog("存储的文字内容", SharedPreferencesUtil.queryKey2Value("中文A"));
-        } else {
-            sendData("post", TEXT_STORAGE_FLAG, DataPcsUtil.stringToBytes(SharedPreferencesUtil.queryKey2Value("中文B")));
-            LogUtil.printLog("存储的文字内容", SharedPreferencesUtil.queryKey2Value("中文B"));
+        String chineseText = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.chineseTag + classID);
+        String ocrContent = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.ocrContent);
+        if (!ocrContent.equals("0") && !ocrContent.isEmpty()) {
+            chineseText = ocrContent;
         }
+        int index = 0;
+        Pattern pattern = Pattern.compile("\"number\":(\\d)");
+        Matcher matcher = pattern.matcher(SharedPreferencesUtil.queryKey2Value("红色二维码"));
+        if (matcher.find()) {
+            String result = matcher.group(1);
+            if (result != null) {
+                index = Integer.parseInt(result) - 1;
+            }
+        }
+        chineseText = chineseText.substring(index, index + 1);
+        sendData("post", TEXT_STORAGE_FLAG, DataPcsUtil.stringToBytes(chineseText));
+        LogUtil.printLog("存储的中文：" + chineseText);
     }
 
 
@@ -423,23 +449,17 @@ public class CommunicationUtil {
      * 交通灯类型
      */
     public static void postTrafficLightFromStorage(byte classID) {
-        String trafficLight;
-        if (classID == A_FLAG) {
-            trafficLight = SharedPreferencesUtil.queryKey2Value("交通灯A");
-        } else {
-            trafficLight = SharedPreferencesUtil.queryKey2Value("交通灯B");
-        }
-        byte[] data = {(byte) Integer.parseInt(trafficLight, 16)};
-        //当找不到数据时将值设置为绿灯
-        switch (data[0]) {
-            case TRAFFIC_LIGHT_RED:
-            case TRAFFIC_LIGHT_GREEN:
-            case TRAFFIC_LIGHT_YELLOW:
+        String trafficLightName = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.trafficLightTag + classID);
+        byte lightID = TRAFFIC_LIGHT_GREEN;
+        switch (trafficLightName) {
+            case "RedLight":
+                lightID = TRAFFIC_LIGHT_RED;
                 break;
-            default:
-                data[0] = TRAFFIC_LIGHT_GREEN;
+            case "YellowLight":
+                lightID = TRAFFIC_LIGHT_YELLOW;
                 break;
         }
+        byte[] data = {lightID};
         sendData("post", TRAFFIC_LIGHT_STORAGE_FLAG, data);
     }
 
@@ -450,20 +470,15 @@ public class CommunicationUtil {
      * @param classID 标志物类型 A or B
      */
     public static void postLPFromStorage(byte classID) {
-        String lpContent = "";
-        switch (classID) {
-            case A_FLAG:
-                lpContent = SharedPreferencesUtil.queryKey2Value("车牌A");
-                break;
-            case B_FLAG:
-                lpContent = SharedPreferencesUtil.queryKey2Value("车牌B");
-                break;
-        }
+        String lpTag = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.LPTag + classID);
+//        String lpTag = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.LPTag);
+        String lpContent = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.lpContent);
         if (!lpContent.isEmpty()) {
-            LogUtil.printLog("读取到的车牌数据", lpContent);
-            byte[] data = DataPcsUtil.stringToAsciiBytes(lpContent);
-            sendData("post", TFT_LP_STORAGE_FLAG, data);
+            lpTag = lpContent;
         }
+        LogUtil.printLog("读取到的车牌数据", lpTag);
+        byte[] data = DataPcsUtil.stringToAsciiBytes(lpTag);
+        sendData("post", TFT_LP_STORAGE_FLAG, data);
     }
 
 
@@ -476,54 +491,66 @@ public class CommunicationUtil {
     }
 
 
+    static int hexCount = 1;
+
     /**
      * 上传组装 16 进制数据
      */
     public static void postHexFromStorage(byte classID) {
-        String FLAG = "A";
-        if (classID == B_FLAG) {
-            FLAG = "B";
+        String hex = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.hex);
+        String hexContent = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.hexContent);
+        if (!hexContent.equals("0") && !hexContent.isEmpty()) {
+            hex = hexContent;
         }
-        String dataContent = SharedPreferencesUtil.queryKey2Value("组装16进制" + FLAG);
-        LogUtil.printLog("组装的16进制数据内容" + FLAG + "类", dataContent);
-        byte[] data = DataPcsUtil.stringHexToByteHex(dataContent);
+        LogUtil.printLog("组装的16进制数据内容", hex);
+        //字符眀转字节
+        byte[] data = DataPcsUtil.stringHexToByteHex(hex);
+        //英文与数字组合
+//        byte[] data = DataPcsUtil.stringToAsciiBytes(hex);
         CommunicationUtil.sendData("post", TFT_HEX_STORAGE_FLAG, data);
+        hexCount++;
     }
 
 
     /**
      * 上传交通标志数据内容
      */
-    public static void postTrafficFlagFromStorage() {
-        String dataContent = SharedPreferencesUtil.queryKey2Value("交通标志");
-        if ("0".equals(dataContent)) {
-            dataContent = "TurnLeft";
-        }
-        String trafficFlagName = SharedPreferencesUtil.queryKey2Value("trafficFlag");
-        if ("0".equals(trafficFlagName)) {
-            trafficFlagName = "左转";
-        }
-        switch (dataContent) {
+    public static void postTrafficSignFromStorage() {
+        String trafficSign = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.trafficSignTag);
+        //默认返回左转
+        String dataContent = "02";
+        switch (trafficSign) {
             case "GoStraight":
                 dataContent = "01";
                 break;
-            case "TurnLeft":
-                dataContent = "02";
-                break;
-            case "TurnRight":
+            case "RightTurn":
                 dataContent = "03";
                 break;
             case "U-turn":
                 dataContent = "04";
                 break;
-            case "NoGoStraight":
+            case "NoThroughRoad":
                 dataContent = "05";
                 break;
             case "NoPassage":
                 dataContent = "06";
                 break;
+            case "NoU-Turn":
+                dataContent = "07";
+                break;
+            case "NoLeftTurn":
+                dataContent = "08";
+                break;
+            case "NoRightTurn":
+                dataContent = "09";
+                break;
+            case "SpeedLimit":
+                dataContent = "0A";
+                break;
         }
-        switch (trafficFlagName) {
+        //检测是否设置交通标志识别结果，设置了就直接返回该设置
+        String defaultTrafficSign = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.defaultTrafficSignTag);
+        switch (defaultTrafficSign) {
             case "直行":
                 dataContent = "01";
                 break;
@@ -542,8 +569,19 @@ public class CommunicationUtil {
             case "禁止通行":
                 dataContent = "06";
                 break;
+            case "禁止掉头":
+                dataContent = "07";
+                break;
+            case "禁止左转":
+                dataContent = "08";
+                break;
+            case "禁止右转":
+                dataContent = "09";
+                break;
+            case "限速":
+                dataContent = "0A";
+                break;
         }
-        LogUtil.printLog("交通标志数据内容", dataContent);
         byte[] data = DataPcsUtil.stringHexToByteHex(dataContent);
         CommunicationUtil.sendData("post", TFT_TRAFFIC_STORAGE_FLAG, data);
     }
@@ -552,27 +590,37 @@ public class CommunicationUtil {
     /**
      * 上传车型识别结果
      */
-    public static void postCarModelFromStorage() {
-        String carModel = SharedPreferencesUtil.queryKey2Value("车型");
-        byte carClassID;
-        switch (carModel) {
+    public static void postVehicleTypeFromStorage() {
+        String vehicleType = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.vehicleType);
+        byte carClassID = TFT_VEHICLE_TYPE_TRUCK;
+        switch (vehicleType) {
             case "Bicycle":
-                carClassID = TFT_CAR_MODEL_BICYCLE;
+                carClassID = TFT_VEHICLE_TYPE_BICYCLE;
                 break;
             case "Motorcycle":
-                carClassID = TFT_CAR_MODEL_MOTORCYCLE;
+                carClassID = TFT_VEHICLE_TYPE_MOTORCYCLE;
                 break;
             case "Car":
-                carClassID = TFT_CAR_MODEL_CAR;
-                break;
-            case "Truck":
-                carClassID = TFT_CAR_MODEL_TRUCK;
-                break;
-            default:
-                carClassID = TFT_CAR_MODEL_TRUCK;
+                carClassID = TFT_VEHICLE_TYPE_CAR;
                 break;
         }
-        CommunicationUtil.sendData("post", TFT_CAR_MODEL_STORAGE_FLAG, new byte[]{carClassID});
+        //检测是否设置车型识别结果，设置了就直接返回该设置
+        String defaultVehicleType = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.defaultVehicleType);
+        switch (defaultVehicleType) {
+            case "自行车":
+                carClassID = TFT_VEHICLE_TYPE_BICYCLE;
+                break;
+            case "摩托车":
+                carClassID = TFT_VEHICLE_TYPE_MOTORCYCLE;
+                break;
+            case "轿车":
+                carClassID = TFT_VEHICLE_TYPE_CAR;
+                break;
+            case "货车":
+                carClassID = TFT_VEHICLE_TYPE_TRUCK;
+                break;
+        }
+        CommunicationUtil.sendData("post", TFT_VEHICLE_TYPE_STORAGE_FLAG, new byte[]{carClassID});
     }
 
 
@@ -594,6 +642,53 @@ public class CommunicationUtil {
 
 
     /**
+     * 从存储中查找全部图形数量
+     */
+    public static void postAllShapeCount() {
+        int allShapeCount = DataPcsUtil.getMaxCountShapeFromStorage();
+        CommunicationUtil.sendData("post", TFT_SHAPE_ALL_STORAGE_FLAG, new byte[]{(byte) 13});
+    }
+
+
+    /**
+     * 从存储中查找行人数量信息
+     */
+    public static void postPersonCountFromStorage() {
+        String personCount = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.personCount);
+        //判空处理
+        personCount = personCount.isEmpty() ? "0" : personCount;
+        String personCountContent = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.personCountContent);
+        if (!personCountContent.isEmpty()) {
+            personCount = personCountContent;
+        }
+        //取余运算，不用时注释
+        personCount = String.valueOf(Integer.parseInt(personCount) % 3);
+        byte[] data = DataPcsUtil.stringToAsciiBytes(personCount);
+        CommunicationUtil.sendData("post", TFT_PERSON_COUNT_STORAGE_FLAG, data);
+    }
+
+
+    /**
+     * 从存储中查找报警码或无线充电开启码信息
+     */
+    public static void postAlarmCodeOrPowerOpenCodeFromStorage(byte classID) {
+        String code;
+        if (classID == 0x01) {
+            code = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.alarmCodeContent);
+            if (code.isEmpty())
+                code = "03051445DE92";
+        } else {
+            code = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.powerOpenCodeContent);
+            if (code.isEmpty())
+                code = "A123B4";
+        }
+        code = "0" + classID + code;
+        byte[] data = DataPcsUtil.stringHexToByteHex(code);
+        CommunicationUtil.sendData("post", (byte) 0x20, data);
+    }
+
+
+    /**
      * 移动小车
      *
      * @param ctrl    移动指令
@@ -605,7 +700,7 @@ public class CommunicationUtil {
             case "forward":
                 Integer coder = hashMap.get("coder");
                 Integer speed = hashMap.get("speed");
-                sendData("get", GO, new byte[]{(byte) (speed & 0xFF),(byte) (coder >> 8), (byte) (coder & 0xFF)});
+                sendData("get", GO, new byte[]{(byte) (speed & 0xFF), (byte) (coder >> 8), (byte) (coder & 0xFF)});
                 break;
             //左转
             case "turnLeft":
@@ -666,11 +761,14 @@ public class CommunicationUtil {
      */
     public static void tftCmd(byte classID, HashMap<String, String> hashMap) {
         String content = hashMap.getOrDefault("content", "1");
-        byte classFLAG;
-        if (classID == A_FLAG) {
-            classFLAG = TFT_A_ANDROID;
-        } else {
-            classFLAG = TFT_B_ANDROID;
+        byte classFLAG = TFT_A_ANDROID;
+        switch (classID) {
+            case B_FLAG:
+                classFLAG = TFT_B_ANDROID;
+                break;
+            case C_FLAG:
+                classFLAG = TFT_C_ANDROID;
+                break;
         }
         switch (Objects.requireNonNull(hashMap.get("ctrl"))) {
             case "跳转":
@@ -719,8 +817,11 @@ public class CommunicationUtil {
      * @param text 需要播报的文本
      */
     public static void voiceBroadcast(String text) {
+        byte[] textBytes = DataPcsUtil.stringToBytes(text);
+        int len = textBytes.length + 2;
+        byte[] bytes = DataPcsUtil.mergeTwoArrays(new byte[]{(byte) 0xFD, (byte) (len >> 8), (byte) (len & 0xFF), 0x01, 0x01}, textBytes);
         //发送数据
-        sendData("post", TEXT_STORAGE_FLAG, DataPcsUtil.stringToBytes(text));
+        sendData(bytes);
     }
 
 
@@ -729,11 +830,11 @@ public class CommunicationUtil {
      */
     public static void startCar() {
         ThreadUtil.createThread(() -> {
-
             sendData("get", START_TASK, null);
-            ThreadUtil.sleep(2000);
 
-            String tftAD = SharedPreferencesUtil.queryKey2Value("tftAD");
+            ThreadUtil.sleep(SleepTimesConst.WAIT_MAIN);
+
+            String tftAD = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.tftAD);
             String tftADHex = Integer.toHexString(Integer.parseInt(tftAD));
             if (tftADHex.length() % 2 != 0) {
                 tftADHex = "0" + tftADHex;
@@ -744,9 +845,9 @@ public class CommunicationUtil {
             byte[] aData = DataPcsUtil.stringHexToByteHex(tftADHex);
             sendData("get", TFT_A_DASHBOARD, aData);
 
-            ThreadUtil.sleep(2000);
+            ThreadUtil.sleep(SleepTimesConst.WAIT_MAIN);
 
-            String tftBD = SharedPreferencesUtil.queryKey2Value("tftBD");
+            String tftBD = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.tftBD);
             String tftBDHex = Integer.toHexString(Integer.parseInt(tftBD));
             if (tftBDHex.length() % 2 != 0) {
                 tftBDHex = "0" + tftBDHex;
@@ -757,6 +858,19 @@ public class CommunicationUtil {
             byte[] bData = DataPcsUtil.stringHexToByteHex(tftBDHex);
             sendData("get", TFT_B_DASHBOARD, bData);
 
+
+            ThreadUtil.sleep(SleepTimesConst.WAIT_MAIN);
+
+            String tftCD = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.tftCD);
+            String tftCDHex = Integer.toHexString(Integer.parseInt(tftCD));
+            if (tftCDHex.length() % 2 != 0) {
+                tftCDHex = "0" + tftCDHex;
+            }
+            if (tftCDHex.length() / 2 < 2) {
+                tftCDHex = "00" + tftCDHex;
+            }
+            byte[] cData = DataPcsUtil.stringHexToByteHex(tftCDHex);
+            sendData("get", TFT_C_DASHBOARD, cData);
         });
     }
 
@@ -816,6 +930,14 @@ public class CommunicationUtil {
             default:
                 return -1;
         }
+    }
+
+
+    /**
+     * 回复主车任务完成
+     */
+    public static void replyCar() {
+        CommunicationUtil.sendData("", REPLY_FLAG, null);
     }
 
 }

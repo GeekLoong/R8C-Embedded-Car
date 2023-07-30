@@ -1,27 +1,28 @@
 package net.kuisec.r8c.Utils;
 
-import static net.kuisec.r8c.Const.InteractionConst.REPLY_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.A_FLAG;
-import static net.kuisec.r8c.Const.ItemConst.TFT_COLOR_BLACK;
-import static net.kuisec.r8c.Const.ItemConst.TFT_COLOR_BLUE;
-import static net.kuisec.r8c.Const.ItemConst.TFT_COLOR_GREEN;
-import static net.kuisec.r8c.Const.ItemConst.TFT_COLOR_MAGENTA;
-import static net.kuisec.r8c.Const.ItemConst.TFT_COLOR_RED;
-import static net.kuisec.r8c.Const.ItemConst.TFT_COLOR_SKY_BLUE;
-import static net.kuisec.r8c.Const.ItemConst.TFT_COLOR_YELLOW;
-import static net.kuisec.r8c.Const.ItemConst.TFT_SHAPE_DIA;
-import static net.kuisec.r8c.Const.ItemConst.TFT_SHAPE_PEN;
-import static net.kuisec.r8c.Const.ItemConst.TFT_SHAPE_REC;
-import static net.kuisec.r8c.Const.ItemConst.TFT_SHAPE_ROU;
-import static net.kuisec.r8c.Const.ItemConst.TFT_SHAPE_TRI;
-import static net.kuisec.r8c.Const.ItemConst.TRAFFIC_LIGHT_GREEN;
-import static net.kuisec.r8c.Const.ItemConst.TRAFFIC_LIGHT_RED;
-import static net.kuisec.r8c.Const.ItemConst.TRAFFIC_LIGHT_YELLOW;
+import static net.kuisec.r8c.Const.SignConst.TFT_COLOR_BLACK;
+import static net.kuisec.r8c.Const.SignConst.TFT_COLOR_BLUE;
+import static net.kuisec.r8c.Const.SignConst.TFT_COLOR_GREEN;
+import static net.kuisec.r8c.Const.SignConst.TFT_COLOR_MAGENTA;
+import static net.kuisec.r8c.Const.SignConst.TFT_COLOR_RED;
+import static net.kuisec.r8c.Const.SignConst.TFT_COLOR_SKY_BLUE;
+import static net.kuisec.r8c.Const.SignConst.TFT_COLOR_WHITE;
+import static net.kuisec.r8c.Const.SignConst.TFT_COLOR_YELLOW;
+import static net.kuisec.r8c.Const.SignConst.TFT_SHAPE_CIR;
+import static net.kuisec.r8c.Const.SignConst.TFT_SHAPE_DIA;
+import static net.kuisec.r8c.Const.SignConst.TFT_SHAPE_FIV;
+import static net.kuisec.r8c.Const.SignConst.TFT_SHAPE_REC;
+import static net.kuisec.r8c.Const.SignConst.TFT_SHAPE_TRA;
+import static net.kuisec.r8c.Const.SignConst.TFT_SHAPE_TRI;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 数据处理工具类
@@ -61,6 +62,7 @@ public class DataPcsUtil {
 
     /**
      * ASCII 码类型的 byte 数组转字符串
+     *
      * @param data ASCII 码类型的 byte 数组
      * @return 转换好的字符串
      */
@@ -91,88 +93,18 @@ public class DataPcsUtil {
 
 
     /**
-     * 从存储在获得出现次数最多的颜色的数量
-     *
-     * @return 返回数量值
-     */
-//    public static int getMaxCountColorFromStorage() {
-//        int redSum = 0, yellowSum = 0, greenSum = 0, magentaSum = 0, skyBlueSum = 0, blueSum = 0, blackSum = 0;
-//        String[] colorNames = {
-//                "红色",
-//                "黄色",
-//                "品红色",
-//                "绿色",
-//                "蓝色",
-//                "天蓝色",
-//                "黑色"
-//        };
-//        for (String colorShape : SharedPreferencesUtil.COLOR_SHAPE_FLAG) {
-//            for (String colorName : colorNames) {
-//                int index = colorShape.indexOf(colorName);
-//                if (index != -1) {
-//                    int result = Integer.parseInt(SharedPreferencesUtil.queryKey2Value(colorShape));
-//                    switch (colorName) {
-//                        case "红色":
-//                            if (!colorShape.contains(colorNames[2])) {
-//                                redSum += result;
-//                            }
-//                            break;
-//                        case "黄色":
-//                            yellowSum += result;
-//                            break;
-//                        case "品红色":
-//                            magentaSum += result;
-//                            break;
-//                        case "绿色":
-//                            greenSum += result;
-//                            break;
-//                        case "蓝色":
-//                            if (!colorShape.contains(colorNames[4])) {
-//                                blueSum += result;
-//                            }
-//                            break;
-//                        case "天蓝色":
-//                            skyBlueSum += result;
-//                            break;
-//                        case "黑色":
-//                            blackSum += result;
-//                            break;
-//                    }
-//                }
-//            }
-//        }
-//        int[] colorSums = {
-//                redSum,
-//                greenSum,
-//                blueSum,
-//                yellowSum,
-//                magentaSum,
-//                skyBlueSum,
-//                blackSum
-//        };
-//        int maxColorSumIndex = 0;
-//        int temp = 0;
-//        for (int i = 0; i < colorSums.length; i++) {
-//            if (colorSums[i] > temp) {
-//                temp = colorSums[i];
-//                maxColorSumIndex = i;
-//            }
-//        }
-//        return colorSums[maxColorSumIndex];
-//    }
-
-
-    /**
      * 获得出现次数最多的形状的数量
+     *
      * @return 返回形状的数量
      */
     public static int getMaxCountShapeFromStorage() {
         int[] shapes = {
                 getShapeFromStorage(TFT_SHAPE_REC),
-                getShapeFromStorage(TFT_SHAPE_ROU),
+                getShapeFromStorage(TFT_SHAPE_CIR),
                 getShapeFromStorage(TFT_SHAPE_TRI),
                 getShapeFromStorage(TFT_SHAPE_DIA),
-                getShapeFromStorage(TFT_SHAPE_PEN)
+                getShapeFromStorage(TFT_SHAPE_FIV),
+                getShapeFromStorage(TFT_SHAPE_TRA)
         };
         int maxCountShape = 0;
         for (int count : shapes) {
@@ -186,6 +118,7 @@ public class DataPcsUtil {
 
     /**
      * 获得出现次数最多的颜色的数量
+     *
      * @return 返回形状的数量
      */
     public static int getMaxCountColorFromStorage() {
@@ -195,7 +128,9 @@ public class DataPcsUtil {
                 getColorFromStorage(TFT_COLOR_YELLOW),
                 getColorFromStorage(TFT_COLOR_BLUE),
                 getColorFromStorage(TFT_COLOR_SKY_BLUE),
-                getColorFromStorage(TFT_COLOR_MAGENTA)
+                getColorFromStorage(TFT_COLOR_MAGENTA),
+                getColorFromStorage(TFT_COLOR_BLACK),
+                getColorFromStorage(TFT_COLOR_WHITE)
         };
         int maxCountColor = 0;
         for (int count : colors) {
@@ -208,19 +143,31 @@ public class DataPcsUtil {
 
 
     /**
-     * 获得出现次数最多的带颜色的形状的数量
-     * @return 返回带颜色的形状的数量
+     * ID 对应颜色
      */
-    public static int getMaxCountColorShapeFromStorage() {
-        int maxCountColorShape = 0;
-        for (String colorShapeName : SharedPreferencesUtil.COLOR_SHAPE_FLAG) {
-            int tempCount = Integer.parseInt(SharedPreferencesUtil.queryKey2Value(colorShapeName));
-            if (maxCountColorShape <= tempCount) {
-                maxCountColorShape = tempCount;
-            }
-        }
-        return maxCountColorShape;
-    }
+    private final static List<String> colorNameList = new ArrayList<>() {{
+        add("红色");
+        add("绿色");
+        add("蓝色");
+        add("黄色");
+        add("品红色");
+        add("天蓝色");
+        add("黑色");
+        add("白色");
+    }};
+
+
+    /**
+     * ID 对应形状
+     */
+    private final static List<String> shapeNameList = new ArrayList<>() {{
+        add("矩形");
+        add("圆形");
+        add("三角形");
+        add("菱形");
+        add("五角星形");
+        add("梯形");
+    }};
 
 
     /**
@@ -229,45 +176,14 @@ public class DataPcsUtil {
      * @param colorID 颜色代号
      */
     public static int getColorFromStorage(byte colorID) {
-        String colorName = "";
-        switch (colorID) {
-            case TFT_COLOR_RED:
-                colorName = "红色";
-                break;
-            case TFT_COLOR_GREEN:
-                colorName = "绿色";
-                break;
-            case TFT_COLOR_YELLOW:
-                colorName = "黄色";
-                break;
-            case TFT_COLOR_BLUE:
-                colorName = "蓝色";
-                break;
-            case TFT_COLOR_SKY_BLUE:
-                colorName = "天蓝色";
-                break;
-            case TFT_COLOR_MAGENTA:
-                colorName = "品红色";
-                break;
-            case TFT_COLOR_BLACK:
-                colorName = "黑色";
-                break;
-        }
+        String colorName = colorNameList.get(colorID - 1);
+        int colorSum = 0;
         if (!colorName.isEmpty()) {
-            String[] shapes = {
-                    colorName + "三角形",
-                    colorName + "矩形",
-                    colorName + "菱形",
-                    colorName + "五角星形",
-                    colorName + "圆形"
-            };
-            int colorSum = 0;
-            for (String shape : shapes) {
-                colorSum += Integer.parseInt(SharedPreferencesUtil.queryKey2Value(shape));
+            for (String shape : shapeNameList) {
+                colorSum += Integer.parseInt(SharedPreferencesUtil.queryKey2Value(colorName + shape));
             }
-            return colorSum;
         }
-        return 0;
+        return colorSum;
     }
 
 
@@ -277,41 +193,14 @@ public class DataPcsUtil {
      * @param shapeID 形状代号
      */
     public static int getShapeFromStorage(byte shapeID) {
-        String shapeName = "";
-        switch (shapeID) {
-            case TFT_SHAPE_REC:
-                shapeName = "矩形";
-                break;
-            case TFT_SHAPE_ROU:
-                shapeName = "圆形";
-                break;
-            case TFT_SHAPE_TRI:
-                shapeName = "三角形";
-                break;
-            case TFT_SHAPE_DIA:
-                shapeName = "菱形";
-                break;
-            case TFT_SHAPE_PEN:
-                shapeName = "五角星形";
-                break;
-        }
+        String shapeName = shapeNameList.get(shapeID - 1);
+        int shapeSum = 0;
         if (!shapeName.isEmpty()) {
-            String[] colors = {
-                    "天蓝色" + shapeName,
-                    "黄色" + shapeName,
-                    "品红色" + shapeName,
-                    "蓝色" + shapeName,
-                    "绿色" + shapeName,
-                    "红色" + shapeName,
-                    "黑色" + shapeName
-            };
-            int shapeSum = 0;
-            for (String color : colors) {
-                shapeSum += Integer.parseInt(SharedPreferencesUtil.queryKey2Value(color));
+            for (String color : colorNameList) {
+                shapeSum += Integer.parseInt(SharedPreferencesUtil.queryKey2Value(color + shapeName));
             }
-            return shapeSum;
         }
-        return 0;
+        return shapeSum;
     }
 
 
@@ -323,33 +212,18 @@ public class DataPcsUtil {
     public static byte getMaxShapeClassFromStorage() {
         int[] shapes = {
                 getShapeFromStorage(TFT_SHAPE_REC),
-                getShapeFromStorage(TFT_SHAPE_ROU),
+                getShapeFromStorage(TFT_SHAPE_CIR),
                 getShapeFromStorage(TFT_SHAPE_TRI),
                 getShapeFromStorage(TFT_SHAPE_DIA),
-                getShapeFromStorage(TFT_SHAPE_PEN)
+                getShapeFromStorage(TFT_SHAPE_FIV),
+                getShapeFromStorage(TFT_SHAPE_TRA)
         };
         int temp = 0;
-        byte maxShapeID = 0x01;
+        byte maxShapeID = TFT_SHAPE_REC;
         for (int i = 0; i < shapes.length; i++) {
             if (shapes[i] >= temp) {
                 temp = shapes[i];
-                switch (i) {
-                    case 0:
-                        maxShapeID = TFT_SHAPE_REC;
-                        break;
-                    case 1:
-                        maxShapeID = TFT_SHAPE_ROU;
-                        break;
-                    case 2:
-                        maxShapeID = TFT_SHAPE_TRI;
-                        break;
-                    case 3:
-                        maxShapeID = TFT_SHAPE_DIA;
-                        break;
-                    case 4:
-                        maxShapeID = TFT_SHAPE_PEN;
-                        break;
-                }
+                maxShapeID = (byte) (i + 1);
             }
         }
         return maxShapeID;
@@ -364,37 +238,20 @@ public class DataPcsUtil {
     public static byte getMaxColorClassFromStorage() {
         int[] colors = {
                 getColorFromStorage(TFT_COLOR_RED),
-                getColorFromStorage(TFT_COLOR_YELLOW),
                 getColorFromStorage(TFT_COLOR_GREEN),
                 getColorFromStorage(TFT_COLOR_BLUE),
+                getColorFromStorage(TFT_COLOR_YELLOW),
+                getColorFromStorage(TFT_COLOR_MAGENTA),
                 getColorFromStorage(TFT_COLOR_SKY_BLUE),
-                getColorFromStorage(TFT_COLOR_MAGENTA)
+                getColorFromStorage(TFT_COLOR_BLACK),
+                getColorFromStorage(TFT_COLOR_WHITE)
         };
         int temp = 0;
-        byte maxColorID = 0x01;
+        byte maxColorID = TFT_COLOR_RED;
         for (int i = 0; i < colors.length; i++) {
             if (colors[i] >= temp) {
                 temp = colors[i];
-                switch (i) {
-                    case 0:
-                        maxColorID = TFT_COLOR_RED;
-                        break;
-                    case 1:
-                        maxColorID = TFT_COLOR_YELLOW;
-                        break;
-                    case 2:
-                        maxColorID = TFT_COLOR_GREEN;
-                        break;
-                    case 3:
-                        maxColorID = TFT_COLOR_BLUE;
-                        break;
-                    case 4:
-                        maxColorID = TFT_COLOR_SKY_BLUE;
-                        break;
-                    case 5:
-                        maxColorID = TFT_COLOR_MAGENTA;
-                        break;
-                }
+                maxColorID = (byte) (i + 1);
             }
         }
         return maxColorID;
@@ -403,10 +260,12 @@ public class DataPcsUtil {
 
     /**
      * 获得颜色类型最多的形状类型ID
+     *
      * @return 返回形状类型ID
      */
     public static byte getMaxColorShapeClassFromStorage() {
         int[] shapes = {
+                0,
                 0,
                 0,
                 0,
@@ -417,47 +276,16 @@ public class DataPcsUtil {
             int count = Integer.parseInt(SharedPreferencesUtil.queryKey2Value(colorShape));
             if (count > 0) {
                 int colorIndex = colorShape.indexOf("色");
-                switch (colorShape.substring(colorIndex + 1)) {
-                    case "矩形":
-                        shapes[0]++;
-                        break;
-                    case "圆形":
-                        shapes[1]++;
-                        break;
-                    case "三角形":
-                        shapes[2]++;
-                        break;
-                    case "菱形":
-                        shapes[3]++;
-                        break;
-                    case "五角星形":
-                        shapes[4]++;
-                        break;
-                }
+                int index = shapeNameList.indexOf(colorShape.substring(colorIndex + 1));
+                shapes[index]++;
             }
         }
         int temp = 0;
-        byte maxShapeID = 0x01;
-        for (int i = 0; i < 5; i++) {
+        byte maxShapeID = TFT_SHAPE_REC;
+        for (int i = 0; i < shapeNameList.size(); i++) {
             if (shapes[i] >= temp) {
                 temp = shapes[i];
-                switch (i) {
-                    case 0:
-                        maxShapeID = TFT_SHAPE_REC;
-                        break;
-                    case 1:
-                        maxShapeID = TFT_SHAPE_ROU;
-                        break;
-                    case 2:
-                        maxShapeID = TFT_SHAPE_TRI;
-                        break;
-                    case 3:
-                        maxShapeID = TFT_SHAPE_DIA;
-                        break;
-                    case 4:
-                        maxShapeID = TFT_SHAPE_PEN;
-                        break;
-                }
+                maxShapeID = (byte) (i + 1);
             }
         }
         return maxShapeID;
@@ -465,133 +293,13 @@ public class DataPcsUtil {
 
 
     /**
-     * 从存储中获得所有颜色类型的数量并回传给竞赛平台
+     * 从存储中获得形状总数
      */
-    public static int getColorAllFromStorage() {
-        int allColorSum;
-        int redSum = 0, yellowSum = 0, greenSum = 0, magentaSum = 0, skyBlueSum = 0, blueSum = 0, blackSum = 0;
-        for (String colorShape : SharedPreferencesUtil.COLOR_SHAPE_FLAG) {
-            if (redSum == 0) {
-                int index = colorShape.indexOf("红色");
-                if (index != -1 && !colorShape.contains("品红色")) {
-                    int result = Integer.parseInt(SharedPreferencesUtil.queryKey2Value(colorShape));
-                    if (result > 0)
-                        redSum += 1;
-                    continue;
-                }
-            }
-            if (yellowSum == 0) {
-                int index = colorShape.indexOf("黄色");
-                if (index != -1) {
-                    int result = Integer.parseInt(SharedPreferencesUtil.queryKey2Value(colorShape));
-                    if (result > 0)
-                        yellowSum += 1;
-                    continue;
-                }
-            }
-            if (greenSum == 0) {
-                int index = colorShape.indexOf("绿色");
-                if (index != -1) {
-                    int result = Integer.parseInt(SharedPreferencesUtil.queryKey2Value(colorShape));
-                    if (result > 0)
-                        greenSum += 1;
-                    continue;
-                }
-            }
-            if (magentaSum == 0) {
-                int index = colorShape.indexOf("品红色");
-                if (index != -1) {
-                    int result = Integer.parseInt(SharedPreferencesUtil.queryKey2Value(colorShape));
-                    if (result > 0)
-                        magentaSum += 1;
-                    continue;
-                }
-            }
-            if (skyBlueSum == 0) {
-                int index = colorShape.indexOf("天蓝色");
-                if (index != -1) {
-                    int result = Integer.parseInt(SharedPreferencesUtil.queryKey2Value(colorShape));
-                    if (result > 0)
-                        skyBlueSum += 1;
-                    continue;
-                }
-            }
-            if (blueSum == 0) {
-                int index = colorShape.indexOf("蓝色");
-                if (index != -1 && !colorShape.contains("蓝色")) {
-                    int result = Integer.parseInt(SharedPreferencesUtil.queryKey2Value(colorShape));
-                    if (result > 0)
-                        blueSum += 1;
-                    continue;
-                }
-            }
-            if (blackSum == 0) {
-                int index = colorShape.indexOf("黑色");
-                if (index != -1) {
-                    int result = Integer.parseInt(SharedPreferencesUtil.queryKey2Value(colorShape));
-                    if (result > 0)
-                        blackSum += 1;
-                }
-            }
+    public static int getAllShapeFromStorage() {
+        int allShapeSum = 0;
+        for (String shapeName : SharedPreferencesUtil.COLOR_SHAPE_FLAG) {
+            allShapeSum += Integer.parseInt(SharedPreferencesUtil.queryKey2Value(shapeName));
         }
-        allColorSum = redSum + yellowSum + greenSum + magentaSum + skyBlueSum + blueSum + blackSum;
-        return allColorSum;
-    }
-
-
-    /**
-     * 从存储中获得所有形状类型的数量并回传给竞赛平台
-     */
-    public static int getShapeAllFromStorage() {
-        int allShapeSum;
-        int rectSum = 0, rouSum = 0, triSum = 0, penSum = 0, diaSum = 0;
-        for (String colorShape : SharedPreferencesUtil.COLOR_SHAPE_FLAG) {
-            if (rectSum == 0) {
-                int index = colorShape.indexOf("矩形");
-                if (index != -1) {
-                    int result = Integer.parseInt(SharedPreferencesUtil.queryKey2Value(colorShape));
-                    if (result > 0)
-                        rectSum += 1;
-                    continue;
-                }
-            }
-            if (triSum == 0) {
-                int index = colorShape.indexOf("三角形");
-                if (index != -1) {
-                    int result = Integer.parseInt(SharedPreferencesUtil.queryKey2Value(colorShape));
-                    if (result > 0)
-                        triSum += 1;
-                    continue;
-                }
-            }
-            if (diaSum == 0) {
-                int index = colorShape.indexOf("菱形");
-                if (index != -1) {
-                    int result = Integer.parseInt(SharedPreferencesUtil.queryKey2Value(colorShape));
-                    if (result > 0)
-                        diaSum += 1;
-                    continue;
-                }
-            }
-            if (penSum == 0) {
-                int index = colorShape.indexOf("五角星形");
-                if (index != -1) {
-                    int result = Integer.parseInt(SharedPreferencesUtil.queryKey2Value(colorShape));
-                    if (result > 0)
-                        penSum += 1;
-                    continue;
-                }
-            }
-            if (rouSum == 0) {
-                int index = colorShape.indexOf("圆形");
-                if (index != -1) {
-                    int result = Integer.parseInt(SharedPreferencesUtil.queryKey2Value(colorShape));
-                    if (result > 0)
-                        rouSum += 1;
-                }
-            }
-        }
-        allShapeSum = rectSum + rouSum + triSum + diaSum + penSum;
         return allShapeSum;
     }
 
@@ -603,104 +311,10 @@ public class DataPcsUtil {
      * @param shapeID 形状代号
      */
     public static int getColorShapeFromStorage(byte colorID, byte shapeID) {
-        String colorName = "";
-        switch (colorID) {
-            case TFT_COLOR_RED:
-                colorName = "红色";
-                break;
-            case TFT_COLOR_GREEN:
-                colorName = "绿色";
-                break;
-            case TFT_COLOR_YELLOW:
-                colorName = "黄色";
-                break;
-            case TFT_COLOR_BLUE:
-                colorName = "蓝色";
-                break;
-            case TFT_COLOR_SKY_BLUE:
-                colorName = "天蓝色";
-                break;
-            case TFT_COLOR_MAGENTA:
-                colorName = "品红色";
-                break;
-            case TFT_COLOR_BLACK:
-                colorName = "黑色";
-                break;
-        }
-        String shapeName = "";
-        switch (shapeID) {
-            case TFT_SHAPE_REC:
-                shapeName = "矩形";
-                break;
-            case TFT_SHAPE_ROU:
-                shapeName = "圆形";
-                break;
-            case TFT_SHAPE_TRI:
-                shapeName = "三角形";
-                break;
-            case TFT_SHAPE_DIA:
-                shapeName = "菱形";
-                break;
-            case TFT_SHAPE_PEN:
-                shapeName = "五角星形";
-                break;
-        }
-        if (!colorName.isEmpty() && !shapeName.isEmpty()) {
-            int colorShapeSum = 0;
-            String colorShape = colorName + shapeName;
-            colorShapeSum += Integer.parseInt(SharedPreferencesUtil.queryKey2Value(colorShape));
-            return colorShapeSum;
-        }
-        return 0;
-    }
-
-
-    /**
-     * 存储形状和颜色
-     * 以角点统计区分图形 五角星 5；三角形 3；矩形和菱形 4；圆形 6~9；
-     *
-     * @param color   形状的颜色
-     * @param corners 角点数量
-     * @param rate    多边形与外接旋转矩形的百分比
-     */
-    public static String storeAsShapeColor(String color, int corners, double rate) {
-        String shape = "";
-        String resN = "null";
-        switch (corners) {
-            case 3:
-                shape = "三角形";
-                resN = "Tri";
-                break;
-            case 4:
-                LogUtil.printSystemLog("四边形面积", "外接最小四边形，覆盖率：" + rate);
-                if (rate >= 0.80) {
-                    shape = "矩形";
-                    resN = "Rec";
-                } else {
-                    shape = "菱形";
-                    resN = "Dia";
-                }
-                break;
-            case 5:
-                shape = "五角星形";
-                resN = "Pen";
-                break;
-            case 6:
-            case 7:
-            case 8:
-            case 9:
-                shape = "圆形";
-                resN = "Cir";
-                break;
-        }
-        //存储内容
-        if (!shape.isEmpty()) {
-            String valueName = color + shape;
-            LogUtil.printSystemLog("多边形颜色分类", valueName);
-            int shapeSum = Integer.parseInt(SharedPreferencesUtil.queryKey2Value(valueName)) + 1;
-            SharedPreferencesUtil.insert(valueName, String.valueOf(shapeSum));
-        }
-        return resN;
+        String colorName = colorNameList.get(colorID - 1);
+        String shapeName = shapeNameList.get(shapeID - 1);
+        String colorShape = colorName + shapeName;
+        return Integer.parseInt(SharedPreferencesUtil.queryKey2Value(colorShape));
     }
 
 
@@ -710,52 +324,10 @@ public class DataPcsUtil {
      * @param lightName 交通灯识别结果
      * @param classID   交通灯类型
      */
-    public static void storeAsTrafficLight(String lightName, byte classID) {
-        byte lightID;
-        switch (lightName) {
-            case "RedLight":
-                lightID = TRAFFIC_LIGHT_RED;
-                break;
-            case "GreenLight":
-                lightID = TRAFFIC_LIGHT_GREEN;
-                break;
-            case "YellowLight":
-                lightID = TRAFFIC_LIGHT_YELLOW;
-                break;
-            default:
-                lightID = TRAFFIC_LIGHT_GREEN;
-                break;
-        }
-        if (classID == A_FLAG) {
-            SharedPreferencesUtil.insert("交通灯A", String.valueOf(lightID));
-        } else {
-            SharedPreferencesUtil.insert("交通灯B", String.valueOf(lightID));
-        }
-        CommunicationUtil.sendData("", REPLY_FLAG, null);
+    public static void saveTrafficLight(String lightName, byte classID) {
+        SharedPreferencesUtil.insert(SharedPreferencesUtil.trafficLightTag + classID, lightName);
+        CommunicationUtil.replyCar();
     }
-
-
-    /**
-     * 二维码识别结果存储
-     *
-     * @param results 识别结果
-     * @param classID 标志物类型
-     */
-    public static void storeAsQRCode(String[] results, byte classID) {
-        if (classID == A_FLAG) {
-            for (String result : results) {
-                SharedPreferencesUtil.insert("二维码A", chineseFilter(result));
-                LogUtil.printLog("二维码A最终结果", chineseFilter(result));
-            }
-        } else {
-            for (String result : results) {
-                SharedPreferencesUtil.insert("二维码B", chineseFilter(result));
-                LogUtil.printLog("二维码B最终结果", chineseFilter(result));
-            }
-        }
-        CommunicationUtil.sendData("", REPLY_FLAG, null);
-    }
-
 
 
     /**
@@ -805,6 +377,7 @@ public class DataPcsUtil {
         return text.replaceAll("[^a-zA-Z0-9\\u4e00-\\u9fa5]", "");
     }
 
+
     /**
      * 大写字母及数字过滤器
      * 得到大写字母及数字
@@ -830,7 +403,25 @@ public class DataPcsUtil {
 
 
     /**
+     * 匹配车牌（指定格式）
+     * 示例格式：XXYYXY
+     *
+     * @param text 车牌内容
+     * @return 返回指定车牌格式
+     */
+    public static boolean matchLP(String text) {
+        String regex = "^" + SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.LPRegex) + "$";
+        regex = regex.replaceAll("X", "[A-Z]");
+        regex = regex.replaceAll("Y", "\\\\d");
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(text);
+        return matcher.matches();
+    }
+
+
+    /**
      * 裁剪字符串中的花括号内容
+     *
      * @param text 传入的文字
      * @return 返回花括号中的内容
      */
@@ -843,19 +434,55 @@ public class DataPcsUtil {
 
 
     /**
+     * 查找字符串中最长公共子串
+     * @param strs 字符串集
+     * @return 返回相同字符串
+     */
+    public static String findLongestCommonSubstring(List<String> strs) {
+        if (strs.size() == 0) {
+            return "";
+        }
+        String minStr = strs.get(0);
+        for (String str : strs) {
+            if (str.length() < minStr.length()) {
+                minStr = str;
+            }
+        }
+        int length = minStr.length();
+        for (int len = length; len > 0; len--) {
+            for (int i = 0; i <= length - len; i++) {
+                String subStr = minStr.substring(i, i + len);
+                boolean allContains = true;
+                for (String str : strs) {
+                    if (!str.contains(subStr)) {
+                        allContains = false;
+                        break;
+                    }
+                }
+                if (allContains) {
+                    return subStr;
+                }
+            }
+        }
+        return "";
+    }
+
+
+    /**
      * 合并两个 byte 数组
+     *
      * @param args1 合并时排序在前的数组
      * @param args2 合并时排序在后的数组
      * @return 返回合并完的数组
      */
-    public static byte[] mergeTwoArrays(@NotNull byte[] args1,@NotNull byte[] args2) {
+    public static byte[] mergeTwoArrays(@NotNull byte[] args1, @NotNull byte[] args2) {
         byte[] result = new byte[args1.length + args2.length];
         System.arraycopy(args1, 0, result, 0, args1.length);
         System.arraycopy(args2, 0, result, args1.length, args2.length);
         return result;
     }
 
-    public static int[] mergeTwoArrays(@NotNull int[] args1,@NotNull int[] args2) {
+    public static int[] mergeTwoArrays(@NotNull int[] args1, @NotNull int[] args2) {
         int[] result = new int[args1.length + args2.length];
         System.arraycopy(args1, 0, result, 0, args1.length);
         System.arraycopy(args2, 0, result, args1.length, args2.length);
@@ -865,6 +492,7 @@ public class DataPcsUtil {
 
     /**
      * LZ78压缩算法
+     *
      * @param data ASCII 码类型的 byte 数组
      * @return 返回处理好的字符串
      */
@@ -926,14 +554,91 @@ public class DataPcsUtil {
 
 
     /**
-     * RC4 算法
+     * 斐文那契 LFSR 线性反馈移位寄存器算法
+     *
+     * @param results 原二维码识别结果
+     * @return 返回解密内容
      */
-    public static void RC4() {
-        int[] S = new int[256];
-        for (int i = 0; i < S.length; i++) {
-            S[i] = i;
+    public static String LFSR(String[] results) {
+        //移位寄存器
+        StringBuilder sReg = new StringBuilder();
+        //反馈函数
+        String feedFun = "";
+        //判断寄存器与反馈函数，A 代表移位寄存器，B 代表反馈函数
+        for (String var : results) {
+            if (var.contains("A")) {
+                sReg = new StringBuilder(var);
+            } else if (var.contains("B")) {
+                feedFun = var;
+            }
         }
-
+        //过滤特殊字符
+        sReg = new StringBuilder(DataPcsUtil.numberFilter(sReg.toString()));
+        feedFun = DataPcsUtil.numberFilter(feedFun);
+        LogUtil.printLog("test", sReg + "\n" + feedFun);
+        //记录长度，计算缺失然后补0
+        int sRegInitLength = sReg.length();
+        //记录输出位（最低位）
+        List<String> outputList = new ArrayList<>();
+        //默认增加原数据输出位
+        outputList.add(String.valueOf(sReg.charAt(sReg.length() - 1)));
+        //抽头序列查找
+        List<Integer> tapList = new ArrayList<>();
+        for (int i = 0; i < feedFun.length(); i++) {
+            //顺序查找
+            int i1 = feedFun.indexOf("1");
+            //逆序查找
+            int i2 = feedFun.lastIndexOf("1");
+            //替换已经查找的字符串
+            if (i1 != i2) {
+                tapList.add(i1);
+                tapList.add(i2);
+                feedFun = feedFun.substring(0, i1) + "0" + feedFun.substring(i1 + 1);
+                feedFun = feedFun.substring(0, i2) + "0" + feedFun.substring(i2 + 1);
+            } else if (i1 != -1) {
+                tapList.add(i1);
+                break;
+            } else {
+                break;
+            }
+        }
+        //异或运算，大于两个异或位后再开始
+        if (tapList.size() > 1) {
+            for (int i = 0; i < (Math.pow(2, sRegInitLength) - 1); i++) {
+                int bool = Integer.parseInt(String.valueOf(sReg.charAt(tapList.get(0))));
+                for (int j = 0; j < tapList.size(); j++) {
+                    if (j > 0) {
+                        bool ^= Integer.parseInt(String.valueOf(sReg.charAt(tapList.get(j))));
+                    }
+                }
+                //位移运算
+                int sRegBinary = Integer.valueOf(sReg.toString(), 2) >> 1;
+                sReg = new StringBuilder(Integer.toBinaryString(sRegBinary).trim());
+                //补充缺失bit
+                if (sReg.length() != sRegInitLength) {
+                    int dif = sRegInitLength - sReg.length();
+                    for (int k = 0; k < dif; k++) {
+                        sReg.insert(0, "0");
+                    }
+                }
+                sReg = new StringBuilder(sReg.toString().replaceFirst("0", String.valueOf(bool)));
+                outputList.add(String.valueOf(sReg.charAt(sReg.length() - 1)));
+                LogUtil.printLog("test", sReg + "\n");
+            }
+        }
+        String bit = DataPcsUtil.numberFilter(outputList.toString());
+        LogUtil.printLog("test", bit);
+        List<String> hexList = new ArrayList<>();
+        for (int i = 0; i < 48; i += 8) {
+            String substring = bit.substring(i, i + 8);
+            hexList.add(Integer.toHexString(Integer.parseInt(substring, 2)));
+        }
+        StringBuilder builder = new StringBuilder();
+        for (String hex : hexList) {
+            builder.append(hex).append(" ");
+        }
+        LogUtil.printLog("LFSR：", builder.toString());
+        return builder.toString();
     }
 
 }

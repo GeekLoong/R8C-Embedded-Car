@@ -73,9 +73,10 @@ public class LogUtil {
      */
     public static void printLog(String logTitle, String logContent) {
         String log = logTitle + " ---- " + logContent;
-        Log.e(TAG, log);
+        Log.d(TAG, log);
         addLog2System(log, "log-android");
     }
+
 
     /**
      * 添加打印到 car 日志
@@ -84,7 +85,7 @@ public class LogUtil {
      */
     public static void printCarLog(String logTitle, String logContent) {
         String log = logTitle + " ---- " + logContent;
-        Log.e(TAG, log);
+        Log.d(TAG, log);
         addLog2System(log, "log-car");
     }
 
@@ -94,7 +95,7 @@ public class LogUtil {
      * @param logContent 日志内容
      */
     public static void printLog(String logContent) {
-        Log.e(TAG, logContent);
+        Log.d(TAG, logContent);
         addLog2System(logContent, "log-android");
     }
 
@@ -107,7 +108,7 @@ public class LogUtil {
      */
     public static void printSystemLog(String logTitle, String logContent) {
         String log = logTitle + " ---- " + logContent;
-        Log.e(TAG, log);
+        Log.d(TAG, log);
     }
 
     /**
@@ -146,7 +147,7 @@ public class LogUtil {
         SharedPreferencesUtil.insert(logModel, logContent);
         //清除临时数组
         tempLogList.clear();
-        //开始更新数据
+        //开始更新数据，这个位置可能会跟不上更快的输出，输出过快的话会导致打印丢失，原因是标志位复位速度跟不上打印速度。
         logUpdate = true;
     }
 
@@ -180,7 +181,8 @@ public class LogUtil {
 
     /**
      * 打印竞赛平台发送的数据
-     * @param mByte 字节数组
+     *
+     * @param mByte    字节数组
      * @param dataType 数据类型
      * @param logModel 日志模式
      */
@@ -191,11 +193,15 @@ public class LogUtil {
                 builder.append(String.format("%02X ", byteChar));
             }
             String logContent = builder.toString();
-            LogUtil.printSystemLog("系统日志", logContent);
-            if (logModel.equals("log-android"))
+            if (logModel.equals("log-android")) {
+                LogUtil.printSystemLog("主车通信指令", logContent);
                 printLog(dataType, logContent);
-            else
+            } else if (logModel.equals("log-car")) {
                 printCarLog(dataType, logContent);
+                LogUtil.printSystemLog("安卓通信指令", logContent);
+            } else {
+                LogUtil.printSystemLog("只打印通信指令", logContent);
+            }
         }
     }
 

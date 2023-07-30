@@ -3,7 +3,7 @@ package net.kuisec.r8c.Const;
 /**
  * 所有标志物常量
  */
-public class ItemConst {
+public class SignConst {
 
 
     /**
@@ -14,28 +14,32 @@ public class ItemConst {
      * 所有 B 类标志物序列
      */
     public static final byte B_FLAG = 0x02;
+    /**
+     * 所有 C 类标志物序列
+     */
+    public static final byte C_FLAG = 0x03;
+    /**
+     * 所有 D 类标志物序列
+     */
+    public static final byte D_FLAG = 0x04;
 
 
     /**
-     * A 类二维码 存储内容获取标志
+     * 二维码 存储内容获取标志
      */
-    public static final byte QRCODE_A_STORAGE_FLAG = 0x01;
-    /**
-     * B 类二维码 存储内容获取标志
-     */
-    public static final byte QRCODE_B_STORAGE_FLAG = 0x02;
+    public static final byte QRCODE_STORAGE_FLAG = 0x01;
 
 
     /**
      * 文本 存储内容获取标志
      */
-    public static final byte TEXT_STORAGE_FLAG = 0x03;
+    public static final byte TEXT_STORAGE_FLAG = 0x02;
 
 
     /**
      * 交通灯 存储内容获取标志
      */
-    public static final byte TRAFFIC_LIGHT_STORAGE_FLAG = 0x04;
+    public static final byte TRAFFIC_LIGHT_STORAGE_FLAG = 0x03;
     /**
      * 红灯
      */
@@ -53,7 +57,7 @@ public class ItemConst {
     /**
      * RFID 存储内容获取标志
      */
-    public static final byte RFID_STORAGE_FLAG = 0x05;
+    public static final byte RFID_STORAGE_FLAG = 0x04;
     /**
      * RFID 破损车牌 存储内容获取标志
      */
@@ -71,13 +75,13 @@ public class ItemConst {
     /**
      * TFT 车牌 存储内容获取标志
      */
-    public static final byte TFT_LP_STORAGE_FLAG = 0x06;
+    public static final byte TFT_LP_STORAGE_FLAG = 0x05;
 
 
     /**
      * TFT 指定形状总数 存储内容获取标志
      */
-    public static final byte TFT_SHAPE_STORAGE_FLAG = 0x07;
+    public static final byte TFT_SHAPE_STORAGE_FLAG = 0x06;
     /**
      * 矩形
      */
@@ -85,7 +89,7 @@ public class ItemConst {
     /**
      * 圆形
      */
-    public static final byte TFT_SHAPE_ROU = 0x02;
+    public static final byte TFT_SHAPE_CIR = 0x02;
     /**
      * 三角形
      */
@@ -97,13 +101,17 @@ public class ItemConst {
     /**
      * 五角星形
      */
-    public static final byte TFT_SHAPE_PEN = 0x05;
+    public static final byte TFT_SHAPE_FIV = 0x05;
+    /**
+     * 梯形
+     */
+    public static final byte TFT_SHAPE_TRA = 0x06;
 
 
     /**
      * TFT 指定颜色总数 存储内容获取标志
      */
-    public static final byte TFT_COLOR_STORAGE_FLAG = 0x08;
+    public static final byte TFT_COLOR_STORAGE_FLAG = 0x07;
     /**
      * 红色
      */
@@ -142,58 +150,64 @@ public class ItemConst {
      * TFT 指定颜色的形状总数 存储内容获取标志
      * TFT 指定形状的颜色总数 存储内容获取标志
      */
-    public static final byte TFT_SHAPE_COLOR_STORAGE_FLAG = 0x09;
+    public static final byte TFT_SHAPE_COLOR_STORAGE_FLAG = 0x08;
 
 
     /**
      * TFT 16进制 存储内容获取标志
      */
-    public static final byte TFT_HEX_STORAGE_FLAG = 0x0A;
+    public static final byte TFT_HEX_STORAGE_FLAG = 0x09;
 
 
     /**
      * TFT 所有颜色总数 存储内容获取标志
      */
-    public static final byte TFT_COLOR_ALL_STORAGE_FLAG = 0x0B;
+    public static final byte TFT_COLOR_ALL_STORAGE_FLAG = 0x0A;
 
 
     /**
      * TFT 所有形状总数 存储内容获取标志
      */
-    public static final byte TFT_SHAPE_ALL_STORAGE_FLAG = 0x0C;
-
-
-    /**
-     * TFT 获取最多图形信息类别
-     */
-    public static final byte TFT_MAX_SHAPE_CLASS_STORAGE_FLAG = 0x0F;
+    public static final byte TFT_SHAPE_ALL_STORAGE_FLAG = 0x0B;
 
     /**
      * TFT 交通标志类型 存储内容获取标志
      */
-    public static final byte TFT_TRAFFIC_STORAGE_FLAG = 0x0D;
+    public static final byte TFT_TRAFFIC_STORAGE_FLAG = 0x0C;
 
 
     /**
      * TFT 车辆类型 存储内容获取标志
      */
-    public static final byte TFT_CAR_MODEL_STORAGE_FLAG = 0x0E;
+    public static final byte TFT_VEHICLE_TYPE_STORAGE_FLAG = 0x0D;
     /**
      * 自行车
      */
-    public static final byte TFT_CAR_MODEL_BICYCLE = 0x01;
+    public static final byte TFT_VEHICLE_TYPE_BICYCLE = 0x01;
     /**
      * 摩托车
      */
-    public static final byte TFT_CAR_MODEL_MOTORCYCLE = 0x02;
+    public static final byte TFT_VEHICLE_TYPE_MOTORCYCLE = 0x02;
     /**
      * 轿车
      */
-    public static final byte TFT_CAR_MODEL_CAR = 0x03;
+    public static final byte TFT_VEHICLE_TYPE_CAR = 0x03;
     /**
      * 卡车
      */
-    public static final byte TFT_CAR_MODEL_TRUCK = 0x04;
+    public static final byte TFT_VEHICLE_TYPE_TRUCK = 0x04;
+
+
+    /**
+     * TFT 获取最多图形信息类别
+     */
+    public static final byte TFT_MAX_SHAPE_CLASS_STORAGE_FLAG = 0x0E;
+
+
+    /**
+     * TFT 获取行人数量
+     */
+    public static final byte TFT_PERSON_COUNT_STORAGE_FLAG = 0x0F;
 
 
     /**
@@ -222,5 +236,4 @@ public class ItemConst {
      * 主车 Zigbee 接收日志保存
      */
     public static final byte LOG_CAR_MODEL_RECEP = 0x0B;
-
 }

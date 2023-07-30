@@ -9,8 +9,8 @@
 
     <ImageView
         android:id="@+id/bar_back"
-        android:layout_width="@dimen/icon_max"
-        android:layout_height="@dimen/icon_max"
+        android:layout_width="@dimen/icon_min"
+        android:layout_height="@dimen/icon_min"
         android:layout_marginStart="20dp"
         android:layout_marginTop="42dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -206,23 +206,53 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="多边形类型识别(留空走算法)"
+                android:text="TFT C 固定码盘值"
+                android:textColor="@color/black"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <SeekBar
+                android:id="@+id/dashboardCSeekBar"
+                style="@style/CustomSeekbarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:max="1000"
+                android:progress="210" />
+
+            <TextView
+                android:id="@+id/dashboardCText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="15dp"
+                android:text="0"
+                android:textColor="@color/black"
+                android:textSize="@dimen/small_title"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="组装16进制结果"
                 android:textColor="@color/red"
                 android:textSize="@dimen/big_title"
                 android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
                 <EditText
-                    android:id="@+id/shapeClassEdit"
-                    android:layout_weight="3"
+                    android:id="@+id/hexContentEdit"
                     android:layout_width="0dp"
                     android:layout_height="45dp"
                     android:layout_marginTop="5dp"
-                    android:background="@drawable/radius"
+                    android:layout_weight="3"
+                    android:background="@drawable/general_radius"
                     android:digits="@string/digits26Cap"
                     android:hint="请输入类型组合代码"
                     android:inputType="text"
@@ -233,9 +263,9 @@
                     android:textStyle="bold" />
 
                 <Button
-                    android:id="@+id/saveShapeClass"
-                    android:layout_height="45dp"
+                    android:id="@+id/saveHexContent"
                     android:layout_width="0dp"
+                    android:layout_height="45dp"
                     android:layout_marginStart="4dp"
                     android:layout_marginTop="5dp"
                     android:layout_marginEnd="8dp"
@@ -253,23 +283,70 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="多边形颜色识别(留空走算法)"
+                android:text="多边形类型结果(蓝梯红圆黄三全菱0全青)"
                 android:textColor="@color/red"
                 android:textSize="@dimen/big_title"
                 android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
                 <EditText
-                    android:id="@+id/shapeColorEdit"
-                    android:layout_weight="3"
+                    android:id="@+id/shapeClassEdit"
                     android:layout_width="0dp"
                     android:layout_height="45dp"
                     android:layout_marginTop="5dp"
-                    android:background="@drawable/radius"
+                    android:layout_weight="3"
+                    android:background="@drawable/general_radius"
+                    android:digits="@string/digits26Cap"
+                    android:hint="请输入类型组合代码"
+                    android:inputType="text"
+                    android:padding="10dp"
+                    android:textColor="@color/light2"
+                    android:textColorHint="@color/light_title"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/saveShapeClass"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="3dp"
+                    android:layout_weight="2"
+                    android:background="@drawable/button_selector"
+                    android:text="保存"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="多边形颜色识别(F红F绿F蓝)"
+                android:textColor="@color/red"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/shapeColorEdit"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="3"
+                    android:background="@drawable/general_radius"
                     android:digits="@string/digits26Cap"
                     android:hint="请输入颜色组合代码"
                     android:inputType="text"
@@ -281,8 +358,8 @@
 
                 <Button
                     android:id="@+id/saveShapeColor"
-                    android:layout_height="45dp"
                     android:layout_width="0dp"
+                    android:layout_height="45dp"
                     android:layout_marginStart="4dp"
                     android:layout_marginTop="5dp"
                     android:layout_marginEnd="8dp"
@@ -305,6 +382,15 @@
                 android:textSize="@dimen/big_title"
                 android:textStyle="bold" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="颜色指定"
+                android:textColor="@color/dark1"
+                android:textSize="@dimen/small_title"
+                android:textStyle="bold" />
+
             <GridLayout
                 android:id="@+id/lp_item_group"
                 android:layout_width="match_parent"
@@ -319,67 +405,133 @@
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:textColor="@drawable/rec_radio"
-                    android:text="指定格式" />
+                    android:text="无"
+                    android:textColor="@drawable/rec_radio" />
 
                 <RadioButton
                     android:id="@+id/item_green"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
-                    android:textColor="@drawable/rec_radio"
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="绿色" />
+                    android:text="绿色"
+                    android:textColor="@drawable/rec_radio" />
 
                 <RadioButton
                     android:id="@+id/item_lightBlue"
-                    android:textColor="@drawable/rec_radio"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="浅蓝色" />
+                    android:text="浅蓝色"
+                    android:textColor="@drawable/rec_radio" />
 
                 <RadioButton
                     android:id="@+id/item_yellow"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
-                    android:textColor="@drawable/rec_radio"
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="黄色" />
+                    android:text="黄色"
+                    android:textColor="@drawable/rec_radio" />
 
                 <RadioButton
                     android:id="@+id/item_darkBlue"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
-                    android:textColor="@drawable/rec_radio"
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="深蓝色" />
+                    android:text="深蓝色"
+                    android:textColor="@drawable/rec_radio" />
 
             </GridLayout>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="车型指定"
+                android:textColor="@color/dark1"
+                android:textSize="@dimen/small_title"
+                android:textStyle="bold" />
+
+            <GridLayout
+                android:id="@+id/lp_vehicleType_item_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="3">
+
+                <RadioButton
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="无"
+                    android:textColor="@drawable/rec_radio" />
+
+                <RadioButton
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="摩托车"
+                    android:textColor="@drawable/rec_radio" />
+
+                <RadioButton
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="轿车"
+                    android:textColor="@drawable/rec_radio" />
+
+                <RadioButton
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="货车"
+                    android:textColor="@drawable/rec_radio" />
+
+            </GridLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="格式指定"
+                android:textColor="@color/dark1"
+                android:textSize="@dimen/small_title"
+                android:textStyle="bold" />
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
                 <EditText
-                    android:id="@+id/LpClassEdit"
-                    android:layout_weight="3"
+                    android:id="@+id/lpRegexEdit"
                     android:layout_width="0dp"
                     android:layout_height="45dp"
                     android:layout_marginTop="5dp"
-                    android:background="@drawable/radius"
+                    android:layout_weight="3"
+                    android:background="@drawable/general_radius"
                     android:digits="@string/digits26Cap"
                     android:hint="车牌格式，如：XXYYXY"
                     android:inputType="text"
@@ -390,9 +542,9 @@
                     android:textStyle="bold" />
 
                 <Button
-                    android:id="@+id/saveLpClass"
-                    android:layout_height="45dp"
+                    android:id="@+id/saveLpRegex"
                     android:layout_width="0dp"
+                    android:layout_height="45dp"
                     android:layout_marginStart="4dp"
                     android:layout_marginTop="5dp"
                     android:layout_marginEnd="8dp"
@@ -406,18 +558,27 @@
 
             </LinearLayout>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="车牌识别结果"
+                android:textColor="@color/dark1"
+                android:textSize="@dimen/small_title"
+                android:textStyle="bold" />
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
                 <EditText
-                    android:id="@+id/LpEdit"
-                    android:layout_weight="3"
+                    android:id="@+id/lpContentEdit"
                     android:layout_width="0dp"
                     android:layout_height="45dp"
                     android:layout_marginTop="5dp"
-                    android:background="@drawable/radius"
+                    android:layout_weight="3"
+                    android:background="@drawable/general_radius"
                     android:digits="@string/digitsCap"
                     android:hint="车牌内容（科技）"
                     android:inputType="text"
@@ -428,9 +589,9 @@
                     android:textStyle="bold" />
 
                 <Button
-                    android:id="@+id/saveLp"
-                    android:layout_height="45dp"
+                    android:id="@+id/saveLpContent"
                     android:layout_width="0dp"
+                    android:layout_height="45dp"
                     android:layout_marginStart="4dp"
                     android:layout_marginTop="5dp"
                     android:layout_marginEnd="8dp"
@@ -448,7 +609,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="车型识别"
+                android:text="车型识别结果"
                 android:textColor="@color/black"
                 android:textSize="@dimen/big_title"
                 android:textStyle="bold" />
@@ -461,17 +622,16 @@
 
                 <RadioButton
                     android:id="@+id/item_vt_ai"
-                    android:textColor="@drawable/rec_radio"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="AI识别" />
+                    android:text="AI识别"
+                    android:textColor="@drawable/rec_radio" />
 
                 <RadioButton
-                    android:textColor="@drawable/rec_radio"
                     android:id="@+id/item_bicycle"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -479,10 +639,10 @@
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="自行车" />
+                    android:text="自行车"
+                    android:textColor="@drawable/rec_radio" />
 
                 <RadioButton
-                    android:textColor="@drawable/rec_radio"
                     android:id="@+id/item_motorcycle"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -490,10 +650,10 @@
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="摩托车" />
+                    android:text="摩托车"
+                    android:textColor="@drawable/rec_radio" />
 
                 <RadioButton
-                    android:textColor="@drawable/rec_radio"
                     android:id="@+id/item_car"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -501,10 +661,10 @@
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="轿车" />
+                    android:text="轿车"
+                    android:textColor="@drawable/rec_radio" />
 
                 <RadioButton
-                    android:textColor="@drawable/rec_radio"
                     android:id="@+id/item_truck"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -512,7 +672,8 @@
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="货车" />
+                    android:text="货车"
+                    android:textColor="@drawable/rec_radio" />
 
             </GridLayout>
 
@@ -520,7 +681,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="交通标志识别"
+                android:text="交通标志识别结果"
                 android:textColor="@color/black"
                 android:textSize="@dimen/big_title"
                 android:textStyle="bold" />
@@ -533,17 +694,16 @@
 
                 <RadioButton
                     android:id="@+id/item_traffic_ai"
-                    android:textColor="@drawable/rec_radio"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="AI识别" />
+                    android:text="AI识别"
+                    android:textColor="@drawable/rec_radio" />
 
                 <RadioButton
-                    android:textColor="@drawable/rec_radio"
                     android:id="@+id/item_go"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -551,10 +711,10 @@
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="直行" />
+                    android:text="直行"
+                    android:textColor="@drawable/rec_radio" />
 
                 <RadioButton
-                    android:textColor="@drawable/rec_radio"
                     android:id="@+id/item_tl"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -562,10 +722,10 @@
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="左转" />
+                    android:text="左转"
+                    android:textColor="@drawable/rec_radio" />
 
                 <RadioButton
-                    android:textColor="@drawable/rec_radio"
                     android:id="@+id/item_tr"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -573,10 +733,10 @@
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="右转" />
+                    android:text="右转"
+                    android:textColor="@drawable/rec_radio" />
 
                 <RadioButton
-                    android:textColor="@drawable/rec_radio"
                     android:id="@+id/item_ut"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -584,10 +744,10 @@
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="掉头" />
+                    android:text="掉头"
+                    android:textColor="@drawable/rec_radio" />
 
                 <RadioButton
-                    android:textColor="@drawable/rec_radio"
                     android:id="@+id/item_ng"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -595,10 +755,10 @@
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="禁止直行" />
+                    android:text="禁止直行"
+                    android:textColor="@drawable/rec_radio" />
 
                 <RadioButton
-                    android:textColor="@drawable/rec_radio"
                     android:id="@+id/item_np"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -606,10 +766,10 @@
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="禁止通行" />
+                    android:text="禁止通行"
+                    android:textColor="@drawable/rec_radio" />
 
                 <RadioButton
-                    android:textColor="@drawable/rec_radio"
                     android:id="@+id/item_ntl"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -617,10 +777,10 @@
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="禁止左转" />
+                    android:text="禁止左转"
+                    android:textColor="@drawable/rec_radio" />
 
                 <RadioButton
-                    android:textColor="@drawable/rec_radio"
                     android:id="@+id/item_ntr"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -628,10 +788,10 @@
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="禁止右转" />
+                    android:text="禁止右转"
+                    android:textColor="@drawable/rec_radio" />
 
                 <RadioButton
-                    android:textColor="@drawable/rec_radio"
                     android:id="@+id/item_nut"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -639,10 +799,10 @@
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="禁止掉头" />
+                    android:text="禁止掉头"
+                    android:textColor="@drawable/rec_radio" />
 
                 <RadioButton
-                    android:textColor="@drawable/rec_radio"
                     android:id="@+id/item_sl"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -650,7 +810,8 @@
                     android:background="@drawable/rec_radio"
                     android:button="@null"
                     android:gravity="center"
-                    android:text="限速" />
+                    android:text="限速"
+                    android:textColor="@drawable/rec_radio" />
 
             </GridLayout>
 
@@ -663,18 +824,96 @@
                 android:textSize="@dimen/big_title"
                 android:textStyle="bold" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="行人是否有遮挡"
+                android:textColor="@color/dark1"
+                android:textSize="@dimen/small_title"
+                android:textStyle="bold" />
+
+            <GridLayout
+                android:id="@+id/person_occ_item_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="3">
+
+                <RadioButton
+                    android:id="@+id/item_person_occ_none"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="无"
+                    android:textColor="@drawable/rec_radio" />
+
+                <RadioButton
+                    android:id="@+id/item_person_70"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="60%以上（70%））"
+                    android:textColor="@drawable/rec_radio" />
+
+            </GridLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="行人是否戴口罩"
+                android:textColor="@color/dark1"
+                android:textSize="@dimen/small_title"
+                android:textStyle="bold" />
+
+            <GridLayout
+                android:id="@+id/person_mask_item_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="3">
+
+                <RadioButton
+                    android:id="@+id/item_person_mask_none"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="无"
+                    android:textColor="@drawable/rec_radio" />
+
+                <RadioButton
+                    android:id="@+id/item_person_mask"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/rec_radio"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="戴口罩"
+                    android:textColor="@drawable/rec_radio" />
+
+            </GridLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
                 <EditText
-                    android:id="@+id/personNumberEdit"
-                    android:layout_weight="3"
+                    android:id="@+id/personCountContentEdit"
                     android:layout_width="0dp"
                     android:layout_height="45dp"
                     android:layout_marginTop="5dp"
-                    android:background="@drawable/radius"
+                    android:layout_weight="3"
+                    android:background="@drawable/general_radius"
                     android:digits="@string/digitsHSV"
                     android:hint="行人数量（科技）"
                     android:inputType="number"
@@ -685,9 +924,9 @@
                     android:textStyle="bold" />
 
                 <Button
-                    android:id="@+id/savePersonNumber"
-                    android:layout_height="45dp"
+                    android:id="@+id/savePersonCountContent"
                     android:layout_width="0dp"
+                    android:layout_height="45dp"
                     android:layout_marginStart="4dp"
                     android:layout_marginTop="5dp"
                     android:layout_marginEnd="8dp"
@@ -712,16 +951,16 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
                 <EditText
-                    android:id="@+id/OcrEdit"
-                    android:layout_weight="3"
+                    android:id="@+id/ocrContentEdit"
                     android:layout_width="0dp"
                     android:layout_height="45dp"
                     android:layout_marginTop="5dp"
-                    android:background="@drawable/radius"
+                    android:layout_weight="3"
+                    android:background="@drawable/general_radius"
                     android:hint="文字内容（科技）"
                     android:inputType="text"
                     android:padding="10dp"
@@ -731,9 +970,101 @@
                     android:textStyle="bold" />
 
                 <Button
-                    android:id="@+id/saveOcrText"
-                    android:layout_height="45dp"
+                    android:id="@+id/saveOcrContent"
                     android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="3dp"
+                    android:layout_weight="2"
+                    android:background="@drawable/button_selector"
+                    android:text="保存"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="主车报警码存储"
+                android:textColor="@color/black"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/alarmCodeContentEdit"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="3"
+                    android:background="@drawable/general_radius"
+                    android:hint="报警码内容（科技）"
+                    android:inputType="text"
+                    android:padding="10dp"
+                    android:textColor="@color/light2"
+                    android:textColorHint="@color/light_title"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/saveAlarmCodeContent"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="3dp"
+                    android:layout_weight="2"
+                    android:background="@drawable/button_selector"
+                    android:text="保存"
+                    android:textColor="@color/light2"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="主车无线充电开启码存储"
+                android:textColor="@color/black"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/powerOpenCodeContentEdit"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="3"
+                    android:background="@drawable/general_radius"
+                    android:hint="无线开启码内容（科技）"
+                    android:inputType="text"
+                    android:padding="10dp"
+                    android:textColor="@color/light2"
+                    android:textColorHint="@color/light_title"
+                    android:textSize="@dimen/big_title"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/savePowerOpenCodeContent"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
                     android:layout_marginStart="4dp"
                     android:layout_marginTop="5dp"
                     android:layout_marginEnd="8dp"
@@ -761,7 +1092,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:background="@drawable/radius"
+                android:background="@drawable/general_radius"
                 android:digits="@string/digitsHSV"
                 android:hint="请输入阈值，一行代表一个阈值，例：23, 14, 33"
                 android:inputType="textMultiLine"
@@ -785,7 +1116,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:background="@drawable/radius"
+                android:background="@drawable/general_radius"
                 android:digits="@string/digitsHSV"
                 android:hint="请输入阈值，一行代表一个阈值，例：23, 14, 33"
                 android:inputType="textMultiLine"
@@ -795,43 +1126,19 @@
                 android:textSize="@dimen/big_title"
                 android:textStyle="bold" />
 
-            <LinearLayout
+            <Button
+                android:id="@+id/saveShapeTh"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dp">
-
-                <Button
-                    android:id="@+id/handoffTh"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginBottom="3dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/button_selector"
-                    android:text="切换阈值（DARK）"
-                    android:textColor="@color/light2"
-                    android:textSize="@dimen/big_title"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:id="@+id/saveShapeTh"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="3dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/button_selector"
-                    android:text="保存阈值"
-                    android:textColor="@color/light2"
-                    android:textSize="@dimen/big_title"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
+                android:layout_height="40dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/button_selector"
+                android:text="保存阈值"
+                android:textColor="@color/light2"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -847,7 +1154,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:background="@drawable/radius"
+                android:background="@drawable/general_radius"
                 android:digits="@string/digitsHSV"
                 android:hint="请输入阈值，一行代表一个阈值，例：23, 14, 33"
                 android:inputType="textMultiLine"
@@ -871,7 +1178,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:background="@drawable/radius"
+                android:background="@drawable/general_radius"
                 android:digits="@string/digitsHSV"
                 android:hint="请输入阈值，一行代表一个阈值，例：23, 14, 33"
                 android:inputType="textMultiLine"
@@ -881,28 +1188,19 @@
                 android:textSize="@dimen/big_title"
                 android:textStyle="bold" />
 
-            <LinearLayout
+            <Button
+                android:id="@+id/saveLPTh"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dp">
-
-                <Button
-                    android:id="@+id/saveLPTh"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="3dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/button_selector"
-                    android:text="保存阈值"
-                    android:textColor="@color/light2"
-                    android:textSize="@dimen/big_title"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
+                android:layout_height="40dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/button_selector"
+                android:text="保存阈值"
+                android:textColor="@color/light2"
+                android:textSize="@dimen/big_title"
+                android:textStyle="bold" />
 
         </LinearLayout>
 

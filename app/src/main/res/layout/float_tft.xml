@@ -173,10 +173,20 @@
                 android:textStyle="bold" />
 
             <RadioButton
+                android:id="@+id/tft_class_b"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:buttonTint="@color/white"
                 android:text="TFT B"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <RadioButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/white"
+                android:text="TFT C"
                 android:textColor="@color/white"
                 android:textSize="14sp"
                 android:textStyle="bold" />

@@ -37,18 +37,20 @@ public class PermissionUtil {
             }
         }
         //权限组
-        String[] permissions = {
-                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                android.Manifest.permission.INTERNET,
-                android.Manifest.permission.CHANGE_NETWORK_STATE,
-                android.Manifest.permission.ACCESS_NETWORK_STATE,
-                android.Manifest.permission.CHANGE_WIFI_STATE,
-                android.Manifest.permission.ACCESS_WIFI_STATE,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                android.Manifest.permission.READ_PHONE_STATE
-        };
+        List<String> permissions = new ArrayList<String>() {{
+            add(android.Manifest.permission.ACCESS_FINE_LOCATION);
+            add(android.Manifest.permission.ACCESS_COARSE_LOCATION);
+            add(android.Manifest.permission.INTERNET);
+            add(android.Manifest.permission.CHANGE_NETWORK_STATE);
+            add(android.Manifest.permission.ACCESS_NETWORK_STATE);
+            add(android.Manifest.permission.CHANGE_WIFI_STATE);
+            add(android.Manifest.permission.ACCESS_WIFI_STATE);
+            add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            add(android.Manifest.permission.READ_EXTERNAL_STORAGE);
+            add(android.Manifest.permission.READ_PHONE_STATE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                add(android.Manifest.permission.POST_NOTIFICATIONS);
+        }};
         //未授权的权限个数
         List<String> unPermissions = new ArrayList<>();
         //遍历所有需要申请的权限

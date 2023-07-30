@@ -1,20 +1,19 @@
 package net.kuisec.r8c.Network;
 
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import net.kuisec.r8c.Bean.NetImgBean;
 import net.kuisec.r8c.Utils.LogUtil;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -22,7 +21,14 @@ import okhttp3.Response;
 public class CameraCmdUtil {
     private static final String TAG = "摄像头控制台";
     private static String IP = "0.0.0.0";
-    private static final OkHttpClient client = new OkHttpClient();
+    private final static long TIMEOUT = 5000;
+    private static final OkHttpClient client = new OkHttpClient.Builder()
+            .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+            //call不超时
+            .callTimeout(0, TimeUnit.MILLISECONDS)
+            .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+            .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+            .build();
     private static final byte[] sendData = new byte[]{68, 72, 1, 1};
     private static DatagramSocket socket = null;
     private static final byte[] receiveData = new byte[1024];
@@ -72,7 +78,9 @@ public class CameraCmdUtil {
                 }
             }
             LogUtil.printLog("摄像头IP", newIP.toString());
-            socket.close();
+            if (socket != null) {
+                socket.close();
+            }
             socket = null;
             IP = newIP.toString().trim() + ":81";
         } catch (UnknownHostException e) {
@@ -86,30 +94,15 @@ public class CameraCmdUtil {
 
 
     /**
-     * 获得摄像头图像
+     * 更新图像
      *
-     * @return 返回位图
+     * @param callback 异步回调
      */
-    public static NetImgBean getImage() {
-        NetImgBean netImg = new NetImgBean(443, null);
-        if (!"0.0.0.0".equals(IP)) {
-            Request request = new Request.Builder()
-                    .url("http://" + IP + "/snapshot.cgi?loginuse=admin&loginpas=888888&res=0")
-                    .build();
-            try {
-                Response response = client.newCall(request).execute();
-                if (response.body() != null) {
-                    InputStream inputStream = response.body().byteStream();
-                    netImg = new NetImgBean(response.code(), BitmapFactory.decodeStream(inputStream));
-                } else {
-                    Log.e(TAG, "指定IP没有回传图像");
-                }
-                response.close();
-            } catch (IOException e) {
-                Log.e(TAG, "图像请求失败");
-            }
-        }
-        return netImg;
+    public static void updateImage(Callback callback) {
+        Request request = new Request.Builder()
+                .url("http://" + IP + "/videostream.cgi?user=admin&pwd=888888")
+                .build();
+        client.newCall(request).enqueue(callback);
     }
 
 
@@ -124,8 +117,7 @@ public class CameraCmdUtil {
             Request request = new Request.Builder()
                     .url("http://" + IP + "/decoder_control.cgi?loginuse=admin&loginpas=888888&" + "command=" + cmd + "&onestep=1")
                     .build();
-            try {
-                Response response = client.newCall(request).execute();
+            try (Response response = client.newCall(request).execute()) {
                 return response.code();
             } catch (IOException e) {
                 Log.e(TAG, "摄像头调整位置失败");
