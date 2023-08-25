@@ -70,6 +70,10 @@ public class SignConst {
      * RFID 报警码 存储内容获取标志
      */
     public static final byte RFID_ALARM = 0x03;
+    /**
+     * RFID 内容存储
+     */
+    public static final byte RFID_CONTENT = 0x04;
 
 
     /**

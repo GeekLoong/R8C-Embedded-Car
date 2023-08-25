@@ -55,6 +55,7 @@ public class SharedPreferencesUtil {
     public final static String mainCmd = "万能指令主指令";
     public final static String alarmCodeContent = "主车报警码";
     public final static String powerOpenCodeContent = "主车无线充电";
+    public final static String rfidContent = "RFID数据内容";
 
 
     /**
@@ -645,6 +646,11 @@ public class SharedPreferencesUtil {
     public static void deleteVehicleTypeHistoryStorage() {
         delete("车型");
     }
+
+    /**
+     * 删除历史行人数量
+     */
+    public static void deletePersonCount() {delete(personCount);}
 
 
     /**

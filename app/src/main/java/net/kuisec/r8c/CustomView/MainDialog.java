@@ -608,6 +608,12 @@ public class MainDialog extends DialogFragment {
                                     case "主车路径\n(0xB6)":
                                         mainCmd = "B6";
                                         break;
+                                    case "RFID密钥B\n(0xA3)":
+                                        mainCmd = "A3";
+                                        break;
+                                    case "RFID扇区\n(0xA4)":
+                                        mainCmd = "A4";
+                                        break;
                                     case "开启标志位\n(0xB9)\n(0x01)RFID\n(0x02)地形":
                                         mainCmd = "B9";
                                         break;
@@ -617,14 +623,18 @@ public class MainDialog extends DialogFragment {
                                     text.add(mainCmd);
                                 String[] cmdContent = String.valueOf(terminalEditText.getText()).split(" ");
                                 Collections.addAll(text, cmdContent);
-                                byte[] data = new byte[text.size()];
-                                for (int i = 0; i < data.length; i++) {
-                                    data[i] = (byte) Integer.parseInt(text.get(i), 16);
-                                }
-                                if (unCmd.get().isEmpty()) {
-                                    CommunicationUtil.sendData(data);
-                                } else {
-                                    CommunicationUtil.sendData(unCmd.get(), REPLY_FLAG, data);
+                                try {
+                                    byte[] data = new byte[text.size()];
+                                    for (int i = 0; i < data.length; i++) {
+                                        data[i] = (byte) Integer.parseInt(text.get(i), 16);
+                                    }
+                                    if (unCmd.get().isEmpty()) {
+                                        CommunicationUtil.sendData(data);
+                                    } else {
+                                        CommunicationUtil.sendData(unCmd.get(), REPLY_FLAG, data);
+                                    }
+                                } catch (NumberFormatException e) {
+                                    HandlerUtil.sendMsg("没有选择主指令类型");
                                 }
                             }
                         });

@@ -172,6 +172,28 @@
                 android:textColor="@drawable/rec_radio" />
 
             <RadioButton
+                android:id="@+id/item_cmd_rfid_key"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="5dp"
+                android:background="@drawable/rec_radio"
+                android:button="@null"
+                android:gravity="center"
+                android:text="RFID密钥B\n(0xA3)"
+                android:textColor="@drawable/rec_radio" />
+
+            <RadioButton
+                android:id="@+id/item_cmd_rfid_sector"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="5dp"
+                android:background="@drawable/rec_radio"
+                android:button="@null"
+                android:gravity="center"
+                android:text="RFID扇区\n(0xA4)"
+                android:textColor="@drawable/rec_radio" />
+
+            <RadioButton
                 android:id="@+id/item_cmd_rfid"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"

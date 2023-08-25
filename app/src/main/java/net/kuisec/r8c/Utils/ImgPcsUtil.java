@@ -3,8 +3,6 @@ package net.kuisec.r8c.Utils;
 import static net.kuisec.r8c.Const.SignConst.A_FLAG;
 import static net.kuisec.r8c.Const.SignConst.B_FLAG;
 import static net.kuisec.r8c.Const.SignConst.C_FLAG;
-import static net.kuisec.r8c.Const.SignConst.TFT_COLOR_SKY_BLUE;
-import static net.kuisec.r8c.Const.SignConst.TFT_SHAPE_DIA;
 
 import android.graphics.Bitmap;
 import android.os.Build;
@@ -57,7 +55,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -126,7 +123,7 @@ public class ImgPcsUtil {
 
 
     //TFT 翻页次数
-    public static final int maxRecCount = 5;
+    public static final int maxRecCount = 12;
 
 
     /**
@@ -466,7 +463,7 @@ public class ImgPcsUtil {
                     int width = result.getEndBottomPoint()[0] - result.getStartTopPoint()[0];
                     int height = result.getEndBottomPoint()[1] - result.getStartTopPoint()[1];
                     Rect rect = new Rect(result.getStartTopPoint()[0], result.getStartTopPoint()[1], width, height);
-                    Imgproc.rectangle(srcMat, rect, new Scalar(255, 255, 255), -1);
+//                    Imgproc.rectangle(srcMat, rect, new Scalar(255, 255, 255), -1);
                     //存储识别信息
                     OCRRect ocrRectResult = new OCRRect(result.getLabel(), rotationAngle, result.getConfidence(), rect);
                     results.add(ocrRectResult);
@@ -562,6 +559,61 @@ public class ImgPcsUtil {
         });
     }
 
+
+    /**
+     * 国赛找“真字”多边形计数识别
+     *
+     * @param classID
+     */
+    public static void recTftChineseTextRecognition2(byte classID) {
+        HandlerUtil.sendMsg(HandlerUtil.VOICE, "TFT 中文识别");
+        int maxShapePaperCount = 3;
+        ThreadUtil.createThread(() -> {
+            ThreadUtil.sleep(SleepTimesConst.WAIT_CAMERA);
+            SharedPreferencesUtil.deleteShapeColorRecHistoryStorage();
+            boolean recSuccess = false;
+            int containZhenPaper = 1;
+            for (int p = 0; p < maxRecCount; p++) {
+                //默认翻一页，识别不到掉头再翻一页
+                if (!recSuccess) {
+                    tftDown(classID);
+                }
+                if (recSuccess) {
+                    break;
+                } else {
+                    Bitmap img = getImg();
+                    StringBuilder textRECBuilder = new StringBuilder();
+                    Mat srcMat = equalScaleImage(img);
+                    //判断最多三次含真
+                    List<OCRRect> results = ocr(srcMat, false);
+                    if (!results.isEmpty()) {
+                        //顺序读取识别结果并抹除识别结果
+                        for (int i = (results.size() - 1); i > -1; i--) {
+                            textRECBuilder.append(DataPcsUtil.chineseFilter(results.get(i).getLabel()));
+                        }
+                    }
+                    if (textRECBuilder.length() > 0 && textRECBuilder.toString().contains("真")) {
+                        //含真字，containZhenPaper++，进行图形识别
+                        containZhenPaper++;
+                        List<RectResult> rectResults = imageRecognition(img, TSR);
+                        List<RectResult> drawLabels = new ArrayList<>();
+                        boolean shapeRecSuccess = parseShapes(rectResults, img, true, drawLabels);
+                        if (shapeRecSuccess) {
+                            HandlerUtil.sendMsg(HandlerUtil.VOICE, "找到咯");
+                            LogUtil.printLog("有效中文识别：" + textRECBuilder);
+                            assembleHex(classID);
+                        }
+                        drawLabels(drawLabels, img, true);
+                        CommunicationUtil.voiceBroadcast("真");
+                    }
+                }
+                if (containZhenPaper > maxShapePaperCount) {
+                    recSuccess = true;
+                }
+            }
+            CommunicationUtil.replyCar();
+        });
+    }
 
     static int qrCodeCount = 0;
 
@@ -799,7 +851,7 @@ public class ImgPcsUtil {
                         break;
                 }
                 LogUtil.printLog(colorName + "二维码：" + label);
-                SharedPreferencesUtil.insert(colorName + SharedPreferencesUtil.qrCodeTag, label);
+                SharedPreferencesUtil.insert(colorName + SharedPreferencesUtil.qrCodeTag + classID, label);
             });
             //二维码解密
             recSuccess = true;
@@ -864,7 +916,7 @@ public class ImgPcsUtil {
             for (RectResult result : rectResults) {
                 //匹配交通标志
                 if (trafficSignLabels.contains(result.getLabel())) {
-                    //没训练限速标志，所以将删除的和误判的类别归类到限速中（裁剪后文字识别不好用，百度的都识别不出来，只能训练了）
+                    //没训练最低、最高限速标志，所以将删除的和误判的类别归类到限速中（裁剪后文字识别不好用，百度的都识别不出来，只能训练了）
                     if (speedLimitLabels.contains(result.getLabel())) {
                         result.setLabel("SpeedLimit");
                     }
@@ -894,7 +946,7 @@ public class ImgPcsUtil {
         //五个以上图形才算正常图形页面，少于5个算无效
         if (rectResults.size() > 5) {
             //删除历史识别数据
-            SharedPreferencesUtil.deleteShapeColorRecHistoryStorage();
+//            SharedPreferencesUtil.deleteShapeColorRecHistoryStorage();
             //开始解析
             for (RectResult result : rectResults) {
                 //匹配形状
@@ -982,10 +1034,6 @@ public class ImgPcsUtil {
             List<RectResult> drawLabels = new ArrayList<>();
             Bitmap img = getImg();
             for (int p = 0; p < maxRecCount; p++) {
-                //默认翻一页，识别不到掉头再翻一页
-                if (!recSuccess) {
-                    tftDown(classID);
-                }
                 if (recSuccess) {
                     break;
                 } else {
@@ -1002,6 +1050,10 @@ public class ImgPcsUtil {
                         recSuccess = parseShapes(rectResults, img, traIsRec, drawLabels);
                     }
                 }
+                //默认翻一页，识别不到掉头再翻一页
+                if (!recSuccess) {
+                    tftDown(classID);
+                }
             }
             drawLabels(drawLabels, img, true);
             assembleHex(classID);
@@ -1014,13 +1066,22 @@ public class ImgPcsUtil {
      * 组装16进制数据
      */
     public static void assembleHex(byte classID) {
-        String blueTra = SharedPreferencesUtil.queryKey2Value("蓝色梯形");
-        String redCir = SharedPreferencesUtil.queryKey2Value("红色圆形");
+        /**
+         * 黄：15
+         * 待会调整二维码识别延时，现在太长了
+         * TFT A往下翻页
+         * TFT B码盘调小一点，撞了
+         * 加个报警台
+         */
+        String redRec = SharedPreferencesUtil.queryKey2Value("红色矩形");
+        String blueCir = SharedPreferencesUtil.queryKey2Value("蓝色圆形");
+        String greenDia = SharedPreferencesUtil.queryKey2Value("绿色菱形");
         String yellowTri = SharedPreferencesUtil.queryKey2Value("黄色三角形");
-        String dia = String.valueOf(DataPcsUtil.getShapeFromStorage(TFT_SHAPE_DIA));
-        String skyBlue = String.valueOf(DataPcsUtil.getColorFromStorage(TFT_COLOR_SKY_BLUE)).length() > 1 ? String.valueOf(DataPcsUtil.getColorFromStorage(TFT_COLOR_SKY_BLUE)) : "0" + String.valueOf(DataPcsUtil.getColorFromStorage(TFT_COLOR_SKY_BLUE));
-        String hex = blueTra + redCir + yellowTri + dia + skyBlue;
-        SharedPreferencesUtil.insert(SharedPreferencesUtil.hex, hex);
+        String maxCountColorFromStorage = String.valueOf(DataPcsUtil.getMaxCountColorFromStorage());
+        String lastData = maxCountColorFromStorage.length() > 1 ? maxCountColorFromStorage : "0" + maxCountColorFromStorage;
+        String hex = redRec + blueCir + greenDia + yellowTri + lastData;
+        LogUtil.printLog("即将存储Hex" + classID + "为" + hex);
+        SharedPreferencesUtil.insert(SharedPreferencesUtil.hex + classID, hex);
     }
 
 
@@ -1158,55 +1219,55 @@ public class ImgPcsUtil {
      * @return 车牌过滤结果
      */
     public static List<RectResult> findLPFromVehicleType(Bitmap img) {
-        String LPVehicleType = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.LPVehicleType);
-        List<RectResult> results = findLPFromColor(img);
-        if (LPVehicleType.equals("无")) {
-            return results;
-        } else {
-            List<RectResult> lpResults = new ArrayList<>();
-            List<RectResult> rectResults = imageRecognition(img, VTR);
-            if (!rectResults.isEmpty()) {
-                rectResults.forEach(result -> {
-                    String label = result.getLabel();
-                    //判断识别的车型是否在列表中，判断识别的车型是否属于所选类型
-                    if (vehicleTypeLabels.containsKey(label) && Objects.equals(vehicleTypeLabels.get(label), LPVehicleType)) {
-                        results.forEach(ocrResult -> {
-                            //车牌中心点
-                            int lpWidth = ocrResult.getRect().width;
-                            int lpHeight = ocrResult.getRect().height;
-                            int lprCenterX = ocrResult.getRect().x + lpWidth / 2;
-                            int lprCenterY = ocrResult.getRect().y + lpHeight / 2;
-                            //车牌左上角点
-                            int lprPoint1X = ocrResult.getRect().x;
-                            int lprPoint1Y = ocrResult.getRect().y;
-                            //车牌右上角点
-                            int lprPoint2X = ocrResult.getRect().x + lpWidth;
-                            int lprPoint2Y = ocrResult.getRect().y;
-                            //车牌左下角点
-                            int lprPoint3X = ocrResult.getRect().x;
-                            int lprPoint3Y = ocrResult.getRect().y + lpHeight;
-                            //车牌右下角点
-                            int lprPoint4X = ocrResult.getRect().x + lpWidth;
-                            int lprPoint4Y = ocrResult.getRect().y + lpHeight;
-                            //车型左上角点
-                            int carModelMinX = result.getRect().x;
-                            int carModelMinY = result.getRect().y;
-                            //车型右下角点
-                            int carModelMaxX = result.getRect().x + result.getRect().width;
-                            int carModelMaxY = result.getRect().y + result.getRect().height;
-                            //当车牌中心点包含在车型中，判断左右任意一边的两个角点
-                            if ((lprCenterX > carModelMinX && lprCenterX < carModelMaxX) && (lprCenterY > carModelMinY && lprCenterY < carModelMaxY)) {
-                                //判断边角点
-                                if ((lprPoint1X > carModelMinX && lprPoint3X > carModelMinX && lprPoint1Y > carModelMinY && lprPoint3Y > carModelMinY) || (lprPoint2X < carModelMaxX && lprPoint4X < carModelMaxX && lprPoint2Y < carModelMaxY && lprPoint4Y < carModelMaxY)) {
-                                    lpResults.add(ocrResult);
-                                }
-                            }
-                        });
-                    }
-                });
-            }
-            return lpResults;
+        //车型hex1
+        String lpColor = "无";
+        String vehicleType = "Car";
+        List<RectResult> lastResults = new ArrayList<>();
+        String hex1 = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.hex + 1);
+        switch (hex1) {
+            case "202301":
+                lpColor = "黄色";
+                vehicleType = "Motorcycle";
+                break;
+            case "202302":
+                lpColor = "绿色";
+                vehicleType = "Car";
+                break;
+            case "202303":
+                lpColor = "蓝色";
+                vehicleType = "Truck";
+                break;
         }
+        //查找默认车型（金手指）
+        String defaultVe = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.defaultVehicleType);
+        if (!defaultVe.equals("AI识别")) {
+            switch (defaultVe) {
+                case "摩托车":
+                    lpColor = "黄色";
+                    vehicleType = "Motorcycle";
+                    break;
+                case "轿车":
+                    lpColor = "绿色";
+                    vehicleType = "Car";
+                    break;
+                case "货车":
+                    lpColor = "蓝色";
+                    vehicleType = "Truck";
+                    break;
+            }
+        }
+        SharedPreferencesUtil.insert(SharedPreferencesUtil.LPColor, lpColor);
+        List<RectResult> rectResults = imageRecognition(getImg(), VTR);
+        for (RectResult rectResult : rectResults) {
+            if (rectResult.getLabel().equals(vehicleType)) {
+                List<RectResult> results = findLPFromColor(img);
+                if (results.size() > 0) {
+                    lastResults.add(results.get(0));
+                    break;
+                }
+            }
+        }
+        return lastResults;
     }
 
 
@@ -1261,6 +1322,83 @@ public class ImgPcsUtil {
         return false;
     }
 
+    /**
+     * 国赛行人识别（先识别页面只含一个交通标志，再识别页面戴口罩行人数量，最多两张）
+     *
+     * @param classID
+     */
+    public static void recPerson2(byte classID) {
+        HandlerUtil.sendMsg(HandlerUtil.VOICE, "行人识别");
+        ThreadUtil.createThread(() -> {
+            ThreadUtil.sleep(SleepTimesConst.WAIT_CAMERA);
+            SharedPreferencesUtil.deletePersonCount();
+            int maxPersonPaperCount = 2;
+            int paperCount = 1;
+            boolean recSuccess = false;
+            List<RectResult> drawLabels = new ArrayList<>();
+            Bitmap img = getImg();
+            int a = 10;
+            for (int p = 0; p < maxRecCount; p++) {
+                //默认翻一页，识别不到掉头再翻一页
+                if (!recSuccess) {
+                    tftDown(classID);
+                }
+                if (recSuccess) {
+                    break;
+                } else {
+                    img = getImg();
+                    if (img != null) {
+                        //交通标志识别
+                        List<RectResult> rectResults = imageRecognition(img, TSR);
+                        List<RectResult> lastResults = new ArrayList<>();
+                        for (RectResult rectResult : rectResults) {
+                            if (trafficSignLabels.contains(rectResult.getLabel())) {
+                                lastResults.add(rectResult);
+                            }
+                        }
+                        if (lastResults.size() == 1) {
+                            drawLabels.add(lastResults.get(0));
+                            SharedPreferencesUtil.insert(SharedPreferencesUtil.trafficSignTag, lastResults.get(0).getLabel());
+                            paperCount = 4;
+//                            Bitmap img1 = img.copy(Bitmap.Config.ARGB_8888, true);
+//                            drawLabels(Collections.singletonList(lastResults.get(0)), img1, false);
+//                            SharedPreferencesUtil.insert(SharedPreferencesUtil.trafficSignTag, lastResults.get(0).getLabel());
+//                            List<RectResult> hbrResults = imageRecognition(img, HBR);
+//                            if (!hbrResults.isEmpty()) {
+//                                for (RectResult result : hbrResults) {
+//                                    if (result.getLabel().equals("person")) {
+//                                        //查询是否开启口罩检测
+//                                        Mat subMat = bitmapToMat(img).submat(result.getRect());
+//                                        List<RectResult> mrResults = imageRecognition(matToBitmap(subMat), MR);
+//                                        boolean hasMask = false;
+//                                        for (RectResult mrResult : mrResults) {
+//                                            if (maskLabels.contains(mrResult.getLabel())) {
+//                                                hasMask = true;
+//                                                break;
+//                                            }
+//                                        }
+//                                        if (hasMask) {
+//                                            paperCount++;
+//                                            int count = Integer.parseInt(SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.personCount));
+//                                            SharedPreferencesUtil.insert(SharedPreferencesUtil.personCount, String.valueOf(count++));
+//                                            drawLabels.add(result);
+//                                        }
+//                                    }
+//                                }
+//                            }
+                        }
+                    }
+                }
+                if (paperCount > maxPersonPaperCount) {
+                    recSuccess = true;
+                }
+            }
+            if (recSuccess)
+                HandlerUtil.sendMsg(HandlerUtil.VOICE, "找到咯");
+            drawLabels(drawLabels, img, false);
+            CommunicationUtil.replyCar();
+        });
+    }
 
     /**
      * 行人识别
@@ -1324,6 +1462,57 @@ public class ImgPcsUtil {
     }
 
 
+    public static void recVehicleType(byte classID) {
+        HandlerUtil.sendMsg(HandlerUtil.VOICE, "车型识别");
+        ThreadUtil.createThread(() -> {
+            ThreadUtil.sleep(SleepTimesConst.WAIT_CAMERA);
+            boolean recSuccess = false;
+            List<RectResult> drawLabels = new ArrayList<>();
+            Bitmap img = getImg();
+            for (int p = 0; p < maxRecCount; p++) {
+                //默认翻一页，识别不到掉头再翻一页
+                if (!recSuccess) {
+                    tftDown(classID);
+                }
+                if (recSuccess) {
+                    break;
+                } else {
+                    img = getImg();
+                    List<RectResult> rectResults = imageRecognition(img, VTR);
+                    if (rectResults.size() == 1) {
+                        String label = "";
+                        RectResult rectResult = rectResults.get(0);
+                        switch (rectResult.getLabel()) {
+                            case "Motorcycle":
+                                label = "01";
+                                drawLabels.add(0, rectResult);
+                                recSuccess = true;
+                                break;
+                            case "Car":
+                                label = "02";
+                                drawLabels.add(0, rectResult);
+                                recSuccess = true;
+                                break;
+                            case "Truck":
+                                label = "03";
+                                drawLabels.add(0, rectResult);
+                                recSuccess = true;
+                                break;
+                        }
+                        if (recSuccess) {
+                            SharedPreferencesUtil.insert(SharedPreferencesUtil.hex + 1, "2023" + label);
+                        }
+                    }
+                }
+            }
+            if (recSuccess)
+                HandlerUtil.sendMsg(HandlerUtil.VOICE, "找到咯");
+            drawLabels(drawLabels, img, false);
+            CommunicationUtil.replyCar();
+        });
+    }
+
+
     //单 TFT 进行多任务，跑完记得重启清标志位
     private static int tftACount = 0;
     private static int tftBCount = 0;
@@ -1335,27 +1524,27 @@ public class ImgPcsUtil {
      * @param classID 标志物类型
      */
     public static void recTFT(byte classID) {
+        HandlerUtil.sendMsg(HandlerUtil.VOICE, "TFT识别");
         switch (classID) {
             case A_FLAG:
-                //车牌识别
-                recLP(classID);
-
+                switch (tftACount) {
+                    //车型识别
+                    case 0:
+                        recVehicleType(classID);
+                        break;
+                    //车牌识别
+                    case 1:
+                        recLP(classID);
+                        break;
+                }
                 tftACount++;
                 break;
             case B_FLAG:
-                //交通标志识别
-                recTrafficSignsAndShapes(classID, false,true, false);
+                recTftChineseTextRecognition2(classID);
                 tftBCount++;
                 break;
             case C_FLAG:
-                switch (tftCCount ){
-                    case 0:
-                        recTrafficSignsAndShapes(classID, true, false, false);
-                        break;
-                    case 1:
-                        recPerson(classID);
-                        break;
-                }
+                recPerson2(classID);
                 tftCCount++;
                 break;
         }

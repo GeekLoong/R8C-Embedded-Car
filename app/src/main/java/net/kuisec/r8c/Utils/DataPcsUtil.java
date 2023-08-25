@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -69,7 +70,7 @@ public class DataPcsUtil {
     public static String asciiBytesToString(byte[] data) {
         StringBuilder asciiString = new StringBuilder();
         for (byte b : data) {
-            asciiString.append(b);
+            asciiString.append((char) b);
         }
         return asciiString.toString();
     }
@@ -326,7 +327,6 @@ public class DataPcsUtil {
      */
     public static void saveTrafficLight(String lightName, byte classID) {
         SharedPreferencesUtil.insert(SharedPreferencesUtil.trafficLightTag + classID, lightName);
-        CommunicationUtil.replyCar();
     }
 
 
@@ -435,6 +435,7 @@ public class DataPcsUtil {
 
     /**
      * 查找字符串中最长公共子串
+     *
      * @param strs 字符串集
      * @return 返回相同字符串
      */
@@ -550,6 +551,157 @@ public class DataPcsUtil {
             }
         }
         return resultStr.toString();
+    }
+
+
+    public static int szys(String A, String B) {
+        Pattern aPattern = Pattern.compile("\\[(.*?)]");
+        Pattern bPattern = Pattern.compile("\\{(.*?)\\}");
+
+        Matcher aMatcher = aPattern.matcher(A);
+        Matcher bMatcher = bPattern.matcher(B);
+
+        String a = "", b = "";
+
+        if (aMatcher.find()) {
+            a = aMatcher.group(1);
+        }
+
+        if (bMatcher.find()) {
+            b = bMatcher.group(1);
+        }
+
+        System.out.println("a:" + a);
+        System.out.println("b:" + b);
+
+        char an = 9999;
+        char bn = 0;
+        char cn = 0;
+
+        int min = 0;
+        int med = 0;
+        int max = 0;
+        //查找计算值
+        if (!a.isEmpty()) {
+            a = numberFilter(a);
+            char[] charArray = a.toCharArray();
+            //查找最大和最小
+            for (char c : charArray) {
+                if (c > cn) {
+                    cn = c;
+                }
+                if (c < an) {
+                    an = c;
+                }
+            }
+            //查找中间值
+            for (char c : charArray) {
+                if (c < cn && c > an) {
+                    bn = c;
+                }
+            }
+            min = Integer.parseInt(String.valueOf(an));
+            med = Integer.parseInt(String.valueOf(bn));
+            max = Integer.parseInt(String.valueOf(cn));
+        }
+
+        System.out.println("min:" + min + "\tmed:" + med + "\tmax:" + max);
+
+        char[] charArray = b.toCharArray();
+        List<String> characters = new ArrayList<>();
+        for (char c : charArray) {
+            characters.add(String.valueOf(c));
+        }
+        System.out.println(Arrays.toString(characters.toArray()));
+        //乘除运算
+        for (int i = 0; i < characters.size(); i++) {
+            switch (characters.get(i)) {
+                case "*":
+                    int[] lr1 = lr(characters, min, med, max, i);
+                    int i1 = lr1[0] * lr1[1];
+                    characters.remove(i - 1);
+                    characters.set(i, String.valueOf(i1));
+                    characters.remove(i - 1);
+                    i = 0;
+                    break;
+                case "/":
+                    int[] lr2 = lr(characters, min, med, max, i);
+                    int i2 = lr2[0] / lr2[1];
+                    characters.remove(i - 1);
+                    characters.set(i, String.valueOf(i2));
+                    characters.remove(i - 1);
+                    i = 0;
+                    break;
+                case "^":
+                    int[] lr3 = lr(characters, min, med, max, i);
+                    int i3 = (int) Math.pow(lr3[0], lr3[1]);
+                    characters.remove(i - 1);
+                    characters.set(i, String.valueOf(i3));
+                    characters.remove(i - 1);
+                    i = 0;
+                    break;
+            }
+        }
+        //加减运算
+        for (int i = 0; i < characters.size(); i++) {
+            switch (characters.get(i)) {
+                case "+":
+                    int[] lr1 = lr(characters, min, med, max, i);
+                    int i1 = lr1[0] + lr1[1];
+                    characters.remove(i - 1);
+                    characters.set(i, String.valueOf(i1));
+                    characters.remove(i - 1);
+                    i = 0;
+                    break;
+                case "-":
+                    int[] lr2 = lr(characters, min, med, max, i);
+                    int i2 = lr2[0] - lr2[1];
+                    characters.remove(i - 1);
+                    characters.set(i, String.valueOf(i2));
+                    characters.remove(i - 1);
+                    i = 0;
+                    break;
+            }
+        }
+        System.out.println(Arrays.toString(characters.toArray()));
+        if (!characters.isEmpty())
+            return Integer.parseInt(characters.get(0));
+        else
+            return 20;
+    }
+
+
+    public static int[] lr(List<String> characters, int min, int med, int max, int i) {
+        int left = 0, right = 0;
+        switch (characters.get(i - 1)) {
+            case "a":
+                left = min;
+                break;
+            case "b":
+                left = med;
+                break;
+            case "c":
+                left = max;
+                break;
+            default:
+                left = Integer.parseInt(characters.get(i - 1));
+                break;
+        }
+        switch (characters.get(i + 1)) {
+            case "a":
+                right = min;
+                break;
+            case "b":
+                right = med;
+                break;
+            case "c":
+                right = max;
+                break;
+            default:
+                right = Integer.parseInt(characters.get(i + 1));
+                break;
+        }
+        return new int[]{left, right};
     }
 
 

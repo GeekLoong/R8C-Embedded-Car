@@ -13,6 +13,7 @@ import static net.kuisec.r8c.Const.SignConst.CAMERA_SET3;
 import static net.kuisec.r8c.Const.SignConst.CAMERA_SET4;
 import static net.kuisec.r8c.Const.SignConst.QRCODE_STORAGE_FLAG;
 import static net.kuisec.r8c.Const.SignConst.RFID_ALARM;
+import static net.kuisec.r8c.Const.SignConst.RFID_CONTENT;
 import static net.kuisec.r8c.Const.SignConst.RFID_LOCATION;
 import static net.kuisec.r8c.Const.SignConst.RFID_LP;
 import static net.kuisec.r8c.Const.SignConst.RFID_STORAGE_FLAG;
@@ -193,8 +194,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String NotificationID = "R8C";
         Notification notification = new NotificationCompat.Builder(this, NotificationID)
                 .setSmallIcon(R.mipmap.icon)
-                .setContentTitle(NotificationID + "保活插件")
-                .setContentText(NotificationID + "保活插件运行中")
+                .setContentTitle(NotificationID + " 保活插件")
+                .setContentText("【" + NotificationID + " 保活】插件运行中...")
                 .setOngoing(true)
                 .build();
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
@@ -658,7 +659,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 //坐标数据处理
                                 case (byte) RFID_LOCATION:
                                     HandlerUtil.sendMsg(HandlerUtil.VOICE, "坐标数据处理");
-
                                     break;
 
                                 //报警码数据处理
@@ -667,6 +667,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     byte[] data = Arrays.copyOfRange(cmdData, 4, cmdData.length - 1);
                                     String result = DataPcsUtil.LZ78(data);
                                     SharedPreferencesUtil.insert("报警码", result);
+                                    break;
+
+                                //RFID 数据内容存储
+                                case (byte) RFID_CONTENT:
+                                    HandlerUtil.sendMsg(HandlerUtil.VOICE, "RFID 数据内容存储");
+                                    byte[] rfidContent = new byte[0];
+                                    try {
+                                        rfidContent = Arrays.copyOfRange(cmdData, 5, cmdData.length - 1);
+                                    } catch (IllegalArgumentException e) {
+                                        HandlerUtil.sendMsg(HandlerUtil.VOICE, "数据长度不正确");
+                                    }
+                                    String rfidContentString = DataPcsUtil.asciiBytesToString(rfidContent);
+                                    LogUtil.printLog("RFID数据内容：" + rfidContentString);
+                                    SharedPreferencesUtil.insert(SharedPreferencesUtil.rfidContent + cmdData[4], rfidContentString);
                                     break;
                             }
                         }
@@ -696,7 +710,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                             //请求RFID处理数据
                             case (byte) RFID_STORAGE_FLAG:
-                                HandlerUtil.sendMsg(HandlerUtil.VOICE, "RFID处理数据请求");
                                 switch (cmdData[3]) {
                                     case (byte) RFID_LP:
                                         HandlerUtil.sendMsg(HandlerUtil.VOICE, "RFID破损车牌修复数据请求");
@@ -709,6 +722,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         String alarmCode = SharedPreferencesUtil.queryKey2Value("报警码");
                                         byte[] data = DataPcsUtil.mergeTwoArrays(new byte[]{RFID_ALARM}, DataPcsUtil.stringHexToByteHex(alarmCode));
                                         CommunicationUtil.sendData("post", RFID_STORAGE_FLAG, data);
+                                        break;
+                                    case (byte) RFID_CONTENT:
+                                        HandlerUtil.sendMsg(HandlerUtil.VOICE, "RFID数据内容请求");
+                                        String rfid1 = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.rfidContent + 1);
+                                        String rfid2 = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.rfidContent + 2);
+
+                                        int szys = DataPcsUtil.szys(rfid1, rfid2);
+                                        LogUtil.printLog("最终结果：" + szys);
+                                        CommunicationUtil.sendData("post", RFID_STORAGE_FLAG, new byte[]{(byte) ((szys % 4) + 1)});
                                         break;
                                 }
                                 break;

@@ -283,7 +283,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="多边形类型结果(蓝梯红圆黄三全菱0全青)"
+                android:text="多边形类型结果(A红矩B蓝园C绿菱D黄三XX最多颜色数量)"
                 android:textColor="@color/red"
                 android:textSize="@dimen/big_title"
                 android:textStyle="bold" />
@@ -386,7 +386,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
-                android:text="颜色指定"
+                android:text="颜色指定(摩黄轿绿卡蓝)"
                 android:textColor="@color/dark1"
                 android:textSize="@dimen/small_title"
                 android:textStyle="bold" />
@@ -681,7 +681,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="交通标志识别结果"
+                android:text="交通标志识别结果(最高限速、最低限速)"
                 android:textColor="@color/black"
                 android:textSize="@dimen/big_title"
                 android:textStyle="bold" />

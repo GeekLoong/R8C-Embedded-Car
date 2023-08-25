@@ -21,6 +21,7 @@ import static net.kuisec.r8c.Const.HeaderConst.END_FLAG;
 import static net.kuisec.r8c.Const.HeaderConst.REPLY_FLAG;
 import static net.kuisec.r8c.Const.HeaderConst.SAVE_CAR_LOG;
 import static net.kuisec.r8c.Const.HeaderConst.TASK_FLAG;
+import static net.kuisec.r8c.Const.SignConst.A_FLAG;
 import static net.kuisec.r8c.Const.SignConst.B_FLAG;
 import static net.kuisec.r8c.Const.SignConst.C_FLAG;
 import static net.kuisec.r8c.Const.SignConst.LOG_CAR_MODEL_RECEP;
@@ -497,8 +498,16 @@ public class CommunicationUtil {
      * 上传组装 16 进制数据
      */
     public static void postHexFromStorage(byte classID) {
-        String hex = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.hex);
-        String hexContent = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.hexContent);
+        String hex = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.hex + classID);
+        String hexContent = "0";
+        switch (classID) {
+            case A_FLAG:
+                hexContent = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.hexContent);
+                break;
+            case B_FLAG:
+                hexContent = SharedPreferencesUtil.queryKey2Value(SharedPreferencesUtil.shapeClassHex);
+                break;
+        }
         if (!hexContent.equals("0") && !hexContent.isEmpty()) {
             hex = hexContent;
         }
@@ -535,14 +544,14 @@ public class CommunicationUtil {
             case "NoPassage":
                 dataContent = "06";
                 break;
-            case "NoU-Turn":
+//            case "NoU-Turn":
+//                dataContent = "07";
+//                break;
+            case "NoLeftTurn":
                 dataContent = "07";
                 break;
-            case "NoLeftTurn":
-                dataContent = "08";
-                break;
             case "NoRightTurn":
-                dataContent = "09";
+                dataContent = "08";
                 break;
             case "SpeedLimit":
                 dataContent = "0A";
@@ -569,14 +578,14 @@ public class CommunicationUtil {
             case "禁止通行":
                 dataContent = "06";
                 break;
-            case "禁止掉头":
+//            case "禁止掉头":
+//                dataContent = "07";
+//                break;
+            case "禁止左转":
                 dataContent = "07";
                 break;
-            case "禁止左转":
-                dataContent = "08";
-                break;
             case "禁止右转":
-                dataContent = "09";
+                dataContent = "08";
                 break;
             case "限速":
                 dataContent = "0A";
@@ -662,8 +671,8 @@ public class CommunicationUtil {
             personCount = personCountContent;
         }
         //取余运算，不用时注释
-        personCount = String.valueOf(Integer.parseInt(personCount) % 3);
-        byte[] data = DataPcsUtil.stringToAsciiBytes(personCount);
+        int d = Integer.parseInt(personCount) % 4;
+        byte[] data = new byte[]{(byte) d};
         CommunicationUtil.sendData("post", TFT_PERSON_COUNT_STORAGE_FLAG, data);
     }
 
