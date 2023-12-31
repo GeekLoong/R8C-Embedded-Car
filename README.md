@@ -6,6 +6,10 @@
 解压密码：Jinsn  </br>
 </p>
 
+### 军火价格
+![17030665321133981113830727942754](https://github.com/kuisec/R8C-Embedded-Car/assets/86166271/f1e05cec-3ef0-40d7-95db-cfd0b5632cb3)
+
+
 ### 联系方式
 邮箱：jinsnhs@yeah.net
 
